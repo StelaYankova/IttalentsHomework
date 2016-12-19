@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -176,5 +177,27 @@ public class GroupDAO {
 			throw new GroupException("Something went wrong with checking if group's name is unique..");
 		}
 		return isGroupNameUnique;
+	}
+	
+	public ArrayList<HomeworkDetails> getAllHomeworksDetails() throws GroupException{
+		ArrayList<HomeworkDetails> homeworksOfGroup = new ArrayList<>();
+		Connection con = manager.getConnection();
+		try {
+			Statement st = con.createStatement();
+			ResultSet rs = st.executeQuery("SELECT H.id, H.heading, H.opens, H.closes, H.num_of_tasks, H.tasks_pdf FROM IttalentsHomeworks.Homework H;");
+			if(rs.next()){
+				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"); 
+				String openingTimeString = rs.getString(3); 
+				String closingTimeString = rs.getString(4); 
+				LocalDateTime openingTime = LocalDateTime.parse(openingTimeString, formatter);
+				LocalDateTime closingTime = LocalDateTime.parse(closingTimeString, formatter);
+
+				homeworksOfGroup.add(new HomeworkDetails(rs.getInt(1), rs.getString(2), openingTime, closingTime, rs.getInt(5), rs.getString(6)));
+			}
+		} catch (SQLException e) {
+			throw new GroupException("Something went wrong with checking the homeworks of a group..");
+		}
+		
+		return homeworksOfGroup;
 	}
 }
