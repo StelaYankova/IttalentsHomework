@@ -195,9 +195,33 @@ public class GroupDAO {
 				homeworksOfGroup.add(new HomeworkDetails(rs.getInt(1), rs.getString(2), openingTime, closingTime, rs.getInt(5), rs.getString(6)));
 			}
 		} catch (SQLException e) {
-			throw new GroupException("Something went wrong with checking the homeworks of a group..");
+			throw new GroupException("Something went wrong with checking all homework details..");
 		}
 		
 		return homeworksOfGroup;
 	}
+
+	public ArrayList<Group> getAllGroups() throws UserException, GroupException {
+		Connection con = manager.getConnection();
+		ArrayList<Group> groups = new ArrayList<>();
+		Statement st;
+		try {
+			st = con.createStatement();
+			ResultSet rs = st.executeQuery("SELECT CONCAT(G.id) AS 'group_id', G.group_name FROM IttalentsHomeworks.Groups G;");
+			if (rs.next()) {
+				Group currGroup = new Group(rs.getInt(1), rs.getString(2));
+				ArrayList<Teacher> teachersOfGroup = GroupDAO.getInstance().getTeachersOfGroup(currGroup);
+				ArrayList<Student> studentsOfGroup = GroupDAO.getInstance().getStudentsOfGroup(currGroup);
+				ArrayList<HomeworkDetails> homeworkDetailsOfGroup = GroupDAO.getInstance()
+						.getHomeworksDetailsOfGroup(currGroup);
+				groups.add(new Group(rs.getInt(1), rs.getString(2), teachersOfGroup, studentsOfGroup,
+						homeworkDetailsOfGroup));
+			}
+		} catch (SQLException e) {
+			throw new UserException("Something went wrong with getting groups..");
+		}
+
+		return groups;
+	}
+
 }
