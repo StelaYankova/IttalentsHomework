@@ -176,7 +176,7 @@ public class UserDAO {
 		Connection con = manager.getConnection();
 		try {
 			PreparedStatement ps = con.prepareStatement(
-					"SELECT H.id, H.heading, H.num_of_tasks, H.tasks_pdf, H.opens, H.closes, UH.teacher_grade, UH.comments FROM IttalentsHomeworks.User_has_homework UH JOIN IttalentsHomeworks.Homework H ON (H.id = UH.homework_id) WHERE UH.user_id = 3;");
+					"SELECT H.id, H.heading, H.num_of_tasks, H.tasks_pdf, H.opens, H.closes, UH.teacher_grade, UH.comments FROM IttalentsHomeworks.User_has_homework UH JOIN IttalentsHomeworks.Homework H ON (H.id = UH.homework_id) WHERE UH.user_id = ?;");
 			ps.setInt(1, s.getId());
 			ResultSet rs = ps.executeQuery();
 			if(rs.next()){
@@ -243,4 +243,101 @@ public class UserDAO {
 			}
 		}
 	}
+	
+	public void removeUserProfile(User u) throws UserException{
+		Connection con = manager.getConnection();
+		try {
+			PreparedStatement ps = con.prepareStatement("DELETE FROM IttalentsHomeworks.Users WHERE id = ?;");
+			ps.setInt(1, u.getId());
+			ps.execute();
+		} catch (SQLException e) {
+			throw new UserException("Something went wrong with removing the profile of a user..");
+		}
+	}
+
+	public void setTeacherGrade(HomeworkDetails hd, Student st, int teacherGrade) throws UserException{
+		Connection con = manager.getConnection();
+		try {
+			PreparedStatement ps = con.prepareStatement("UPDATE IttalentsHomeworks.User_has_homework SET teacher_grade = ? WHERE user_id = ? AND homework_id = ?;");
+			ps.setInt(1, teacherGrade);
+			ps.setInt(2, st.getId());
+			ps.setInt(3, hd.getId());
+			ps.executeUpdate();
+		} catch (SQLException e) {
+			throw new UserException("Something went wrong with setting the teacher's grade of homework..");
+		}
+	}
+	
+	public void setTeacherComment(HomeworkDetails hd, Student st, String teacherComment) throws UserException{
+		Connection con = manager.getConnection();
+		try {
+			PreparedStatement ps = con.prepareStatement("UPDATE IttalentsHomeworks.User_has_homework SET teacher_comment = ? WHERE user_id = ? AND homework_id = ?;");
+			ps.setString(1, teacherComment);
+			ps.setInt(2, st.getId());
+			ps.setInt(3, hd.getId());
+			ps.executeUpdate();
+		} catch (SQLException e) {
+			throw new UserException("Something went wrong with setting the teacher's comment of homework..");
+		}
+	}
+	
+	public void setSolutionOfTask(HomeworkDetails hd, Student st, Task t, String solution, LocalDateTime timeOfUpload) throws UserException{
+		Connection con = manager.getConnection();
+		try {
+			con.setAutoCommit(false);
+			try {
+				PreparedStatement ps = con.prepareStatement(
+						"UPDATE IttalentsHomeworks.Homework_task_solution SET solution_java = ? WHERE student_id = ? AND homework_id = ? AND task_number = ?;");
+				ps.setString(1, solution);
+				ps.setInt(2, st.getId());
+				ps.setInt(3, hd.getId());
+				ps.setInt(4, t.getTaskNumber());
+				ps.executeUpdate();
+				
+				UserDAO.getInstance().setTimeOfUploadOfTask(hd, st, t, timeOfUpload);
+				
+				con.commit();
+			} catch (SQLException e) {
+				con.rollback();
+				throw new UserException("Something went wrong with setting student's solution of task..");
+			} finally {
+				con.setAutoCommit(true);
+			}
+		} catch (SQLException e1) {
+			throw new UserException("Something went wrong with setting student's solution of task..");
+		}
+	}
+
+	public void setTimeOfUploadOfTask(HomeworkDetails hd, Student st, Task t, LocalDateTime timeOfUpload) throws UserException{
+		Connection con = manager.getConnection();
+		try {
+			PreparedStatement ps = con.prepareStatement("UPDATE IttalentsHomeworks.Homework_task_solution SET uploaded_on = ? WHERE student_id = 3 AND homework_id = ? AND task_number = ?;");
+			ps.setString(1, timeOfUpload.toString());
+			ps.setInt(2, st.getId());
+			ps.setInt(3, hd.getId());
+			ps.setInt(4, t.getTaskNumber());
+			ps.executeUpdate();
+		} catch (SQLException e) {
+			throw new UserException("Something went wrong with setting the upload time of student's solution of task..");
+		}
+	}
+	public boolean doesTaskAlreadyExist(HomeworkDetails hd, Student st, Task t) throws UserException{
+		boolean doesExist = false;
+		Connection con = manager.getConnection();
+		try {
+			PreparedStatement ps = con.prepareStatement("SELECT * FROM IttalentsHomeworks.Homework_task_solution WHERE student_id = ? AND homework_id = ? AND task_number = ?;");
+			ps.setInt(1, st.getId());
+			ps.setInt(2, hd.getId());
+			ps.setInt(3, t.getTaskNumber());
+			ResultSet rs = ps.executeQuery();
+			if(rs.next()){
+				doesExist = true;
+			}
+		} catch (SQLException e) {
+			throw new UserException("Something went wrong with checking if task in table already exists..");
+		}
+		return doesExist;
+	}
+	
+	
 }
