@@ -19,6 +19,12 @@ public abstract class User {
 		this.isTeacher = isTeacher;
 		this.groups = groups;
 	}
+	//by creating
+	public User(String username, String password, String email){
+		this.username = username;
+		this.password = password;
+		this.email = email;
+	}
 	//if it is another user, you dont have to know his groups and password
 	public User(int id, String username, String email, boolean isTeacher) {
 		this.id = id;

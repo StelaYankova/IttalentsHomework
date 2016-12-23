@@ -29,6 +29,11 @@ public class Group {
 		this.id = id;
 		this.name = name;
 	}
+	public Group(String name, ArrayList<Teacher> teachers) {
+		this.name = name;
+		this.teachers = teachers;	
+	}
+
 	public int getId() {
 		return id;
 	}

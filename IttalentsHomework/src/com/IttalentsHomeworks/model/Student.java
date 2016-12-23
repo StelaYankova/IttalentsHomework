@@ -10,7 +10,9 @@ public class Student extends User{
 		super(id, username, password, email, isTeacher, groups);
 		this.homeworks = homeworks;
 	}
-	
+	public Student(String username, String password, String email) {
+		super(username, password, email);
+	}
 	public Student(int id, String username, String email, boolean isTeacher, ArrayList<Homework> homeworks) {
 		super(id, username, email, isTeacher);
 		this.homeworks = homeworks;
