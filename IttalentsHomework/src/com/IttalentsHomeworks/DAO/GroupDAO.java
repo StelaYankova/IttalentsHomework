@@ -106,7 +106,8 @@ public class GroupDAO implements IGroupDAO {
 	@Override
 	public ArrayList<HomeworkDetails> getHomeworksDetailsOfGroup(Group g) throws GroupException {
 		ArrayList<HomeworkDetails> homeworksOfGroup = new ArrayList<>();
-		Connection con = manager.getConnection();
+		Connection con = manager.getConnection();			System.out.println(g.getId());
+
 		try {
 			PreparedStatement ps = con.prepareStatement(
 					"SELECT H.id, H.heading, H.opens, H.closes, H.num_of_tasks, H.tasks_pdf FROM IttalentsHomeworks.Homework H JOIN IttalentsHomeworks.Group_has_Homework GH ON (GH. homework_id = H.id) WHERE GH.group_id = ?;");
@@ -425,12 +426,14 @@ public class GroupDAO implements IGroupDAO {
 				}
 				con.commit();
 			} catch (SQLException e) {
+				System.out.println(e.getMessage());
 				con.rollback();
 				throw new GroupException("Something went wrong with updating homework details..");
 			} finally {
 				con.setAutoCommit(true);
 			}
 		} catch (SQLException e1) {
+			System.out.println(e1.getMessage());
 			throw new GroupException("Something went wrong with updating homework details..");
 		}
 	}

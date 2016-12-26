@@ -127,7 +127,7 @@ public class UserDAO implements IUserDAO {
 		Connection con = manager.getConnection();
 		try {
 			PreparedStatement ps = con.prepareStatement(
-					"SELECT H.id, H.heading, H.num_of_tasks, H.tasks_pdf, H.opens, H.closes, UH.teacher_grade, UH.comments FROM IttalentsHomeworks.User_has_homework UH JOIN IttalentsHomeworks.Homework H ON (H.id = UH.homework_id) JOIN IttalentsHomeworks.Group_has_Homework GH ON (H.id = GH.homework_id) WHERE UH.user_id = ? AND GH.group_id = ?;");
+					"SELECT H.id, H.heading, H.num_of_tasks, H.tasks_pdf, H.opens, H.closes, UH.teacher_grade, UH.teacher_comment FROM IttalentsHomeworks.User_has_homework UH JOIN IttalentsHomeworks.Homework H ON (H.id = UH.homework_id) JOIN IttalentsHomeworks.Group_has_Homework GH ON (H.id = GH.homework_id) WHERE UH.user_id = ? AND GH.group_id = ?;");
 			ps.setInt(1, sId);
 			ps.setInt(2, g.getId());
 			ResultSet rs = ps.executeQuery();
@@ -357,52 +357,67 @@ public class UserDAO implements IUserDAO {
 		}
 	}
 	
-	/* (non-Javadoc)
-	 * @see com.IttalentsHomeworks.DAO.IUserDAO#setSolutionOfTask(com.IttalentsHomeworks.model.HomeworkDetails, com.IttalentsHomeworks.model.Student, com.IttalentsHomeworks.model.Task, java.lang.String, java.time.LocalDateTime)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.IttalentsHomeworks.DAO.IUserDAO#setSolutionOfTask(com.
+	 * IttalentsHomeworks.model.HomeworkDetails,
+	 * com.IttalentsHomeworks.model.Student, com.IttalentsHomeworks.model.Task,
+	 * java.lang.String, java.time.LocalDateTime)
 	 */
 	@Override
-	public void setSolutionOfTask(HomeworkDetails hd, Student st, Task t, String solution, LocalDateTime timeOfUpload) throws UserException{
+	public void setSolutionOfTask(HomeworkDetails hd, Student st, int taskNum, String solution,
+			LocalDateTime timeOfUpload) throws UserException {
 		Connection con = manager.getConnection();
-		try {
-			con.setAutoCommit(false);
+		if (UserDAO.getInstance().isTaskNumberValid(st.getId(),hd.getId(),taskNum)) {
 			try {
-				PreparedStatement ps = con.prepareStatement(
-						"UPDATE IttalentsHomeworks.Homework_task_solution SET solution_java = ? WHERE student_id = ? AND homework_id = ? AND task_number = ?;");
-				ps.setString(1, solution);
-				ps.setInt(2, st.getId());
-				ps.setInt(3, hd.getId());
-				ps.setInt(4, t.getTaskNumber());
-				ps.executeUpdate();
-				
-				UserDAO.getInstance().setTimeOfUploadOfTask(hd, st, t, timeOfUpload);
-				
-				con.commit();
-			} catch (SQLException e) {
-				con.rollback();
+				con.setAutoCommit(false);
+				try {
+					PreparedStatement ps = con.prepareStatement(
+							"UPDATE IttalentsHomeworks.Homework_task_solution SET solution_java = ? WHERE student_id = ? AND homework_id = ? AND task_number = ?;");
+					ps.setString(1, solution);
+					ps.setInt(2, st.getId());
+					ps.setInt(3, hd.getId());
+					ps.setInt(4, taskNum);
+					ps.executeUpdate();
+
+					UserDAO.getInstance().setTimeOfUploadOfTask(hd, st, taskNum, timeOfUpload);
+
+					con.commit();
+				} catch (SQLException e) {
+					con.rollback();
+					throw new UserException("Something went wrong with setting student's solution of task..");
+				} finally {
+					con.setAutoCommit(true);
+				}
+			} catch (SQLException e1) {
 				throw new UserException("Something went wrong with setting student's solution of task..");
-			} finally {
-				con.setAutoCommit(true);
 			}
-		} catch (SQLException e1) {
-			throw new UserException("Something went wrong with setting student's solution of task..");
 		}
+
 	}
 
 	/* (non-Javadoc)
 	 * @see com.IttalentsHomeworks.DAO.IUserDAO#setTimeOfUploadOfTask(com.IttalentsHomeworks.model.HomeworkDetails, com.IttalentsHomeworks.model.Student, com.IttalentsHomeworks.model.Task, java.time.LocalDateTime)
 	 */
 	@Override
-	public void setTimeOfUploadOfTask(HomeworkDetails hd, Student st, Task t, LocalDateTime timeOfUpload) throws UserException{
+	public void setTimeOfUploadOfTask(HomeworkDetails hd, Student st, int taskNum, LocalDateTime timeOfUpload)
+			throws UserException {
 		Connection con = manager.getConnection();
-		try {
-			PreparedStatement ps = con.prepareStatement("UPDATE IttalentsHomeworks.Homework_task_solution SET uploaded_on = ? WHERE student_id = 3 AND homework_id = ? AND task_number = ?;");
-			ps.setString(1, timeOfUpload.toString());
-			ps.setInt(2, st.getId());
-			ps.setInt(3, hd.getId());
-			ps.setInt(4, t.getTaskNumber());
-			ps.executeUpdate();
-		} catch (SQLException e) {
-			throw new UserException("Something went wrong with setting the upload time of student's solution of task..");
+		if (UserDAO.getInstance().isTaskNumberValid(st.getId(), hd.getId(), taskNum)) {
+			try {
+				PreparedStatement ps = con.prepareStatement(
+						"UPDATE IttalentsHomeworks.Homework_task_solution SET uploaded_on = ? WHERE student_id = ? AND homework_id = ? AND task_number = ?;");
+				ps.setString(1, timeOfUpload.toString());
+				ps.setInt(2, st.getId());
+				ps.setInt(3, hd.getId());
+				ps.setInt(4, taskNum);
+				ps.executeUpdate();
+			} catch (SQLException e) {
+				System.out.println(e.getMessage());
+				throw new UserException(
+						"Something went wrong with setting the upload time of student's solution of task..");
+			}
 		}
 	}
 	/* (non-Javadoc)
@@ -432,12 +447,13 @@ public class UserDAO implements IUserDAO {
 	 */
 	@Override
 	public void updateUser(User u) throws UserException{
+		int id = UserDAO.getInstance().getUserIdByUsername(u.getUsername());
 		Connection con = manager.getConnection();
 		try {
 			PreparedStatement ps = con.prepareStatement("UPDATE IttalentsHomeworks.Users SET pass = ?, email = ? WHERE id = ?");
 			ps.setString(1, u.getPassword());
 			ps.setString(2, u.getEmail());
-			ps.setInt(3, u.getId());
+			ps.setInt(3, id);
 			ps.executeUpdate();
 		} catch (SQLException e) {
 			throw new UserException("Something went wrong with updating user..");
@@ -470,5 +486,28 @@ public class UserDAO implements IUserDAO {
 			
 			return (Student) u;
 		
+	}
+
+	@Override
+	public boolean isTaskNumberValid(int studentId, int homeworkId, int taskNum) throws UserException {
+		boolean isValid = false;
+		Connection con = manager.getConnection();
+		PreparedStatement ps;
+		try {
+			ps = con.prepareStatement("SELECT COUNT(*) FROM IttalentsHomeworks.Homework_task_solution WHERE student_id = ? AND homework_id = ?;");
+			ps.setInt(1, studentId);
+			ps.setInt(2, homeworkId);
+			System.out.println("zad: " + taskNum);
+			ResultSet rs = ps.executeQuery();
+			if(rs.next()){
+				if(taskNum < rs.getInt(1)){
+					isValid = true;
+				}
+			}
+		} catch (SQLException e) {
+System.out.println(e.getMessage());			throw new UserException("Something went wrong with checking if the task number is valid..");
+		}
+		
+		return isValid;
 	}
 }
