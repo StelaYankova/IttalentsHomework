@@ -21,7 +21,7 @@ public interface IGroupDAO {
 
 	ArrayList<Student> getStudentsOfGroup(Group g) throws GroupException, UserException;
 
-	ArrayList<HomeworkDetails> getHomeworksDetailsOfGroup(Group g) throws GroupException;
+	ArrayList<HomeworkDetails> getHomeworkDetailsOfGroup(Group g) throws GroupException;
 
 	boolean isUserAlreadyInGroup(Group g, User u) throws GroupException;
 
@@ -40,14 +40,11 @@ public interface IGroupDAO {
 
 	void removeGroup(Group g) throws GroupException;
 
-	void createHomeworkForGroup(HomeworkDetails hd, ArrayList<Group> groupsForHw) throws GroupException, UserException;
+	void createHomeworkDetails(HomeworkDetails hd, ArrayList<Group> groupsForHw) throws GroupException, UserException;
 
 	int getHomeworkDetailsId(HomeworkDetails hd) throws GroupException;
 
-	//updateHomework
 	void updateHomeworkDetails(HomeworkDetails hd, ArrayList<Group> groupsforHw) throws GroupException, UserException;
-
-	ArrayList<Integer> getIdsOfGroupsForWhichIsHw(HomeworkDetails hd) throws GroupException;
 
 	void removeHomeworkFromGroup(HomeworkDetails hd, Group g) throws GroupException, UserException;
 
@@ -58,5 +55,9 @@ public interface IGroupDAO {
 	int getGroupIdByGroupName(Group g) throws GroupException;
 
 	void removeHomeworkDetails(HomeworkDetails hd) throws GroupException, UserException;
+
+	void changeGroupName(Group g) throws GroupException;
+
+	ArrayList<Integer> getIdsOfGroupsForWhichIsHomework(HomeworkDetails homeworkDetails) throws GroupException;
 
 }

@@ -20,6 +20,23 @@ import com.IttalentsHomeworks.model.User;
 import java.sql.Connection;
 
 public class UserDAO implements IUserDAO {
+	private static final String IS_TASK_NUMBER_VALID = "SELECT COUNT(*) FROM IttalentsHomeworks.Homework_task_solution WHERE student_id = ? AND homework_id = ?;";
+	private static final String UPDATE_USER_PROFILE = "UPDATE IttalentsHomeworks.Users SET pass = ?, email = ? WHERE id = ?";
+	private static final String DOES_TASK_ALREADY_EXIST = "SELECT * FROM IttalentsHomeworks.Homework_task_solution WHERE student_id = ? AND homework_id = ? AND task_number = ?;";
+	private static final String SET_TIME_OF_UPLOAD_OF_TASK = "UPDATE IttalentsHomeworks.Homework_task_solution SET uploaded_on = ? WHERE student_id = ? AND homework_id = ? AND task_number = ?;";
+	private static final String SET_SOLUTION_OF_TASK = "UPDATE IttalentsHomeworks.Homework_task_solution SET solution_java = ? WHERE student_id = ? AND homework_id = ? AND task_number = ?;";
+	private static final String SET_TEACHER_COMMENT_TO_HOMEWORK = "UPDATE IttalentsHomeworks.User_has_homework SET teacher_comment = ? WHERE user_id = ? AND homework_id = ?;";
+	private static final String SET_TEACHER_GRADE_TO_HOMEWORK = "UPDATE IttalentsHomeworks.User_has_homework SET teacher_grade = ? WHERE user_id = ? AND homework_id = ?;";
+	private static final String REMOVE_USER_PROFILE = "DELETE FROM IttalentsHomeworks.Users WHERE id = ?;";
+	private static final String CREATE_NEW_USER = "INSERT INTO IttalentsHomeworks.Users (username, pass, email) VALUES (?,?,?);";
+	private static final String IS_USERNAME_UNIQUE = "SELECT * FROM IttalentsHomeworks.Users WHERE username = ?;";
+	private static final String GET_HOMEWORKS_OF_STUDENT = "SELECT H.id, H.heading, H.num_of_tasks, H.tasks_pdf, H.opens, H.closes, UH.teacher_grade, UH.teacher_comment FROM IttalentsHomeworks.User_has_homework UH JOIN IttalentsHomeworks.Homework H ON (H.id = UH.homework_id) WHERE UH.user_id = ?;";
+	private static final String GET_USER_BY_USERNAME = "SELECT * FROM IttalentsHomeworks.Users WHERE id = ?;";
+	private static final String GET_TASKS_OF_HOMEWORK_OF_STUDENT = "SELECT CONCAT(H.id) AS 'homework_id', HTS.task_number, HTS.solution_java, HTS.uploaded_on FROM IttalentsHomeworks.User_has_homework UH JOIN IttalentsHomeworks.Homework H ON (H.id = UH.homework_id) JOIN IttalentsHomeworks.Homework_task_solution HTS ON (H.id = HTS.homework_id) WHERE UH.user_id = ? AND H.id = ?;";
+	private static final String GET_HOMEWORKS_OF_STUDENT_BY_GROUP = "SELECT H.id, H.heading, H.num_of_tasks, H.tasks_pdf, H.opens, H.closes, UH.teacher_grade, UH.teacher_comment FROM IttalentsHomeworks.User_has_homework UH JOIN IttalentsHomeworks.Homework H ON (H.id = UH.homework_id) JOIN IttalentsHomeworks.Group_has_Homework GH ON (H.id = GH.homework_id) WHERE UH.user_id = ? AND GH.group_id = ?;";
+	private static final String GET_GROUPS_OF_USER = "SELECT CONCAT(G.id) AS 'group_id', G.group_name FROM IttalentsHomeworks.User_has_Group UG JOIN IttalentsHomeworks.Groups G ON (G.id = UG.group_id) WHERE UG.user_id = ?";
+	private static final String GET_USER_ID_BY_USERNAME = "SELECT id FROM IttalentsHomeworks.Users WHERE username = ?;";
+	private static final String IS_USER_A_TEACHER = "SELECT isTeacher FROM IttalentsHomeworks.Users WHERE id = ?;";
 	private static IUserDAO instance;
 	private DBManager manager;
 	
@@ -57,16 +74,15 @@ public class UserDAO implements IUserDAO {
 		Connection con = manager.getConnection();
 		boolean isTeacher = false;
 		try {
-			PreparedStatement ps = con.prepareStatement("SELECT isTeacher FROM IttalentsHomeworks.Users WHERE id = ?;");
+			PreparedStatement ps = con.prepareStatement(IS_USER_A_TEACHER);
 			ps.setInt(1, userId);
 			ResultSet rs = ps.executeQuery();
-			if(rs.next()){//TODO
+			if(rs.next()){
 				isTeacher = rs.getBoolean(1);
 			}
 		} catch (SQLException e) {
 			throw new UserException("Something went wrong with checking if user is a teacher..");
 		}
-		
 		return isTeacher;
 	}
 	
@@ -79,7 +95,7 @@ public class UserDAO implements IUserDAO {
 		int userId = 0;
 		PreparedStatement ps;
 		try {
-			ps = con.prepareStatement("SELECT id FROM IttalentsHomeworks.Users WHERE username = ?;");
+			ps = con.prepareStatement(GET_USER_ID_BY_USERNAME);
 			ps.setString(1, username);
 			ResultSet rs = ps.executeQuery();
 			if(rs.next()){
@@ -102,14 +118,14 @@ public class UserDAO implements IUserDAO {
 		PreparedStatement ps;
 		try {
 			ps = con.prepareStatement(
-					"SELECT CONCAT(G.id) AS 'group_id', G.group_name FROM IttalentsHomeworks.User_has_Group UG JOIN IttalentsHomeworks.Groups G ON (G.id = UG.group_id) WHERE UG.user_id = ?");
+					GET_GROUPS_OF_USER);
 			ps.setInt(1, userId);
 			ResultSet rs = ps.executeQuery();
 			while(rs.next()){
 				Group currGroup = new Group(rs.getInt(1), rs.getString(2));
 				ArrayList<Teacher> teachersOfGroup = GroupDAO.getInstance().getTeachersOfGroup(currGroup);
 				ArrayList<Student> studentsOfGroup = GroupDAO.getInstance().getStudentsOfGroup(currGroup);
-				ArrayList<HomeworkDetails> homeworkDetailsOfGroup = GroupDAO.getInstance().getHomeworksDetailsOfGroup(currGroup);
+				ArrayList<HomeworkDetails> homeworkDetailsOfGroup = GroupDAO.getInstance().getHomeworkDetailsOfGroup(currGroup);
 				groupsOfUser.add(new Group(rs.getInt(1), rs.getString(2), teachersOfGroup, studentsOfGroup, homeworkDetailsOfGroup));
 			}
 		} catch (SQLException e) {
@@ -122,14 +138,14 @@ public class UserDAO implements IUserDAO {
 	 * @see com.IttalentsHomeworks.DAO.IUserDAO#getHomeworksOfStudentByGroup(com.IttalentsHomeworks.model.Student, com.IttalentsHomeworks.model.Group)
 	 */
 	@Override
-	public ArrayList<Homework> getHomeworksOfStudentByGroup(int sId, Group g) throws UserException{
+	public ArrayList<Homework> getHomeworksOfStudentByGroup(int studentId, Group group) throws UserException{
 		ArrayList<Homework> homeworksOfStudentByGroup = new ArrayList<>();
 		Connection con = manager.getConnection();
 		try {
 			PreparedStatement ps = con.prepareStatement(
-					"SELECT H.id, H.heading, H.num_of_tasks, H.tasks_pdf, H.opens, H.closes, UH.teacher_grade, UH.teacher_comment FROM IttalentsHomeworks.User_has_homework UH JOIN IttalentsHomeworks.Homework H ON (H.id = UH.homework_id) JOIN IttalentsHomeworks.Group_has_Homework GH ON (H.id = GH.homework_id) WHERE UH.user_id = ? AND GH.group_id = ?;");
-			ps.setInt(1, sId);
-			ps.setInt(2, g.getId());
+					GET_HOMEWORKS_OF_STUDENT_BY_GROUP);
+			ps.setInt(1, studentId);
+			ps.setInt(2, group.getId());
 			ResultSet rs = ps.executeQuery();
 			if(rs.next()){
 				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"); 
@@ -138,7 +154,7 @@ public class UserDAO implements IUserDAO {
 				LocalDateTime openingTime = LocalDateTime.parse(openingTimeString, formatter);
 				LocalDateTime closingTime = LocalDateTime.parse(closingTimeString, formatter);
 				HomeworkDetails hd = new HomeworkDetails(rs.getInt(1), rs.getString(2), openingTime, closingTime, rs.getInt(3), rs.getString(4));
-				ArrayList<Task> tasksOfHomeworkOfStudent = UserDAO.getInstance().getTasksOfHomeworkOfStudent(sId, hd);
+				ArrayList<Task> tasksOfHomeworkOfStudent = UserDAO.getInstance().getTasksOfHomeworkOfStudent(studentId, hd);
 				homeworksOfStudentByGroup.add(new Homework(rs.getInt(7), rs.getString(8), tasksOfHomeworkOfStudent, hd));
 			}
 		} catch (SQLException e) {
@@ -152,13 +168,13 @@ public class UserDAO implements IUserDAO {
 	 * @see com.IttalentsHomeworks.DAO.IUserDAO#getTasksOfHomeworkOfStudent(com.IttalentsHomeworks.model.Student, com.IttalentsHomeworks.model.HomeworkDetails)
 	 */
 	@Override
-	public ArrayList<Task> getTasksOfHomeworkOfStudent(int sId, HomeworkDetails hd) throws UserException{
+	public ArrayList<Task> getTasksOfHomeworkOfStudent(int studentId, HomeworkDetails homeworkDetails) throws UserException{
 		ArrayList<Task> tasksOfHomeworkOfStudent = new ArrayList<>();
 		Connection con = manager.getConnection();
 		try {
-			PreparedStatement ps = con.prepareStatement("SELECT CONCAT(H.id) AS 'homework_id', HTS.task_number, HTS.solution_java, HTS.uploaded_on FROM IttalentsHomeworks.User_has_homework UH JOIN IttalentsHomeworks.Homework H ON (H.id = UH.homework_id) JOIN IttalentsHomeworks.Homework_task_solution HTS ON (H.id = HTS.homework_id) WHERE UH.user_id = ? AND H.id = ?;");
-			ps.setInt(1, sId);
-			ps.setInt(2, hd.getId());
+			PreparedStatement ps = con.prepareStatement(GET_TASKS_OF_HOMEWORK_OF_STUDENT);
+			ps.setInt(1, studentId);
+			ps.setInt(2, homeworkDetails.getId());
 			ResultSet rs = ps.executeQuery();
 			while(rs.next()){
 				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"); 
@@ -187,7 +203,7 @@ public class UserDAO implements IUserDAO {
 		Connection con = manager.getConnection();
 		int userId = UserDAO.getInstance().getUserIdByUsername(username);
 		try {
-			PreparedStatement ps = con.prepareStatement("SELECT * FROM IttalentsHomeworks.Users WHERE id = ?;");
+			PreparedStatement ps = con.prepareStatement(GET_USER_BY_USERNAME);
 			ps.setInt(1, userId);
 			
 			ResultSet rs = ps.executeQuery();
@@ -218,7 +234,7 @@ public class UserDAO implements IUserDAO {
 		Connection con = manager.getConnection();
 		try {
 			PreparedStatement ps = con.prepareStatement(
-					"SELECT H.id, H.heading, H.num_of_tasks, H.tasks_pdf, H.opens, H.closes, UH.teacher_grade, UH.teacher_comment FROM IttalentsHomeworks.User_has_homework UH JOIN IttalentsHomeworks.Homework H ON (H.id = UH.homework_id) WHERE UH.user_id = ?;");
+					GET_HOMEWORKS_OF_STUDENT);
 			ps.setInt(1, userId);
 			ResultSet rs = ps.executeQuery();
 			while(rs.next()){
@@ -255,7 +271,7 @@ public class UserDAO implements IUserDAO {
 		boolean isUsernameUnique = true;
 		Connection con = manager.getConnection();
 		try {
-			PreparedStatement ps = con.prepareStatement("SELECT * FROM IttalentsHomeworks.Users WHERE username = ?;");
+			PreparedStatement ps = con.prepareStatement(IS_USERNAME_UNIQUE);
 			ps.setString(1, username);
 			ResultSet rs = ps.executeQuery();
 			if(rs.next()){
@@ -290,16 +306,16 @@ public class UserDAO implements IUserDAO {
 	 * @see com.IttalentsHomeworks.DAO.IUserDAO#createNewUser(com.IttalentsHomeworks.model.User)
 	 */
 	@Override
-	public void createNewUser(User u) throws UserException{
+	public void createNewUser(User user) throws UserException{
 		Connection con = manager.getConnection();
-		if (UserDAO.getInstance().isUsernameUnique(u.getUsername())
-				&& UserDAO.getInstance().isPasswordValid(u.getPassword())) {
+		if (UserDAO.getInstance().isUsernameUnique(user.getUsername())
+				&& UserDAO.getInstance().isPasswordValid(user.getPassword())) {
 			try {
 				PreparedStatement ps = con.prepareStatement(
-						"INSERT INTO IttalentsHomeworks.Users (username, pass, email) VALUES (?,?,?);");
-				ps.setString(1, u.getUsername());
-				ps.setString(2, u.getPassword());
-				ps.setString(3, u.getEmail());
+						CREATE_NEW_USER);
+				ps.setString(1, user.getUsername());
+				ps.setString(2, user.getPassword());
+				ps.setString(3, user.getEmail());
 				ps.execute();
 
 			} catch (SQLException e) {
@@ -312,11 +328,11 @@ public class UserDAO implements IUserDAO {
 	 * @see com.IttalentsHomeworks.DAO.IUserDAO#removeUserProfile(com.IttalentsHomeworks.model.User)
 	 */
 	@Override
-	public void removeUserProfile(User u) throws UserException{
+	public void removeUserProfile(User user) throws UserException{
 		Connection con = manager.getConnection();
 		try {
-			PreparedStatement ps = con.prepareStatement("DELETE FROM IttalentsHomeworks.Users WHERE id = ?;");
-			ps.setInt(1, u.getId());
+			PreparedStatement ps = con.prepareStatement(REMOVE_USER_PROFILE);
+			ps.setInt(1, user.getId());
 			ps.execute();
 		} catch (SQLException e) {
 			throw new UserException("Something went wrong with removing the profile of a user.."  + e.getMessage());
@@ -327,13 +343,13 @@ public class UserDAO implements IUserDAO {
 	 * @see com.IttalentsHomeworks.DAO.IUserDAO#setTeacherGrade(com.IttalentsHomeworks.model.HomeworkDetails, com.IttalentsHomeworks.model.Student, int)
 	 */
 	@Override
-	public void setTeacherGrade(HomeworkDetails hd, Student st, int teacherGrade) throws UserException{
+	public void setTeacherGrade(HomeworkDetails homeworkDetails, Student student, int teacherGrade) throws UserException{
 		Connection con = manager.getConnection();
 		try {
-			PreparedStatement ps = con.prepareStatement("UPDATE IttalentsHomeworks.User_has_homework SET teacher_grade = ? WHERE user_id = ? AND homework_id = ?;");
+			PreparedStatement ps = con.prepareStatement(SET_TEACHER_GRADE_TO_HOMEWORK);
 			ps.setInt(1, teacherGrade);
-			ps.setInt(2, st.getId());
-			ps.setInt(3, hd.getId());
+			ps.setInt(2, student.getId());
+			ps.setInt(3, homeworkDetails.getId());
 			ps.executeUpdate();
 		} catch (SQLException e) {
 			throw new UserException("Something went wrong with setting the teacher's grade of homework..");
@@ -344,13 +360,13 @@ public class UserDAO implements IUserDAO {
 	 * @see com.IttalentsHomeworks.DAO.IUserDAO#setTeacherComment(com.IttalentsHomeworks.model.HomeworkDetails, com.IttalentsHomeworks.model.Student, java.lang.String)
 	 */
 	@Override
-	public void setTeacherComment(HomeworkDetails hd, Student st, String teacherComment) throws UserException{
+	public void setTeacherComment(HomeworkDetails homeworkDetails, Student student, String teacherComment) throws UserException{
 		Connection con = manager.getConnection();
 		try {
-			PreparedStatement ps = con.prepareStatement("UPDATE IttalentsHomeworks.User_has_homework SET teacher_comment = ? WHERE user_id = ? AND homework_id = ?;");
+			PreparedStatement ps = con.prepareStatement(SET_TEACHER_COMMENT_TO_HOMEWORK);
 			ps.setString(1, teacherComment);
-			ps.setInt(2, st.getId());
-			ps.setInt(3, hd.getId());
+			ps.setInt(2, student.getId());
+			ps.setInt(3, homeworkDetails.getId());
 			ps.executeUpdate();
 		} catch (SQLException e) {
 			throw new UserException("Something went wrong with setting the teacher's comment of homework..");
@@ -366,22 +382,22 @@ public class UserDAO implements IUserDAO {
 	 * java.lang.String, java.time.LocalDateTime)
 	 */
 	@Override
-	public void setSolutionOfTask(HomeworkDetails hd, Student st, int taskNum, String solution,
+	public void setSolutionOfTask(HomeworkDetails homeworkDetails, Student student, int taskNumber, String solution,
 			LocalDateTime timeOfUpload) throws UserException {
 		Connection con = manager.getConnection();
-		if (UserDAO.getInstance().isTaskNumberValid(st.getId(),hd.getId(),taskNum)) {
+		if (UserDAO.getInstance().isTaskNumberValid(student.getId(),homeworkDetails.getId(),taskNumber)) {
 			try {
 				con.setAutoCommit(false);
 				try {
 					PreparedStatement ps = con.prepareStatement(
-							"UPDATE IttalentsHomeworks.Homework_task_solution SET solution_java = ? WHERE student_id = ? AND homework_id = ? AND task_number = ?;");
+							SET_SOLUTION_OF_TASK);
 					ps.setString(1, solution);
-					ps.setInt(2, st.getId());
-					ps.setInt(3, hd.getId());
-					ps.setInt(4, taskNum);
+					ps.setInt(2, student.getId());
+					ps.setInt(3, homeworkDetails.getId());
+					ps.setInt(4, taskNumber);
 					ps.executeUpdate();
 
-					UserDAO.getInstance().setTimeOfUploadOfTask(hd, st, taskNum, timeOfUpload);
+					UserDAO.getInstance().setTimeOfUploadOfTask(homeworkDetails, student, taskNumber, timeOfUpload);
 
 					con.commit();
 				} catch (SQLException e) {
@@ -401,20 +417,19 @@ public class UserDAO implements IUserDAO {
 	 * @see com.IttalentsHomeworks.DAO.IUserDAO#setTimeOfUploadOfTask(com.IttalentsHomeworks.model.HomeworkDetails, com.IttalentsHomeworks.model.Student, com.IttalentsHomeworks.model.Task, java.time.LocalDateTime)
 	 */
 	@Override
-	public void setTimeOfUploadOfTask(HomeworkDetails hd, Student st, int taskNum, LocalDateTime timeOfUpload)
+	public void setTimeOfUploadOfTask(HomeworkDetails homeworkDetails, Student student, int taskNumber, LocalDateTime timeOfUpload)
 			throws UserException {
 		Connection con = manager.getConnection();
-		if (UserDAO.getInstance().isTaskNumberValid(st.getId(), hd.getId(), taskNum)) {
+		if (UserDAO.getInstance().isTaskNumberValid(student.getId(), homeworkDetails.getId(), taskNumber)) {
 			try {
 				PreparedStatement ps = con.prepareStatement(
-						"UPDATE IttalentsHomeworks.Homework_task_solution SET uploaded_on = ? WHERE student_id = ? AND homework_id = ? AND task_number = ?;");
+						SET_TIME_OF_UPLOAD_OF_TASK);
 				ps.setString(1, timeOfUpload.toString());
-				ps.setInt(2, st.getId());
-				ps.setInt(3, hd.getId());
-				ps.setInt(4, taskNum);
+				ps.setInt(2, student.getId());
+				ps.setInt(3, homeworkDetails.getId());
+				ps.setInt(4, taskNumber);
 				ps.executeUpdate();
 			} catch (SQLException e) {
-				System.out.println(e.getMessage());
 				throw new UserException(
 						"Something went wrong with setting the upload time of student's solution of task..");
 			}
@@ -424,14 +439,14 @@ public class UserDAO implements IUserDAO {
 	 * @see com.IttalentsHomeworks.DAO.IUserDAO#doesTaskAlreadyExist(com.IttalentsHomeworks.model.HomeworkDetails, com.IttalentsHomeworks.model.Student, com.IttalentsHomeworks.model.Task)
 	 */
 	@Override
-	public boolean doesTaskAlreadyExist(HomeworkDetails hd, Student st, Task t) throws UserException{
+	public boolean doesTaskAlreadyExist(HomeworkDetails homeworkDetails, Student student, Task task) throws UserException{
 		boolean doesExist = false;
 		Connection con = manager.getConnection();
 		try {
-			PreparedStatement ps = con.prepareStatement("SELECT * FROM IttalentsHomeworks.Homework_task_solution WHERE student_id = ? AND homework_id = ? AND task_number = ?;");
-			ps.setInt(1, st.getId());
-			ps.setInt(2, hd.getId());
-			ps.setInt(3, t.getTaskNumber());
+			PreparedStatement ps = con.prepareStatement(DOES_TASK_ALREADY_EXIST);
+			ps.setInt(1, student.getId());
+			ps.setInt(2, homeworkDetails.getId());
+			ps.setInt(3, task.getTaskNumber());
 			ResultSet rs = ps.executeQuery();
 			if(rs.next()){
 				doesExist = true;
@@ -446,13 +461,13 @@ public class UserDAO implements IUserDAO {
 	 * @see com.IttalentsHomeworks.DAO.IUserDAO#updateUser(com.IttalentsHomeworks.model.User)
 	 */
 	@Override
-	public void updateUser(User u) throws UserException{
-		int id = UserDAO.getInstance().getUserIdByUsername(u.getUsername());
+	public void updateUser(User user) throws UserException{
+		int id = UserDAO.getInstance().getUserIdByUsername(user.getUsername());
 		Connection con = manager.getConnection();
 		try {
-			PreparedStatement ps = con.prepareStatement("UPDATE IttalentsHomeworks.Users SET pass = ?, email = ? WHERE id = ?");
-			ps.setString(1, u.getPassword());
-			ps.setString(2, u.getEmail());
+			PreparedStatement ps = con.prepareStatement(UPDATE_USER_PROFILE);
+			ps.setString(1, user.getPassword());
+			ps.setString(2, user.getEmail());
 			ps.setInt(3, id);
 			ps.executeUpdate();
 		} catch (SQLException e) {
@@ -466,7 +481,7 @@ public class UserDAO implements IUserDAO {
 			Connection con = manager.getConnection();
 			int userId = UserDAO.getInstance().getUserIdByUsername(username);
 			try {
-				PreparedStatement ps = con.prepareStatement("SELECT * FROM IttalentsHomeworks.Users WHERE id = ?;");
+				PreparedStatement ps = con.prepareStatement(GET_USER_BY_USERNAME);
 				ps.setInt(1, userId);
 				
 				ResultSet rs = ps.executeQuery();
@@ -489,23 +504,22 @@ public class UserDAO implements IUserDAO {
 	}
 
 	@Override
-	public boolean isTaskNumberValid(int studentId, int homeworkId, int taskNum) throws UserException {
+	public boolean isTaskNumberValid(int studentId, int homeworkId, int taskNumber) throws UserException {
 		boolean isValid = false;
 		Connection con = manager.getConnection();
 		PreparedStatement ps;
 		try {
-			ps = con.prepareStatement("SELECT COUNT(*) FROM IttalentsHomeworks.Homework_task_solution WHERE student_id = ? AND homework_id = ?;");
+			ps = con.prepareStatement(IS_TASK_NUMBER_VALID);
 			ps.setInt(1, studentId);
 			ps.setInt(2, homeworkId);
-			System.out.println("zad: " + taskNum);
 			ResultSet rs = ps.executeQuery();
 			if(rs.next()){
-				if(taskNum < rs.getInt(1)){
+				if(taskNumber < rs.getInt(1)){
 					isValid = true;
 				}
 			}
 		} catch (SQLException e) {
-System.out.println(e.getMessage());			throw new UserException("Something went wrong with checking if the task number is valid..");
+			throw new UserException("Something went wrong with checking if the task number is valid..");
 		}
 		
 		return isValid;

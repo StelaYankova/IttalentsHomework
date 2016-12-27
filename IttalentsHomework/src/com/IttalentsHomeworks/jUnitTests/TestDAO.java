@@ -175,7 +175,7 @@ public class TestDAO {
 	public void test14createHomeworkForGroup() throws GroupException, UserException{
 		ArrayList<Group> groupsForHw = new ArrayList<>();
 		groupsForHw.add(group1);
-		GroupDAO.getInstance().createHomeworkForGroup(hd, groupsForHw);
+		GroupDAO.getInstance().createHomeworkDetails(hd, groupsForHw);
 		int hwId = GroupDAO.getInstance().getHomeworkDetailsId(hd);
 		hd.setId(hwId);
 
@@ -188,7 +188,7 @@ public class TestDAO {
 		}
 		assertEquals(true, isInHomeworksTable);
 		boolean isInGroupHomeworksTable = false;
-		for(HomeworkDetails hd1: GroupDAO.getInstance().getHomeworksDetailsOfGroup(group1)){
+		for(HomeworkDetails hd1: GroupDAO.getInstance().getHomeworkDetailsOfGroup(group1)){
 			if(hd1.getHeading().equals(hd.getHeading())){
 				isInGroupHomeworksTable = true;
 				break;
@@ -200,7 +200,7 @@ public class TestDAO {
 	public void test15removeHomeworkFromGroup() throws GroupException, UserException{
 		GroupDAO.getInstance().removeHomeworkFromGroup(hd, group1);
 		boolean isInGroupHomeworksTable = false;
-		for(HomeworkDetails hd1: GroupDAO.getInstance().getHomeworksDetailsOfGroup(group1)){
+		for(HomeworkDetails hd1: GroupDAO.getInstance().getHomeworkDetailsOfGroup(group1)){
 			if(hd1.getHeading().equals(hd.getHeading())){
 				isInGroupHomeworksTable = true;
 				break;
@@ -212,7 +212,7 @@ public class TestDAO {
 	public void test16addHomeworkToGroup() throws GroupException, UserException{
 		GroupDAO.getInstance().addHomeworkToGroup(hd, group1);
 		boolean isInGroupHomeworksTable = false;
-		for(HomeworkDetails hd1: GroupDAO.getInstance().getHomeworksDetailsOfGroup(group1)){
+		for(HomeworkDetails hd1: GroupDAO.getInstance().getHomeworkDetailsOfGroup(group1)){
 			if(hd1.getHeading().equals(hd.getHeading())){
 				isInGroupHomeworksTable = true;
 				break;
@@ -269,7 +269,7 @@ public class TestDAO {
 		groupsforHomework.add(group1);
 		HomeworkDetails updatedHomework = new HomeworkDetails(hd.getId(), "new heading12211", LocalDateTime.of(2016, 12, 12, 18, 22, 13), LocalDateTime.of(2016, 12, 19, 18, 22, 13), 5, "newFile.pdf");
 		GroupDAO.getInstance().updateHomeworkDetails(updatedHomework, groupsforHomework);
-		ArrayList<HomeworkDetails> newHd = GroupDAO.getInstance().getHomeworksDetailsOfGroup(group1);
+		ArrayList<HomeworkDetails> newHd = GroupDAO.getInstance().getHomeworkDetailsOfGroup(group1);
 		for(HomeworkDetails hd1: GroupDAO.getInstance().getAllHomeworksDetails()){
 			if(hd1.getId() == updatedHomework.getId()){
 				assertEquals( "new heading12211", newHd.get(0).getHeading());
@@ -289,7 +289,6 @@ public class TestDAO {
 		
 		int hwId = GroupDAO.getInstance().getHomeworkDetailsId(hd);
 		hd.setId(hwId);
-		System.out.println(hwId + "!");
 		GroupDAO.getInstance().removeHomeworkDetails(hd);
 		boolean isInHomeworksTable = false;
 		for(HomeworkDetails hd1: GroupDAO.getInstance().getAllHomeworksDetails()){
@@ -300,9 +299,7 @@ public class TestDAO {
 		}
 		assertEquals(false, isInHomeworksTable);
 		boolean isInGroupHomeworksTable = false;
-		System.out.println(group1.getId());
-		System.out.println(GroupDAO.getInstance().getHomeworksDetailsOfGroup(group1));
-		for(HomeworkDetails hd1: GroupDAO.getInstance().getHomeworksDetailsOfGroup(group1)){
+		for(HomeworkDetails hd1: GroupDAO.getInstance().getHomeworkDetailsOfGroup(group1)){
 			if(hd1.getHeading().equals(hd.getHeading())){
 				isInGroupHomeworksTable = true;
 				break;
@@ -317,7 +314,6 @@ public class TestDAO {
 		UserDAO.getInstance().updateUser(updatedUser);
 		
 		User newUser = UserDAO.getInstance().getUserByUsername(user1.getUsername());
-		System.out.println(newUser.getUsername() + "    " +  newUser.getPassword() +" "+ newUser.getEmail());
 
 		assertEquals(user1.getUsername(), newUser.getUsername());
 		assertEquals(updatedUser.getPassword(), newUser.getPassword());
@@ -325,6 +321,14 @@ public class TestDAO {
 		user1 = newUser;
 	}
 	
+	@Test
+	public void test24changeGroupName() throws GroupException, UserException{
+		String name = "newName";
+		Group updatedGroup = new Group(group1.getId(), name);
+		GroupDAO.getInstance().changeGroupName(updatedGroup);
+		Group returnGroup = GroupDAO.getInstance().getGroupById(group1.getId());
+		assertEquals("newName", returnGroup.getName());
+	}
 	@Test
 	public void test44removeGroup() throws UserException, GroupException{
 		GroupDAO.getInstance().removeGroup(group1);	
