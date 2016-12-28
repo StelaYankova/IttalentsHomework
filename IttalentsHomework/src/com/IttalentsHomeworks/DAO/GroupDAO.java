@@ -138,7 +138,7 @@ public class GroupDAO implements IGroupDAO {
 					GET_HOMEWORK_DETAILS_OF_GROUP);
 			ps.setInt(1, group.getId());
 			ResultSet rs = ps.executeQuery();
-			if (rs.next()) {
+			while (rs.next()) {
 				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 				String openingTimeString = rs.getString(3);
 				String closingTimeString = rs.getString(4);
@@ -190,6 +190,9 @@ public class GroupDAO implements IGroupDAO {
 				ps.setInt(1, user.getId());
 				ps.setInt(2, group.getId());
 				ps.execute();
+				if(!user.isTeacher()){
+					//TODO
+				}
 			} catch (SQLException e) {
 				throw new GroupException("Something went wrong with adding a user to a group..");
 			}

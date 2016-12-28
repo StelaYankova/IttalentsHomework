@@ -25,7 +25,7 @@ public interface IGroupDAO {
 
 	boolean isUserAlreadyInGroup(Group g, User u) throws GroupException;
 
-	void addUserToGroup(Group g, User u) throws GroupException;
+	void addUserToGroup(Group g, User u) throws GroupException, UserException;
 
 	// constructor with teachers
 	void createNewGroup(Group g) throws GroupException;

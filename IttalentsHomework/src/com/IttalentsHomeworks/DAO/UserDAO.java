@@ -319,6 +319,7 @@ public class UserDAO implements IUserDAO {
 				ps.execute();
 
 			} catch (SQLException e) {
+				System.out.println(e.getMessage());
 				throw new UserException("Something went wrong with adding new user to DB..");
 			}
 		}
@@ -523,5 +524,23 @@ public class UserDAO implements IUserDAO {
 		}
 		
 		return isValid;
+	}
+
+	@Override
+	public boolean doesUserExistInDB(String username, String password) throws UserException {
+		Connection con = manager.getConnection();
+		PreparedStatement ps;
+		try {
+			ps = con.prepareStatement("SELECT * FROM IttalentsHomeworks.Users WHERE username = ? AND pass = ?;");
+			ps.setString(1, username);
+			ps.setString(2, password);
+			ResultSet rs = ps.executeQuery();
+			if (rs.next()) {
+				return true;
+			}
+		} catch (SQLException e) {
+			throw new UserException("Something went wrong with checking if the user is valid..");
+		}
+		return false;
 	}
 }

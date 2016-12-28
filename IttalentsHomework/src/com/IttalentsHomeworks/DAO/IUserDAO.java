@@ -57,6 +57,7 @@ public interface IUserDAO {
 
 	Student getStudentsByUsername(String string) throws UserException;
 
-	boolean isTaskNumberValid(int studentId, int homeworkId, int taskNum) throws UserException ;
+	boolean isTaskNumberValid(int studentId, int homeworkId, int taskNum) throws UserException;
 
+	boolean doesUserExistInDB(String username, String password) throws UserException;
 }

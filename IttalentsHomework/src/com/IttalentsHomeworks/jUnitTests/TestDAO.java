@@ -35,7 +35,7 @@ public class TestDAO {
 	public void test01isUsernameUnique() throws UserException, GroupException{		
 		user1.setId(UserDAO.getInstance().getUserIdByUsername(user1.getUsername()));
 
-		UserDAO.getInstance().removeUserProfile(user1);
+		//UserDAO.getInstance().removeUserProfile(user1);
 
 		String username = user1.getUsername();
 		boolean validAnser = true;
@@ -110,7 +110,7 @@ public class TestDAO {
 	}
 	
 	@Test 
-	public void test08addTeacherToGroup() throws GroupException{
+	public void test08addTeacherToGroup() throws GroupException, UserException{
 		boolean isTeacherReturned = false;
 		GroupDAO.getInstance().addUserToGroup(group1, user2);
 		for(Teacher t: GroupDAO.getInstance().getTeachersOfGroup(group1)){
@@ -140,6 +140,7 @@ public class TestDAO {
 				break;
 			}
 		}
+		
 		assertEquals(true, isStudentReturned);
 	}
 	
@@ -240,10 +241,10 @@ public class TestDAO {
 	@Test
 	public void test20addTeacherComment() throws UserException{
 		ArrayList<Homework> homeworksOfStudent = UserDAO.getInstance().getHomeworksOfStudent(user1.getId());
-		assertEquals(" ", homeworksOfStudent.get(0).getComment());
+		assertEquals(" ", homeworksOfStudent.get(0).getTeacherComment());
 		UserDAO.getInstance().setTeacherComment(hd, (Student) user1, "not bad");
 		homeworksOfStudent = UserDAO.getInstance().getHomeworksOfStudent(user1.getId());
-		assertEquals("not bad", homeworksOfStudent.get(0).getComment());
+		assertEquals("not bad", homeworksOfStudent.get(0).getTeacherComment());
 	}
 	
 	@Test
@@ -328,6 +329,12 @@ public class TestDAO {
 		GroupDAO.getInstance().changeGroupName(updatedGroup);
 		Group returnGroup = GroupDAO.getInstance().getGroupById(group1.getId());
 		assertEquals("newName", returnGroup.getName());
+	}
+	
+	@Test
+	public void test25doesUserExistInDB() throws UserException{
+		boolean doesExists = UserDAO.getInstance().doesUserExistInDB(user1.getUsername(), user1.getPassword());
+		assertEquals(true, doesExists);
 	}
 	@Test
 	public void test44removeGroup() throws UserException, GroupException{
