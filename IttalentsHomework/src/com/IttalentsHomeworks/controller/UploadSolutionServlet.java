@@ -134,11 +134,14 @@ public class UploadSolutionServlet extends HttpServlet {
 			 fileName = extractFileName(part);
 			// refines the fileName in case it is an absolute path
 			//fileName = new File(fileName).getName();
-			 fileName = "hwId"+homeworkDetails.getId() +"userId" +user.getId() +"taskNum"+ taskNum + ".pdf";
+			 fileName = "hwId"+homeworkDetails.getId() +"userId" +user.getId() +"taskNum"+ taskNum + ".java";
 			part.write(savePath + File.separator+ fileName);
 		}
 		try {
 			UserDAO.getInstance().setSolutionOfTask(homeworkDetails, (Student) user, taskNum, fileName, LocalDateTime.now());
+			homework.getTasks().get(taskNum).setSolution(fileName);
+			homework.getTasks().get(taskNum).setUploadedOn(UserDAO.getInstance().getTasksOfHomeworkOfStudent(user.getId(), homeworkDetails).get(taskNum).getUploadedOn());
+			
 		} catch (UserException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

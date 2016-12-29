@@ -14,6 +14,9 @@
 	<br>
 	<br>
 	<button onclick="seeGroups()">Your groups:</button>
+	<form action = "./SeeScoresServlet" method = "GET">
+		<button type = "submit">Your scores</button>
+	</form>
 	<div id="groups">
 	</div>
 	<div id = "homeworks">
