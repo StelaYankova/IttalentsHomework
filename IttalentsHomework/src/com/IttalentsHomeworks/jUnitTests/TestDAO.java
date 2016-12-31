@@ -242,7 +242,7 @@ public class TestDAO {
 	public void test20addTeacherComment() throws UserException{
 		ArrayList<Homework> homeworksOfStudent = UserDAO.getInstance().getHomeworksOfStudent(user1.getId());
 		assertEquals(" ", homeworksOfStudent.get(0).getTeacherComment());
-		UserDAO.getInstance().setTeacherComment(hd, (Student) user1, "not bad");
+		UserDAO.getInstance().setTeacherComment(hd, user1.getId(), "not bad");
 		homeworksOfStudent = UserDAO.getInstance().getHomeworksOfStudent(user1.getId());
 		assertEquals("not bad", homeworksOfStudent.get(0).getTeacherComment());
 	}
@@ -251,7 +251,7 @@ public class TestDAO {
 	public void test21addTeacherGrade() throws UserException{
 		ArrayList<Homework> homeworksOfStudentByGroup = UserDAO.getInstance().getHomeworksOfStudentByGroup(user1.getId(), group1);
 		assertEquals(0, homeworksOfStudentByGroup.get(0).getTeacherGrade());
-		UserDAO.getInstance().setTeacherGrade(hd, (Student) user1, 12);
+		UserDAO.getInstance().setTeacherGrade(hd, user1.getId(), 12);
 		homeworksOfStudentByGroup = UserDAO.getInstance().getHomeworksOfStudent(user1.getId());
 		assertEquals(12, homeworksOfStudentByGroup.get(0).getTeacherGrade());
 	}

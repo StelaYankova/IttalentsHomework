@@ -32,8 +32,16 @@ public class ReadJavaFileServlet extends HttpServlet {
 		User user = (User) request.getSession().getAttribute("user");
 		Homework homework = (Homework) request.getSession().getAttribute("currHomework");
 		HomeworkDetails homeworkDetails = homework.getHomeworkDetails();
-		String fileName = SAVE_DIR + File.separator + "hwId"+homeworkDetails.getId() +"userId" +user.getId() +"taskNum"+ taskNum + ".java";
+		String fileName = null;
+		if(!user.isTeacher()){
+		 fileName = SAVE_DIR + File.separator + "hwId"+homeworkDetails.getId() +"userId" +user.getId() +"taskNum"+ taskNum + ".java";
+		}else{
+			int studentId = (int) request.getSession().getAttribute("studentId");
+			 fileName = SAVE_DIR + File.separator + "hwId"+homeworkDetails.getId() +"userId" +studentId +"taskNum"+ taskNum + ".java";
+
+		}
 		File f = new File(fileName);
+		System.out.println("AUGSS" + fileName);
 		String strLine = "";
 		if (f.exists()) {
 			FileInputStream fstream = new FileInputStream(fileName);

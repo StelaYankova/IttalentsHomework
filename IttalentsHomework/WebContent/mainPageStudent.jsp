@@ -13,6 +13,8 @@
 
 	<br>
 	<br>
+	<a href = "./LogoutServlet"> Logout </a>
+	<a href = "./UpdateYourProfileServlet">Your profile</a>
 	<button onclick="seeGroups()">Your groups:</button>
 	<form action = "./SeeScoresServlet" method = "GET">
 		<button type = "submit">Your scores</button>

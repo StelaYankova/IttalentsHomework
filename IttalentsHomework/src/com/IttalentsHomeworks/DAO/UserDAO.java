@@ -345,12 +345,12 @@ public class UserDAO implements IUserDAO {
 	 * @see com.IttalentsHomeworks.DAO.IUserDAO#setTeacherGrade(com.IttalentsHomeworks.model.HomeworkDetails, com.IttalentsHomeworks.model.Student, int)
 	 */
 	@Override
-	public void setTeacherGrade(HomeworkDetails homeworkDetails, Student student, int teacherGrade) throws UserException{
+	public void setTeacherGrade(HomeworkDetails homeworkDetails, int studentId, int teacherGrade) throws UserException{
 		Connection con = manager.getConnection();
 		try {
 			PreparedStatement ps = con.prepareStatement(SET_TEACHER_GRADE_TO_HOMEWORK);
 			ps.setInt(1, teacherGrade);
-			ps.setInt(2, student.getId());
+			ps.setInt(2, studentId);
 			ps.setInt(3, homeworkDetails.getId());
 			ps.executeUpdate();
 		} catch (SQLException e) {
@@ -362,12 +362,12 @@ public class UserDAO implements IUserDAO {
 	 * @see com.IttalentsHomeworks.DAO.IUserDAO#setTeacherComment(com.IttalentsHomeworks.model.HomeworkDetails, com.IttalentsHomeworks.model.Student, java.lang.String)
 	 */
 	@Override
-	public void setTeacherComment(HomeworkDetails homeworkDetails, Student student, String teacherComment) throws UserException{
+	public void setTeacherComment(HomeworkDetails homeworkDetails, int studentId, String teacherComment) throws UserException{
 		Connection con = manager.getConnection();
 		try {
 			PreparedStatement ps = con.prepareStatement(SET_TEACHER_COMMENT_TO_HOMEWORK);
 			ps.setString(1, teacherComment);
-			ps.setInt(2, student.getId());
+			ps.setInt(2, studentId);
 			ps.setInt(3, homeworkDetails.getId());
 			ps.executeUpdate();
 		} catch (SQLException e) {

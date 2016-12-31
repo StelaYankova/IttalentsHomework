@@ -36,11 +36,8 @@ public class GetHomeworksOfGroupsServlet extends HttpServlet {
 		}
 		JsonArray homeworks = new JsonArray();
 		for(HomeworkDetails h: group.getHomeworks()){
-			//System.out.println("!! " + h.getId());
 			JsonObject obj = new JsonObject();
 			obj.addProperty("heading", h.getHeading());
-			obj.addProperty("id", h.getId());
-			
 			long days = h.getClosingTime().until( h.getOpeningTime(), ChronoUnit.DAYS);
 			obj.addProperty("timeLeft", days);
 			//System.out.println(group.getName() + " " +  h.getHeading() + "  "  + days + "homeworks: " + group.getHomeworks().size());

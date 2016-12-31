@@ -51,10 +51,10 @@ Choose a group:
 						console.log(response[i].heading)
 						var row = $("<tr>");
 
-						  row.append($("<td>" +response[i].heading+"</td>"))
+						  row.append($("<td><form action = './GetHomeworkServlet' method = 'GET'><input type = 'hidden' name = 'id' value = " + response[i].id+ "><button type = 'submit'>" + response[i].heading +"</button></form></td>"))
 						     .append($("<td>"+ response[i].opens+"</td>"))
 						     .append($("<td>" +response[i].closes+"</td>"))
-						     .append($("<td>"+ response[i].teacherScore+"</td>"))
+						     .append($("<td>"+ response[i].teacherScore+"/100</td>"))
 						     .append($("<td>" +response[i].teacherComment+"</td>"));
 						     
 						 

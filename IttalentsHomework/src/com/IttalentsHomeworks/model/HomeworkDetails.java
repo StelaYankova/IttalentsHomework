@@ -20,6 +20,14 @@ public class HomeworkDetails {
 		this.numberOfTasks = numberOfTasks;
 		this.tasksFile = tasksFile;
 	}
+	public HomeworkDetails(String heading, LocalDateTime openingTime, LocalDateTime closingTime, int numberOfTasks,
+			String tasksFile) {
+		this.heading = heading;
+		this.openingTime = openingTime;
+		this.closingTime = closingTime;
+		this.numberOfTasks = numberOfTasks;
+		this.tasksFile = tasksFile;	
+	}
 	public int getId() {
 		return id;
 	}

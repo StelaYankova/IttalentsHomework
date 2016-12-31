@@ -42,9 +42,9 @@ public interface IUserDAO {
 
 	void removeUserProfile(User u) throws UserException;
 
-	void setTeacherGrade(HomeworkDetails hd, Student st, int teacherGrade) throws UserException;
+	void setTeacherGrade(HomeworkDetails hd, int studentId, int teacherGrade) throws UserException;
 
-	void setTeacherComment(HomeworkDetails hd, Student st, String teacherComment) throws UserException;
+	void setTeacherComment(HomeworkDetails hd, int studentId, String teacherComment) throws UserException;
 
 	void setSolutionOfTask(HomeworkDetails hd, Student st, int taskNum, String solution, LocalDateTime timeOfUpload)
 			throws UserException;

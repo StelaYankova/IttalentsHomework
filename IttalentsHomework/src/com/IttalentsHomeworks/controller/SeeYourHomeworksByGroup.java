@@ -42,6 +42,7 @@ public class SeeYourHomeworksByGroup extends HttpServlet {
 						for (HomeworkDetails hd : homeworkDetailsByGroup) {
 							if (!(checkedIds.contains((Integer) hd.getId()))) {
 								JsonObject obj = new JsonObject();
+								obj.addProperty("id", hd.getId());
 								obj.addProperty("heading", hd.getHeading());
 								obj.addProperty("opens", hd.getOpeningTime().toString());
 								obj.addProperty("closes", hd.getClosingTime().toString());
@@ -80,6 +81,7 @@ public class SeeYourHomeworksByGroup extends HttpServlet {
 				for (HomeworkDetails hd : homeworkDetailsByGroup) {
 					JsonObject obj = new JsonObject();
 					obj.addProperty("heading", hd.getHeading());
+					obj.addProperty("id", hd.getId());
 					obj.addProperty("opens", hd.getOpeningTime().toString());
 					obj.addProperty("closes", hd.getClosingTime().toString());
 					try {
