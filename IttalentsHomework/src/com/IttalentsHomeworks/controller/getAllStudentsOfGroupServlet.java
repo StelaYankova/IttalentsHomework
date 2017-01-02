@@ -25,25 +25,31 @@ public class getAllStudentsOfGroupServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
 	
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		int groupId = Integer.parseInt((String)request.getParameter("chosenGroupId"));
-		try {
-			Group selectedGroup = GroupDAO.getInstance().getGroupById(groupId);
-			ArrayList<Student> allStudentsOfGroup = GroupDAO.getInstance().getStudentsOfGroup(selectedGroup);
-			JsonArray array = new JsonArray();
-			for(Student student: allStudentsOfGroup){
-				System.out.println(student.getUsername());
-				System.out.println(student.getId());
-				JsonObject obj = new JsonObject();
-				obj.addProperty("id", student.getId());
-				obj.addProperty("username", student.getUsername());
-				array.add(obj);
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		String groupIdStr = request.getParameter("chosenGroupId");
+		if (groupIdStr.equals("allGroups")) {
+			response.sendRedirect("chooseGroupForHomework.jsp");
+		} else if (!(groupIdStr.equals("null"))) {
+			int groupId = Integer.parseInt((String) request.getParameter("chosenGroupId"));
+			try {
+				Group selectedGroup = GroupDAO.getInstance().getGroupById(groupId);
+				ArrayList<Student> allStudentsOfGroup = GroupDAO.getInstance().getStudentsOfGroup(selectedGroup);
+				JsonArray array = new JsonArray();
+				for (Student student : allStudentsOfGroup) {
+					System.out.println(student.getUsername());
+					System.out.println(student.getId());
+					JsonObject obj = new JsonObject();
+					obj.addProperty("id", student.getId());
+					obj.addProperty("username", student.getUsername());
+					array.add(obj);
+				}
+				response.getWriter().write(array.toString());
+
+			} catch (GroupException | UserException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-			response.getWriter().write(array.toString());
-			
-		} catch (GroupException | UserException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 	}
 

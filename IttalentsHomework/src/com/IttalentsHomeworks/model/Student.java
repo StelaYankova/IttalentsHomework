@@ -18,6 +18,10 @@ public class Student extends User{
 		this.homeworks = homeworks;
 
 	}
+	public Student(int id, String username, String email, boolean isTeacher) {
+		super(id, username, email, isTeacher);
+	}
+	
 	public ArrayList<Homework> getHomeworks() {
 		return homeworks;
 	}

@@ -32,13 +32,6 @@
 		<button type="submit" onclick="seeTaskSolution('${i}')">
 			<c:out value="Task ${i}" />
 		</button>
-		<form action="./UploadSolutionServlet" method="POST"
-			enctype="multipart/form-data">
-			<input type="hidden" value="${i}" name = "taskNum">
-			<input type="file"
-				accept="application/java" size="50" name="file">
-			<button type="Submit">Upload solution</button>
-		</form>
 	</c:forEach>
 	
 	<br><br>

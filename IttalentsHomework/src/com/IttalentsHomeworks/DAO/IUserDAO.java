@@ -11,6 +11,7 @@ import com.IttalentsHomeworks.model.Homework;
 import com.IttalentsHomeworks.model.HomeworkDetails;
 import com.IttalentsHomeworks.model.Student;
 import com.IttalentsHomeworks.model.Task;
+import com.IttalentsHomeworks.model.Teacher;
 import com.IttalentsHomeworks.model.User;
 
 public interface IUserDAO {
@@ -51,8 +52,6 @@ public interface IUserDAO {
 
 	void setTimeOfUploadOfTask(HomeworkDetails hd, Student st, int taskNum, LocalDateTime timeOfUpload) throws UserException;
 
-	boolean doesTaskAlreadyExist(HomeworkDetails hd, Student st, Task t) throws UserException;
-
 	void updateUser(User u) throws UserException;
 
 	Student getStudentsByUsername(String string) throws UserException;
@@ -60,4 +59,13 @@ public interface IUserDAO {
 	boolean isTaskNumberValid(int studentId, int homeworkId, int taskNum) throws UserException;
 
 	boolean doesUserExistInDB(String username, String password) throws UserException;
+
+	void addHomeworkToStudent(User user, HomeworkDetails hd) throws UserException;
+
+	boolean doesTaskAlreadyExist(HomeworkDetails homeworkDetails, Student student, int taskNum) throws UserException;
+
+	ArrayList<Teacher> getAllTeachers() throws UserException;
+
+	ArrayList<Student> getAllStudents() throws UserException;;
+
 }

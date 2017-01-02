@@ -181,7 +181,7 @@ public class GroupDAO implements IGroupDAO {
 	 * @see com.IttalentsHomeworks.DAO.IGroupDAO#addUserToGroup(com.IttalentsHomeworks.model.Group, com.IttalentsHomeworks.model.User)
 	 */
 	@Override
-	public void addUserToGroup(Group group, User user) throws GroupException {
+	public void addUserToGroup(Group group, User user) throws GroupException, UserException {
 		Connection con = manager.getConnection();
 		if (!GroupDAO.getInstance().isUserAlreadyInGroup(group, user)) {
 			try {
@@ -191,7 +191,13 @@ public class GroupDAO implements IGroupDAO {
 				ps.setInt(2, group.getId());
 				ps.execute();
 				if(!user.isTeacher()){
-					//TODO
+					//for za vsi4ki doma6ni na grupata
+					//da go nqma
+					for(HomeworkDetails hd: GroupDAO.getInstance().getHomeworkDetailsOfGroup(group)){
+						if(!((GroupDAO) GroupDAO.getInstance()).doesStudentAlreadyHaveHomework(user,hd)){
+							UserDAO.getInstance().addHomeworkToStudent(user,hd);
+						}
+					}
 				}
 			} catch (SQLException e) {
 				throw new GroupException("Something went wrong with adding a user to a group..");
@@ -199,6 +205,22 @@ public class GroupDAO implements IGroupDAO {
 		}
 	}
 
+	public boolean doesStudentAlreadyHaveHomework(User user, HomeworkDetails hd) throws GroupException{
+		boolean doesHaveHw = false;
+		Connection con = manager.getConnection();
+		try {
+			PreparedStatement ps = con.prepareStatement("SELECT * FROM IttalentsHomeworks.User_has_homework WHERE user_id = ? AND homework_id = ?;");
+			ps.setInt(1, user.getId());
+			ps.setInt(2, hd.getId());
+			ResultSet rs = ps.executeQuery();
+			if(rs.next()){
+				doesHaveHw = true;
+			}
+		} catch (SQLException e) {
+			throw new GroupException("Something went wrong with checking if user already has current homework..");
+		}
+		return doesHaveHw;
+	}
 	// constructor with teachers
 	/* (non-Javadoc)
 	 * @see com.IttalentsHomeworks.DAO.IGroupDAO#createNewGroup(com.IttalentsHomeworks.model.Group)
@@ -216,6 +238,7 @@ public class GroupDAO implements IGroupDAO {
 				group.setId(GroupDAO.getInstance().getGroupIdByGroupName(group));
 				for (int i = 0; i < group.getTeachers().size(); i++) {
 					ps = con.prepareStatement(ADD_USER_TO_GROUP);
+					System.out.println(group.getTeachers().get(i).getId());
 					ps.setInt(1, group.getTeachers().get(i).getId());
 					ps.setInt(2, group.getId());
 					ps.executeUpdate();
@@ -322,7 +345,7 @@ public class GroupDAO implements IGroupDAO {
 	 * @see com.IttalentsHomeworks.DAO.IGroupDAO#removeUserFromGroup(com.IttalentsHomeworks.model.Group, com.IttalentsHomeworks.model.Student)
 	 */
 	@Override
-	public void removeUserFromGroup(Group group, User user) throws GroupException {
+	public void removeUserFromGroup(Group group, User user) throws GroupException, UserException {
 		Connection con = manager.getConnection();
 		try {
 			PreparedStatement ps = con.prepareStatement(
@@ -330,6 +353,18 @@ public class GroupDAO implements IGroupDAO {
 			ps.setInt(1, user.getId());
 			ps.setInt(2, group.getId());
 			ps.execute();
+			//if we remove user from group we don't remove his homeworks and solutions,
+			//if we decide to add him back to the group later it would be better if we kept them
+			/*if(!user.isTeacher()){
+				
+				for(HomeworkDetails hd: GroupDAO.getInstance().getAllHomeworksDetails()){
+					if(((GroupDAO) GroupDAO.getInstance()).doesStudentAlreadyHaveHomework(user,hd)){
+						//ako doma6noto e samo kam tazi grupa
+						if(GroupDAO.getInstance().get)
+						UserDAO.getInstance().removeHomeworkFromStudent(user,hd);
+					}
+				}
+			}*/
 		} catch (SQLException e) {
 			throw new GroupException("Something went wrong with removing a student from a group..");
 		}
@@ -508,7 +543,7 @@ public class GroupDAO implements IGroupDAO {
 					
 					for (int i = 0; i < homeworkDetails.getNumberOfTasks(); i++) {
 						Task t = new Task(i, null, null);
-						if (UserDAO.getInstance().doesTaskAlreadyExist(homeworkDetails, s, t)) {
+						if (UserDAO.getInstance().doesTaskAlreadyExist(homeworkDetails, s, i)) {
 							ps = con.prepareStatement(
 									REMOVE_HOMEWORK_FROM_GROUP_III);
 							ps.setInt(1, s.getId());
@@ -537,7 +572,7 @@ public class GroupDAO implements IGroupDAO {
 		Connection con = manager.getConnection();
 		try {
 			//con.setAutoCommit(false);
-			//try {
+			//ftry {
 				PreparedStatement ps = con
 						.prepareStatement(ADD_HOMEWORK_TO_GROUP_I);
 				ps.setInt(1, group.getId());
@@ -550,7 +585,7 @@ public class GroupDAO implements IGroupDAO {
 					ps.execute();
 					for (int i = 0; i < homeworkDetails.getNumberOfTasks(); i++) {
 						Task t = new Task(i, null, null);
-						if (!UserDAO.getInstance().doesTaskAlreadyExist(homeworkDetails, s, t)) {
+						if (!UserDAO.getInstance().doesTaskAlreadyExist(homeworkDetails, s, i)) {
 							ps = con.prepareStatement(
 									ADD_HOMEWORK_TO_GROUP_III);
 							ps.setInt(1, s.getId());

@@ -15,6 +15,8 @@ import com.IttalentsHomeworks.DAO.UserDAO;
 import com.IttalentsHomeworks.Exceptions.GroupException;
 import com.IttalentsHomeworks.Exceptions.UserException;
 import com.IttalentsHomeworks.model.Group;
+import com.IttalentsHomeworks.model.Student;
+import com.IttalentsHomeworks.model.Teacher;
 import com.IttalentsHomeworks.model.User;
 
 /**
@@ -24,6 +26,22 @@ import com.IttalentsHomeworks.model.User;
 public class LoginServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
+	@Override
+	public void init() throws ServletException {
+		// TODO Auto-generated method stub
+		super.init();
+		ArrayList<Group> allGroups;
+		try {
+			allGroups = GroupDAO.getInstance().getAllGroups();
+			getServletContext().setAttribute("allGroups", allGroups);
+			ArrayList<Teacher> allTeachers = UserDAO.getInstance().getAllTeachers();
+			getServletContext().setAttribute("allTeachers", allTeachers);
+		} catch (UserException | GroupException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		User user = null;
 		String username = request.getParameter("username");
@@ -34,10 +52,11 @@ public class LoginServlet extends HttpServlet {
 			if(UserDAO.getInstance().doesUserExistInDB(username, password)){
 				user = UserDAO.getInstance().getUserByUsername(username);
 				request.getSession().setAttribute("user", user);
-				ArrayList<Group> allGroups = GroupDAO.getInstance().getAllGroups();
-				request.getServletContext().setAttribute("allGroups", allGroups);
+				
 				if(user.isTeacher()){
 					response.sendRedirect("mainPageTeacher.jsp");
+					ArrayList<Student> allStudents = UserDAO.getInstance().getAllStudents();
+					request.getServletContext().setAttribute("allStudents", allStudents);
 				}else{
 					response.sendRedirect("mainPageStudent.jsp");
 				}

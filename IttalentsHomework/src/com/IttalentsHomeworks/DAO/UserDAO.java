@@ -17,6 +17,8 @@ import com.IttalentsHomeworks.model.Student;
 import com.IttalentsHomeworks.model.Task;
 import com.IttalentsHomeworks.model.Teacher;
 import com.IttalentsHomeworks.model.User;
+import com.mysql.cj.api.jdbc.Statement;
+
 import java.sql.Connection;
 
 public class UserDAO implements IUserDAO {
@@ -441,14 +443,14 @@ public class UserDAO implements IUserDAO {
 	 * @see com.IttalentsHomeworks.DAO.IUserDAO#doesTaskAlreadyExist(com.IttalentsHomeworks.model.HomeworkDetails, com.IttalentsHomeworks.model.Student, com.IttalentsHomeworks.model.Task)
 	 */
 	@Override
-	public boolean doesTaskAlreadyExist(HomeworkDetails homeworkDetails, Student student, Task task) throws UserException{
+	public boolean doesTaskAlreadyExist(HomeworkDetails homeworkDetails, Student student, int taskNum) throws UserException{
 		boolean doesExist = false;
 		Connection con = manager.getConnection();
 		try {
 			PreparedStatement ps = con.prepareStatement(DOES_TASK_ALREADY_EXIST);
 			ps.setInt(1, student.getId());
 			ps.setInt(2, homeworkDetails.getId());
-			ps.setInt(3, task.getTaskNumber());
+			ps.setInt(3, taskNum);
 			ResultSet rs = ps.executeQuery();
 			if(rs.next()){
 				doesExist = true;
@@ -544,4 +546,70 @@ public class UserDAO implements IUserDAO {
 		}
 		return false;
 	}
+
+	//TODO transaction
+	@Override
+	public void addHomeworkToStudent(User user, HomeworkDetails hd) throws UserException {
+		Connection con = manager.getConnection();
+		try {
+			PreparedStatement ps = con.prepareStatement("INSERT INTO IttalentsHomeworks.User_has_homework (user_id,homework_id) VALUES (?,?);");
+			ps.setInt(1, user.getId());
+			ps.setInt(2, hd.getId());
+			ps.execute();
+			
+			for (int i = 0; i < hd.getNumberOfTasks(); i++) {
+				if (!UserDAO.getInstance().doesTaskAlreadyExist(hd, (Student) user, i)) {
+					ps = con.prepareStatement(
+							"INSERT INTO IttalentsHomeworks.Homework_task_solution (student_id,homework_id,task_number) VALUES (?,?,?);");
+					ps.setInt(1, user.getId());
+					ps.setInt(2, hd.getId());
+					ps.setInt(3, i);
+					ps.execute();
+				}
+			}
+		} catch (SQLException e) {			
+			throw new UserException("Something went wrong with adding homework to student..");
+
+		}
+		
+	}
+
+	//TODO junit test
+	@Override
+	public ArrayList<Teacher> getAllTeachers() throws UserException {
+		ArrayList<Teacher> allTeachers = new ArrayList<>();
+		Connection con = manager.getConnection();
+		Statement st;
+		try {
+			st = (Statement) con.createStatement();
+			ResultSet rs = st.executeQuery("SELECT * FROM IttalentsHomeworks.Users WHERE isTeacher = 1;");
+			while(rs.next()){
+				System.out.println(rs.getInt(1) + ","+ rs.getString(2)+ ","+rs.getString(4)+ ","+ rs.getBoolean(5));
+				allTeachers.add(new Teacher(rs.getInt(1), rs.getString(2), rs.getString(4), rs.getBoolean(5)));
+			}
+		} catch (SQLException e) {
+			throw new UserException("Something went wrong with getting all teachers..");
+		}
+		return allTeachers;
+	}
+
+	@Override
+	public ArrayList<Student> getAllStudents() throws UserException {
+		ArrayList<Student> allStudents = new ArrayList<>();
+		Connection con = manager.getConnection();
+		Statement st;
+		try {
+			st = (Statement) con.createStatement();
+			ResultSet rs = st.executeQuery("SELECT * FROM IttalentsHomeworks.Users WHERE isTeacher = 0;");
+			while(rs.next()){
+				System.out.println(rs.getInt(1) + ","+ rs.getString(2)+ ","+rs.getString(4)+ ","+ rs.getBoolean(5));
+				allStudents.add(new Student(rs.getInt(1), rs.getString(2), rs.getString(4), rs.getBoolean(5)));
+			}
+		} catch (SQLException e) {
+			throw new UserException("Something went wrong with getting all students..");
+		}
+		return allStudents;
+	}
+
+	
 }

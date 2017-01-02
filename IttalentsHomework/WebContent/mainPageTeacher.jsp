@@ -7,10 +7,10 @@
 <title>Insert title here</title>
 </head>
 <body>
-<a href = "./AddOrRemoveStudents">Add or remove student</a>
+<a href = "./AddStudentToGroupServlet">Add or remove student</a>
 <a href = "./SeeGroups">See groups</a>
 <a href = "./GetStudentsScoresServlet">Students homeworks</a>
-<a href = "./SeeHomeworks">See homeworks</a>
+<a href = "./SeeHomeworksServlet">See homeworks</a>
 <a href = "./AddHomework">Add homework</a>
 </body>
 </html>

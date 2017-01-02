@@ -2,6 +2,8 @@ package com.IttalentsHomeworks.model;
 
 import java.util.ArrayList;
 
+import com.IttalentsHomeworks.DAO.GroupDAO;
+
 public class Group {
 	
 	private int id;

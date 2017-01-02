@@ -97,7 +97,7 @@ public class TestDAO {
 	}
 	
 	@Test
-	public void test07removeTeacherFromGroup() throws GroupException{		
+	public void test07removeTeacherFromGroup() throws GroupException, UserException{		
 		boolean isTeacherReturned = false;
 		GroupDAO.getInstance().removeUserFromGroup(group1,user2);
 		for(Teacher t: GroupDAO.getInstance().getTeachersOfGroup(group1)){
