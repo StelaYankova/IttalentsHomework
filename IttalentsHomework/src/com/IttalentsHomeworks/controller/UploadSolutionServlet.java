@@ -131,7 +131,7 @@ public class UploadSolutionServlet extends HttpServlet {
 		}
 		String fileName = " ";
 		for (Part part : request.getParts()) {
-			 fileName = extractFileName(part);
+			// fileName = extractFileName(part);
 			// refines the fileName in case it is an absolute path
 			//fileName = new File(fileName).getName();
 			 fileName = "hwId"+homeworkDetails.getId() +"userId" +user.getId() +"taskNum"+ taskNum + ".java";
@@ -152,7 +152,7 @@ public class UploadSolutionServlet extends HttpServlet {
 	/**
 	 * Extracts file name from HTTP header content-disposition
 	 */
-	private String extractFileName(Part part) {
+	/*private String extractFileName(Part part) {
 		String contentDisp = part.getHeader("content-disposition");
 		String[] items = contentDisp.split(";");
 		for (String s : items) {
@@ -161,5 +161,5 @@ public class UploadSolutionServlet extends HttpServlet {
 			}
 		}
 		return "";
-	}
+	}*/
 }

@@ -12,6 +12,12 @@
 </head>
 <body>
 	<br>
+	<form action="./ReadHomeworkServlet" method="GET">
+		<input type='hidden'
+			value='${sessionScope.currHomework.homeworkDetails.tasksFile}'
+			name='fileName'>
+		<button type='submit'>download homework here</button>
+	</form>
 	<c:out value="${sessionScope.currHomework.homeworkDetails.heading }" />
 	- until
 	<c:out

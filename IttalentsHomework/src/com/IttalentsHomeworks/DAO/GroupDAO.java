@@ -393,40 +393,37 @@ public class GroupDAO implements IGroupDAO {
 	public void createHomeworkDetails(HomeworkDetails homeworkDetails, ArrayList<Group> groupsForHomework)
 			throws GroupException, UserException {
 		Connection con = manager.getConnection();
+		//con.setAutoCommit(false);
 		try {
-			con.setAutoCommit(false);
-			try {
+			//con.setAutoCommit(false);
+
+			PreparedStatement ps = con
+					.prepareStatement(CREATE_HOMEWORK_DETAILS);
+			ps.setString(1, homeworkDetails.getHeading());
+			ps.setString(2, homeworkDetails.getOpeningTime().toString());
+			ps.setString(3, homeworkDetails.getClosingTime().toString());
+			ps.setInt(4, homeworkDetails.getNumberOfTasks());
+			ps.setString(5, homeworkDetails.getTasksFile());
+			ps.execute();
+			homeworkDetails.setId(GroupDAO.getInstance().getHomeworkDetailsId(homeworkDetails));
+			//con.setAutoCommit(false);
+
+			for (Group group : groupsForHomework) {
 				//con.setAutoCommit(false);
-
-				PreparedStatement ps = con
-						.prepareStatement(CREATE_HOMEWORK_DETAILS);
-				ps.setString(1, homeworkDetails.getHeading());
-				ps.setString(2, homeworkDetails.getOpeningTime().toString());
-				ps.setString(3, homeworkDetails.getClosingTime().toString());
-				ps.setInt(4, homeworkDetails.getNumberOfTasks());
-				ps.setString(5, homeworkDetails.getTasksFile());
-				ps.execute();
-				homeworkDetails.setId(GroupDAO.getInstance().getHomeworkDetailsId(homeworkDetails));
-				//con.setAutoCommit(false);
-
-				for (Group group : groupsForHomework) {
-					//con.setAutoCommit(false);
-
-					GroupDAO.getInstance().addHomeworkToGroup(homeworkDetails, group);
-				}
-
-
-				con.commit();
-			} catch (SQLException e) {
-				//con.setAutoCommit(false);
-			     con.rollback();
-				throw new GroupException("Something went wrong with creating a homework..");
-			} finally {
-				//con.setAutoCommit(true);
+				System.out.println("IN " + group.getId());
+				GroupDAO.getInstance().addHomeworkToGroup(homeworkDetails, group);
+				
 			}
+
+
+			//con.commit();
 		} catch (SQLException e) {
-			
+			//con.setAutoCommit(false);
+		    // con.rollback();
+		     System.out.println(e.getMessage());
 			throw new GroupException("Something went wrong with creating a homework..");
+		} finally {
+			//con.setAutoCommit(true);
 		}
 	}
 
@@ -459,43 +456,46 @@ public class GroupDAO implements IGroupDAO {
 	public void updateHomeworkDetails(HomeworkDetails homeworkDetails, ArrayList<Group> groupsforHomework)
 			throws GroupException, UserException {
 		Connection con = manager.getConnection();// get id
+		//con.setAutoCommit(false);
 		try {
-			con.setAutoCommit(false);
-			try {
-				PreparedStatement ps = con.prepareStatement(
-						UPDATE_HOMEWORK_DETAILS);
-				ps.setString(1, homeworkDetails.getHeading());
-				ps.setString(2, homeworkDetails.getOpeningTime().toString());
-				ps.setString(3, homeworkDetails.getClosingTime().toString());
-				ps.setInt(4, homeworkDetails.getNumberOfTasks());
-				ps.setString(5, homeworkDetails.getTasksFile());
-				ps.setInt(6, homeworkDetails.getId());
-				ps.executeUpdate();
-
-				ArrayList<Integer> currGroupIds = GroupDAO.getInstance().getIdsOfGroupsForWhichIsHomework(homeworkDetails);
-				ArrayList<Integer> wishedGroupIds = new ArrayList<>();
-				for (Group g : groupsforHomework) {
-					wishedGroupIds.add(g.getId());
-				}
-				for (Integer id : currGroupIds) {
-					if (!wishedGroupIds.contains(id)) {
-						GroupDAO.getInstance().removeHomeworkFromGroup(homeworkDetails, GroupDAO.getInstance().getGroupById(id));
-					}
-				}
-				for (Integer id : wishedGroupIds) {
-					if (!currGroupIds.contains(id)) {
-						GroupDAO.getInstance().addHomeworkToGroup(homeworkDetails, GroupDAO.getInstance().getGroupById(id));
-					}
-				}
-				con.commit();
-			} catch (SQLException e) {
-				con.rollback();
-				throw new GroupException("Something went wrong with updating homework details..");
-			} finally {
-				con.setAutoCommit(true);
+			PreparedStatement ps = con.prepareStatement(
+					UPDATE_HOMEWORK_DETAILS);
+			ps.setString(1, homeworkDetails.getHeading());
+			ps.setString(2, homeworkDetails.getOpeningTime().toString());
+			ps.setString(3, homeworkDetails.getClosingTime().toString());
+			ps.setInt(4, homeworkDetails.getNumberOfTasks());
+			ps.setString(5, homeworkDetails.getTasksFile());
+			ps.setInt(6, homeworkDetails.getId());
+			ps.executeUpdate();
+			System.out.println("hs iddd: " + homeworkDetails.getId());
+			ArrayList<Integer> currGroupIds = GroupDAO.getInstance().getIdsOfGroupsForWhichIsHomework(homeworkDetails);
+			ArrayList<Integer> wishedGroupIds = new ArrayList<>();
+			for (Group g : groupsforHomework) {
+				wishedGroupIds.add(g.getId());
 			}
-		} catch (SQLException e1) {
+			System.out.println(currGroupIds.isEmpty() + " !!");
+			for (Integer id : currGroupIds) {
+				System.out.println(id + " curr");
+				if (!(wishedGroupIds.contains(id))) {
+					GroupDAO.getInstance().removeHomeworkFromGroup(homeworkDetails, GroupDAO.getInstance().getGroupById(id));
+				}
+			}
+			for (Integer id : wishedGroupIds) {
+				if (!(currGroupIds.contains(id))) {
+					System.out.println(id + " wishdef");
+					//if (!(GroupDAO.getInstance().getIdsOfGroupsForWhichIsHomework(homeworkDetails).contains(id))) {
+						System.out.println("NE VKLU4VA");
+						GroupDAO.getInstance().addHomeworkToGroup(homeworkDetails,
+								GroupDAO.getInstance().getGroupById(id));
+					//}
+				}
+			}
+			//con.commit();
+		} catch (SQLException e) {
+			//con.rollback();
 			throw new GroupException("Something went wrong with updating homework details..");
+		} finally {
+			//con.setAutoCommit(true);
 		}
 	}
 
@@ -535,7 +535,7 @@ public class GroupDAO implements IGroupDAO {
 				ps.setInt(1, group.getId());
 				ps.setInt(2, homeworkDetails.getId());
 				ps.execute();
-				for (Student s : GroupDAO.getInstance().getStudentsOfGroup(group)) {
+				/*for (Student s : GroupDAO.getInstance().getStudentsOfGroup(group)) {
 					ps = con.prepareStatement(REMOVE_HOMEWORK_FROM_GROUP_II);
 					ps.setInt(1, s.getId());
 					ps.setInt(2, homeworkDetails.getId());
@@ -551,7 +551,7 @@ public class GroupDAO implements IGroupDAO {
 							ps.execute();
 						}
 					}
-				}
+				}*/
 				//con.commit();
 			} catch (SQLException e) {
 			//	con.rollback();
@@ -573,31 +573,50 @@ public class GroupDAO implements IGroupDAO {
 		try {
 			//con.setAutoCommit(false);
 			//ftry {
+			System.out.println("1");
 				PreparedStatement ps = con
 						.prepareStatement(ADD_HOMEWORK_TO_GROUP_I);
 				ps.setInt(1, group.getId());
 				ps.setInt(2, homeworkDetails.getId());
 				ps.execute();
+				System.out.println("2");
+
 				for (Student s : GroupDAO.getInstance().getStudentsOfGroup(group)) {
+					if(!((GroupDAO) GroupDAO.getInstance()).doesStudentAlreadyHaveHomework(s,homeworkDetails)){
+
+					System.out.println("3");
+					System.out.println(s.getId() + " is student");
 					ps = con.prepareStatement(ADD_HOMEWORK_TO_GROUP_II);
 					ps.setInt(1, s.getId());
 					ps.setInt(2, homeworkDetails.getId());
 					ps.execute();
+					System.out.println("4");
+
 					for (int i = 0; i < homeworkDetails.getNumberOfTasks(); i++) {
+						System.out.println("5");
+
 						Task t = new Task(i, null, null);
 						if (!UserDAO.getInstance().doesTaskAlreadyExist(homeworkDetails, s, i)) {
+							System.out.println("6");
+
 							ps = con.prepareStatement(
 									ADD_HOMEWORK_TO_GROUP_III);
+							System.out.println("7");
+
 							ps.setInt(1, s.getId());
 							ps.setInt(2, homeworkDetails.getId());
 							ps.setInt(3, t.getTaskNumber());
 							ps.execute();
+							System.out.println("8");
+
 						}
 					}
+				}
 				}
 				//con.commit();
 			} catch (SQLException e) {
 			//	con.rollback();
+				System.out.println(e.getMessage());
 				throw new GroupException("Something went wrong with adding a homework to group..");
 			} finally {
 				//con.setAutoCommit(true);
@@ -693,5 +712,27 @@ public class GroupDAO implements IGroupDAO {
 		} catch (SQLException e) {
 			throw new GroupException("Something went wrong with changing the name of a group..");
 		}
+	}
+
+	@Override
+	public HomeworkDetails getHomeworkDetailsById(int chosenHomeworkId) throws GroupException {
+		Connection con = manager.getConnection();
+		HomeworkDetails homeworkDetails = null;
+		try {
+			PreparedStatement ps = con.prepareStatement("SELECT id,heading,opens,closes,num_of_tasks,tasks_pdf FROM IttalentsHomeworks.Homework WHERE id = ?;");
+			ps.setInt(1, chosenHomeworkId);
+			ResultSet rs = ps.executeQuery();
+			if(rs.next()){
+				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+				String openingTimeString = rs.getString(3);
+				String closingTimeString = rs.getString(4);
+				LocalDateTime openingTime = LocalDateTime.parse(openingTimeString, formatter);
+				LocalDateTime closingTime = LocalDateTime.parse(closingTimeString, formatter);
+				homeworkDetails = new HomeworkDetails(rs.getInt(1), rs.getString(2), openingTime, closingTime, rs.getInt(5), rs.getString(6));
+			}
+		} catch (SQLException e) {
+			throw new GroupException("Something went wrong with getting homework details..");
+		}
+		return homeworkDetails;
 	}
 }

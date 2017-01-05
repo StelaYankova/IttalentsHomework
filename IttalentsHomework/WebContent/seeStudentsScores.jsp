@@ -13,9 +13,16 @@
 Choose group:
 <select id = "chosenGroup">
  <option value="null">-</option>
+ <c:if test="${sessionScope.isTeacher == false}">
 <c:forEach var="group" items="${user.groups}" >
 	 <option value="${group.id}"><c:out value="${group.name}"></c:out></option>
  </c:forEach>
+ </c:if>
+  <c:if test="${sessionScope.isTeacher == true}">
+<c:forEach var="group" items="${applicationScope.allGroups}" >
+	 <option value="${group.id}"><c:out value="${group.name}"></c:out></option>
+ </c:forEach>
+ </c:if>
 </select>
 <div id = "listOfStudentsOfGroup">
 </div>

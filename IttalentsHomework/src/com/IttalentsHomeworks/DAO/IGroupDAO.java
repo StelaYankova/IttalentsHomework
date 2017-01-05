@@ -60,4 +60,6 @@ public interface IGroupDAO {
 
 	ArrayList<Integer> getIdsOfGroupsForWhichIsHomework(HomeworkDetails homeworkDetails) throws GroupException;
 
+	HomeworkDetails getHomeworkDetailsById(int chosenHomeworkId) throws GroupException;;
+
 }

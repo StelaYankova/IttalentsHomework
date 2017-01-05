@@ -46,7 +46,7 @@ public class LoginServlet extends HttpServlet {
 		User user = null;
 		String username = request.getParameter("username");
 		String password = request.getParameter("password");
-		request.getSession().setMaxInactiveInterval(1000);
+		request.getSession().setMaxInactiveInterval(100000);
 
 		try {
 			if(UserDAO.getInstance().doesUserExistInDB(username, password)){
@@ -54,10 +54,15 @@ public class LoginServlet extends HttpServlet {
 				request.getSession().setAttribute("user", user);
 				
 				if(user.isTeacher()){
-					response.sendRedirect("mainPageTeacher.jsp");
+					request.getSession().setAttribute("isTeacher", true);
+
 					ArrayList<Student> allStudents = UserDAO.getInstance().getAllStudents();
 					request.getServletContext().setAttribute("allStudents", allStudents);
+					response.sendRedirect("mainPageTeacher.jsp");
+
 				}else{
+					request.getSession().setAttribute("isTeacher", false);
+
 					response.sendRedirect("mainPageStudent.jsp");
 				}
 			}else{

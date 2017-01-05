@@ -29,7 +29,8 @@ public class seeHomeworksOfGroupServlet extends HttpServlet {
 		JsonArray array = new JsonArray();
 		String group = request.getParameter("chosenGroup");
 		System.out.println(group);
-	if (!(request.getParameter("chosenGroup").equals("null"))) {
+		if (!(request.getParameter("chosenGroup").equals("null"))) {
+			if (!(request.getParameter("chosenGroup").equals("allGroups"))) {
 			int groupId = Integer.parseInt(request.getParameter("chosenGroup"));
 		
 			Group chosenGroup = null;
@@ -41,15 +42,24 @@ public class seeHomeworksOfGroupServlet extends HttpServlet {
 				e.printStackTrace();
 			}
 		
-		for (HomeworkDetails hd : homeworkDetailsByGroup) {
-			JsonObject obj = new JsonObject();
-			obj.addProperty("heading", hd.getHeading());
-			obj.addProperty("id", hd.getId());
-			obj.addProperty("opens", hd.getOpeningTime().toString());
-			obj.addProperty("closes", hd.getClosingTime().toString());
+		
+			}else{
+				try {
+					homeworkDetailsByGroup = GroupDAO.getInstance().getAllHomeworksDetails();
+				} catch (GroupException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			for (HomeworkDetails hd : homeworkDetailsByGroup) {
+				JsonObject obj = new JsonObject();
+				obj.addProperty("heading", hd.getHeading());
+				obj.addProperty("id", hd.getId());
+				obj.addProperty("opens", hd.getOpeningTime().toString());
+				obj.addProperty("closes", hd.getClosingTime().toString());
 
-			array.add(obj);
-		}
+				array.add(obj);
+			}
 	}
 		response.getWriter().write(array.toString());
 	}

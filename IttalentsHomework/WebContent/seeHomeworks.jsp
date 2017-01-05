@@ -12,7 +12,7 @@
 <body>
 <select id =  "chosenGroup">
  <option value="null">-</option>
- <!--  <option value="allGroups">All Groups</option>-->
+   <option value="allGroups">All Groups</option>
 
 <c:forEach var="group" items="${applicationScope.allGroups}" >
 	<option value = "${group.id}"><c:out value="${group.name}"></c:out></option>
@@ -51,15 +51,29 @@
 			for(var i in response){
 				
 			var row = $("<tr>");
-				//row.append($("<td><form action = './GetAllStudentsOfGroupServlet' method = 'GET'><input type = 'hidden' name = 'hdId' value = " + response[i].id+ "><input type = 'hidden' name = 'chosenGroupId' value = " +groupId+ "><button type = 'submit'>" + response[i].heading +"</button></form></td>"))
-			    row.append($("<td><button type = 'submit' onclick = 'chooseStudent(" + response[i].id +"," + groupId +")'>" +response[i].heading + "</button></td>")) 
+			
+			if(groupId === 'allGroups'){
+				row.append($("<td><button type = 'submit' onclick = 'chooseGroupFirst()'>" +response[i].heading + "</button></td>")) 
 				.append($("<td>"+ response[i].opens+"</td>"))
 			     .append($("<td>" +response[i].closes+"</td>"))
+			     .append($("<form action = './UpdateHomeworkServlet' method = 'GET'><input type = 'hidden' name = 'chosenHomework' value = "+response[i].id +"><button type = 'submit'>Change</button></form>"))
 			  $("#resultTable").append(row);
+			
+			}else{
+			row.append($("<td><button type = 'submit' onclick = 'chooseStudent(" + response[i].id +"," + groupId +")'>" +response[i].heading + "</button></td>")) 
+				.append($("<td>"+ response[i].opens+"</td>"))
+			     .append($("<td>" +response[i].closes+"</td>"))
+			     .append($("<form action = './UpdateHomeworkServlet' method = 'GET'><input type = 'hidden' name = 'chosenHomework' value = "+response[i].id +"><button type = 'submit'>Change</button></form>"))
+			  $("#resultTable").append(row);
+			}
 			}
 		}
 	});
 });
+	function chooseGroupFirst(){
+		alert("If you would like to see the homework of some of the students you should choose group first.")
+	}
+	
 	function chooseStudent(homeworkId, groupId){
 		if(!$('#listOfStudentsOfGroup').is(':empty') ) {
 			$( "#listOfStudentsOfGroup").empty();
