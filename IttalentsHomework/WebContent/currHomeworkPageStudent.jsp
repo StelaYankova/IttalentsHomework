@@ -11,6 +11,8 @@
 <title>Insert title here</title>
 </head>
 <body>
+	<%@ include file="navBarStudent.jsp"%>
+
 	<br>
 	<c:out value="${sessionScope.currHomework.homeworkDetails.heading }" />
 	- until

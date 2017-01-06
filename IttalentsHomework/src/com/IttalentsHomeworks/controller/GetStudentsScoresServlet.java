@@ -7,6 +7,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.tomcat.jni.User;
+
+import com.IttalentsHomeworks.model.Teacher;
+
 /**
  * Servlet implementation class GetStudentsScoresServlet
  */

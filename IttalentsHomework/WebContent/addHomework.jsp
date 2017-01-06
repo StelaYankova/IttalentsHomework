@@ -10,6 +10,12 @@
 	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 <script
 	src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.1/css/bootstrap-select.min.css">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.1/js/bootstrap-select.min.js"></script>
+
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Insert title here</title>
 </head>
@@ -58,9 +64,15 @@
 			type="number" min="0" name="numberOfTasks" /> 
 			<br>Tasks<input type="file"
 				accept="application/pdf" name="file">
-		<div class="multiselect">
-			<div class="selectBox" onclick="showCheckboxes()">
-				<select>
+		
+			<!--  <div class="multiselect"><div class="selectBox" onclick="showCheckboxes()">-->
+			<select class="selectpicker" multiple name = "groups">
+			
+			<c:forEach items="${applicationScope.allGroups}" var="group">
+					<option value="${group.id}" >
+					<c:out value="${group.name}"></c:out></option>
+				</c:forEach>
+				<!-- <select>
 					<option>Select an option</option>
 				</select>
 				<div class="overSelect"></div>
@@ -70,9 +82,9 @@
 					<input type="checkbox" name = "groups" value="${group.id}" >
 					<c:out value="${group.name}"></c:out>
 				</c:forEach>
-			</div>
+			</div> -->
 			
-		</div>
+		</select>
 		<button type = "submit">Save</button>
 	</form>
 	<script>

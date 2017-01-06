@@ -9,6 +9,8 @@
 <title>Insert title here</title>
 </head>
 <body>
+	<%@ include file="navBarStudent.jsp"%>
+
 	<form action="./UpdateYourProfileServlet" method="POST">
 		Username
 		<c:out value="${sessionScope.user.username}"></c:out>

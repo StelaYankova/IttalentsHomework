@@ -7,11 +7,27 @@
 <head>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.1/css/bootstrap-select.min.css">
+
+<!-- Latest compiled and minified JavaScript -->
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.1/js/bootstrap-select.min.js"></script>
 <title>Insert title here</title>
 </head>
+<style>
+#image{
+	position:absolute;
+	   left: 850px;
+	
+}
+</style>
 <body>
-
-	<br>
+	<%@ include file="navBarStudent.jsp"%>
+<div id = "image">
+     <img src="logo-black.png" class="img-rounded" width="380" height="236"> 
+	</div>
+	<!--<br>
 	<br>
 	<a href = "./LogoutServlet"> Logout </a>
 	<a href = "./UpdateYourProfileServlet">Your profile</a>
@@ -68,6 +84,6 @@
 				}
 			});
 		}
-	</script>
+	</script>-->
 </body>
 </html>

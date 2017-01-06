@@ -10,6 +10,7 @@ public class HomeworkDetails {
 	private LocalDateTime closingTime;
 	private int numberOfTasks;
 	private String tasksFile;
+	private int daysLeft;
 	
 	public HomeworkDetails(int id, String heading, LocalDateTime openingTime, LocalDateTime closingTime,
 			int numberOfTasks, String tasksFile) {
@@ -63,6 +64,12 @@ public class HomeworkDetails {
 	}
 	public void setTasksFile(String tasksFile) {
 		this.tasksFile = tasksFile;
+	}
+	public int getDaysLeft() {
+		return daysLeft;
+	}
+	public void setDaysLeft(int daysLeft) {
+		this.daysLeft = daysLeft;
 	}
 	
 	

@@ -24,6 +24,7 @@ public class GetHomeworkServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		Student user = (Student) request.getSession().getAttribute("user");
 		int homeworkId = Integer.parseInt(request.getParameter("id"));
+		System.out.println("GVHBJNKML " + homeworkId);
 		Homework homework = null;
 		//System.out.println(user.get);
 		for(Homework h: user.getHomeworks()){
