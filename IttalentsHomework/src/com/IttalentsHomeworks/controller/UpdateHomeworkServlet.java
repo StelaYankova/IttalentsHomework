@@ -153,6 +153,9 @@ public class UpdateHomeworkServlet extends HttpServlet {
 			
 			HomeworkDetails hd = GroupDAO.getInstance().getHomeworkDetailsById(homeworkDetailsId);
 			request.getSession().setAttribute("currHomework", hd);
+			request.getServletContext().removeAttribute("allGroups");
+			ArrayList<Group> allGroups = GroupDAO.getInstance().getAllGroups();
+			request.getServletContext().setAttribute("allGroups", allGroups);
 		} catch (GroupException | UserException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

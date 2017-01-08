@@ -116,7 +116,7 @@
 						console.log(response[i].heading)
 						var rowNode = table.row
 												.add(
-														["<form action = './GetHomeworkServlet' method = 'GET'><input type = 'hidden' name = 'id' value = " + response[i].id+ "><button type = 'submit'>" + response[i].heading +"</button></form>",
+														["<form action = './GetHomeworkServlet' method = 'GET'><input type = 'hidden' name = 'id' value = " + response[i].id+ "><button class='btn btn-link' type = 'submit'>" + response[i].heading +"</button></form>",
 														 response[i].opens,response[i].closes,response[i].teacherScore + "/100",response[i].teacherComment]).draw().node();
 					/*var row = $("<tr>");
 
@@ -129,6 +129,11 @@
 						 
 						  $("#resultTable").append(row);
 						*/
+					}
+					if(response === 'null'){
+						
+						$('#resultTable tbody').html('no data available in table');
+
 					}
 				}
 			});

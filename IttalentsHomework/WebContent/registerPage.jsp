@@ -27,7 +27,7 @@
      <img src="logo-black.png" class="img-rounded" width="380" height="236"> 
 	</div>
 	<div id = "formRegister" align="center">
-		<label style = "position:absolute;left:290px;text-decoration: underline;">Registration</label>
+		<label class="control-label col-sm-16" style = "position:absolute;left:290px;text-decoration: underline;">Registration</label>
 		<br><br><br>
 		<form class="form-horizontal" action="./RegisterServlet" method="POST">
 		<div class="form-group">

@@ -11,36 +11,35 @@
   <link rel="stylesheet" href="/resources/demos/style.css">
   <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
   <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-   <script>
-  $( function() {
-		var availableTags = new Array();
-		<c:forEach items="${applicationScope.allStudents}" var="student"> 
-			availableTags.push('${student.username}');
-    	 </c:forEach> 
-    $( "#tags" ).autocomplete({
-      source: availableTags
-    });
-  } );
-  </script>
 <title>Insert title here</title>
 </head>
+<style>
+#image {
+	position: relative;
+	left: 850px;
+}
+</style>
 <body>
-Choose group:
+	<!--<%@ include file="navBarTeacher.jsp"%>-->
 
-<div class="ui-widget">
-<form action = "./AddStudentToGroupServlet" method = "POST">
-<select id = "chosenGroup" name = "chosenGroup">
- <option value="null">-</option>
-<c:forEach var="group" items="${applicationScope.allGroups}" >
-	 <option value="${group.id}"><c:out value="${group.name}"></c:out></option>
- </c:forEach>
-</select>
-  <label for="tags">Tags: </label>
-  <input id="tags" name = "selectedStudent">
-  <button type = "submit">Add</button>
-  </form>
-</div>
-<div id = "listOfStudentsOfGroup"></div>
+	<div id="image">
+		<img src="logo-black.png" class="img-rounded" width="380" height="236">
+	</div>
+	Choose group:
+
+	<div class="ui-widget">
+		<form action="./AddStudentToGroupServlet" method="POST">
+			<select id="chosenGroup" name="chosenGroup">
+				<option value="null">-</option>
+				<c:forEach var="group" items="${applicationScope.allGroups}">
+					<option value="${group.id}"><c:out value="${group.name}"></c:out></option>
+				</c:forEach>
+			</select> <label for="tags">Tags: </label> <input id="tags"
+				name="selectedStudent">
+			<button type="submit">Add</button>
+		</form>
+	</div>
+	<div id="listOfStudentsOfGroup"></div>
 </body>
 <script>
 $(document).ready(function() {
@@ -67,5 +66,14 @@ $(document).ready(function() {
 		});
 	});
 });
+$( function() {
+	var availableTags = new Array();
+	<c:forEach items="${applicationScope.allStudents}" var="student"> 
+		availableTags.push('${student.username}');
+	 </c:forEach> 
+$( "#tags" ).autocomplete({
+  source: availableTags
+});
+} );
 </script>
 </html>

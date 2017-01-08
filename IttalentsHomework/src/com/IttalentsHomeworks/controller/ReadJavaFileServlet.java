@@ -61,8 +61,13 @@ public class ReadJavaFileServlet extends HttpServlet {
 		System.out.println(homework.getTasks().size());
 
 		System.out.println(task);
-		obj.addProperty("uploadedOn", task.getUploadedOn().toString());
+		if(strLine.equals("Solution is not uploaded yet.")){
+		obj.addProperty("uploadedOn", "-");
 		obj.addProperty("solution", strLine);
+		}else{
+			obj.addProperty("uploadedOn", task.getUploadedOn().toString());
+			obj.addProperty("solution", strLine);
+		}
 		response.getWriter().write(obj.toString());
 	}
 

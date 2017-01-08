@@ -24,7 +24,7 @@ Choose group:
  </c:forEach>
  </c:if>
 </select>
-<div id = "listOfStudentsOfGroup">
+<div id = "listOfStudentsOfGroup" style = "border-style: groove;z-index = 1">
 </div>
 <div >
 		<table id="resultTable" border="1">

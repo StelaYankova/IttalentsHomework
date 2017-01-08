@@ -25,9 +25,13 @@ public class UpdateTeacherGradeAndCommentServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		Homework homework  = (Homework) request.getSession().getAttribute("currHomework");
 		HomeworkDetails hdOfhomework = null;
+		System.out.println("#####################");
 		String teacherComment = request.getParameter("comment");
+		System.out.println(teacherComment);
 		int teacherGrade = Integer.parseInt(request.getParameter("grade"));
+		System.out.println(teacherGrade);
 		int studentId = (int) request.getSession().getAttribute("studentId");
+		System.out.println(studentId);
 		ArrayList<Homework> homeworksOfStudent;
 		try {
 			homeworksOfStudent = UserDAO.getInstance().getHomeworksOfStudent(studentId);

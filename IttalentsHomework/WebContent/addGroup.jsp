@@ -6,10 +6,29 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.1/css/bootstrap-select.min.css">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.1/js/bootstrap-select.min.js"></script>
+
 <title>Insert title here</title>
 </head>
 <style>
-.multiselect {
+#image {
+	position: relative;
+	left: 850px;
+}
+
+#formAddGroup {
+	position: absolute;
+	left: 60px;
+	top: 220px;
+	background-color: #ffffff;
+	width: 500px;
+}
+/*.multiselect {
 	width: 200px;
 }
 
@@ -41,29 +60,62 @@
 
 #checkboxes label:hover {
 	background-color: #1e90ff;
-}
+}*/
 </style>
 <body>
-New group
-<form action = "./AddGroupServlet" method = "POST">
-<input type = "text" name = "groupName">
-<div class="multiselect">
-			<div class="selectBox" onclick="showCheckboxes()">
-				<select required>
-					<option>Select an option</option>
-				</select>
-				<div class="overSelect"></div>
+	<%@ include file="navBarTeacher.jsp"%>
+	<div id="image">
+		<img src="logo-black.png" class="img-rounded" width="380" height="236">
+	</div>
+
+	<div id="formAddGroup" align="right">
+		<form action="./AddGroupServlet" method="POST">
+			<label
+				style="position: absolute; left: 290px; text-decoration: underline;">New
+				group</label> <br> <br> <br>
+			<div class="form-group">
+				<label class="control-label col-sm-6">Name</label>
+				<div class="col-sm-6">
+					<input type="text" name="groupName" class="form-control">
+				</div>
 			</div>
-			<div id="checkboxes" >
-				<c:forEach items="${applicationScope.allTeachers}" var="teacher">
-					<input type="checkbox" name = "teachers" value="${teacher.username}" />
-					<c:out value="${teacher.username}"></c:out>
-				</c:forEach>
+			<br><div class="form-group">
+					<label class="control-label col-sm-6">Teachers</label>
+					<div class="col-sm-6">
+						<select class="selectpicker" multiple name = "teachers">
+						<c:forEach items="${applicationScope.allTeachers}" var="teacher">
+							<option value="${teacher.username}">
+								<c:out value="${teacher.username}"></c:out></option>
+						</c:forEach>
+					</select>
+				</div>
+				<!-- <div class="multiselect">
+					<div class="selectBox" onclick="showCheckboxes()">
+						<select required>
+							<option>Select an option</option>
+						</select>
+						<div class="overSelect"></div>
+					</div>
+					<div id="checkboxes">
+						<c:forEach items="${applicationScope.allTeachers}" var="teacher">
+							<input type="checkbox" name="teachers"
+								value="${teacher.username}" />
+							<c:out value="${teacher.username}"></c:out>
+						</c:forEach>
+					</div>
+				</div> -->
 			</div>
-		</div>
-<button type = "submit">Save</button>
-</form>
-<script>
+			<br>
+			<br>
+			<div class="form-group">
+				<div class="col-sm-offset-3 col-sm-2" style="left: 290px">
+
+					<button style="align: right" type="submit" class="btn btn-default">Save</button>
+				</div>
+			</div>
+		</form>
+	</div>
+	<script>
     var expanded = false;
     function showCheckboxes() {
         var checkboxes = document.getElementById("checkboxes");

@@ -5,6 +5,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Insert title here</title>
+
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 
 <link rel="stylesheet"
@@ -15,6 +16,7 @@
 	href="//cdn.datatables.net/1.10.12/css/jquery.dataTables.css">
 <script type="text/javascript" charset="utf8"
 	src="//cdn.datatables.net/1.10.12/js/jquery.dataTables.js"></script>
+	
 </head>
 <style>
 
@@ -49,7 +51,7 @@ float:left;
 
 }
  .footer {
-  position: absolute;
+   position: absolute;
   position: fixed;
     bottom: 0;
     height: 60px;
@@ -109,74 +111,28 @@ float:left;
 			style="padding-top: 25px; padding-right: 25px">
 			<li><a href="./UpdateYourProfileServlet" style="color: #9d9d9d"
 				class="btn-lg">Your profile</a></li>
-			<li>
-					<a href = "./SeeScoresServlet" class="btn btn-primary btn-lg dropdown-toggle" style = "background:transparent; border:none; color: #9d9d9d">Your scores</a>
-			</li>
+			<li><a href = "./SeeHomeworksServlet" class="btn btn-primary btn-lg dropdown-toggle"
+				style="background: transparent; border: none; color: #9d9d9d">See/Update homeworks</a></li>
+					
 			<li><a href="./LogoutServlet" style="color: #9d9d9d"
 				class="btn-lg"> Logout </a></li>
 
 			<li class="dropdown">
-			
-				<a href = "#" class="btn btn-primary btn-lg dropdown-toggle" style = "background:transparent; border:none; color: #9d9d9d" 
-					onclick="seeGroups()" data-toggle="dropdown">
-					Your groups <span class="caret"></span>
+				<a href = "#" class="btn btn-primary btn-lg dropdown-toggle" type="button"
+					data-toggle="dropdown" style="background: transparent; border: none; color: #9d9d9d">
+					Manage<span class="caret"></span>
 				</a>
-				<ul class="dropdown-menu" id="groups">
-					
+				  <ul class="dropdown-menu" style='background-color:#2E71AC'>
+
+					<li><a href="./AddStudentToGroupServlet" style="background: transparent; border: none; color: #9d9d9d">Add or remove
+							student</a></li>
+					<li><a href="./GetStudentsScoresServlet" style="background: transparent; border: none; color: #9d9d9d">Students
+							scores</a></li>
+					<li><a href = "./SeeGroups" style="background: transparent; border: none; color: #9d9d9d">See groups</a></li>
+					<li><a href = "./AddHomework" style="background: transparent; border: none; color: #9d9d9d">Add homework</a></li>
 				</ul>
-			</li>
+				</li>
 		</ul>
 	</div>
 	</nav>
-	<div id="homeworks"></div>
-	<script>
-function seeGroups() {
-	if(!$('#groups').is(':empty') ) {
-		$( "#groups" ).empty();
-	}
-	$.ajax({
-		url : './GetGroupsOfUserServlet',
-		type : 'GET',
-		dataType : 'json',
-		success : function(response) {
-			for ( var i in response) {
-				$('#groups').append(
-						/*"<li><a href = '#' style = 'background-color: #2E71AC;border-color: #2e6da4; color: #9d9d9d' ><form action = './GetHomeworksOfGroupsServlet' method = 'GET'><input type = 'hidden' name = 'groupId' value = "+response[i].id+"><button type = 'button' style ='padding: 0;border: none;background: none; color: #9d9d9d'>"
-								+ response[i].name + "</button></form></a></li>");*/
-						"<li><form action = './GetHomeworksOfGroupsServlet' method = 'GET' style='background-color:#2E71AC'><input type = 'hidden' name = 'groupId' value = "+response[i].id+"><button class='btn btn-link' type = 'submit' style ='padding: 0;border: none;background: #2E71AC; color: #9d9d9d'>"
-						+ response[i].name + "</button></form></li>");
-			}
-		}
-	});
-}
 
-/*function seeHomeworks(groupId) {
-	if(!$('#homeworks').is(':empty') ) {
-		$( "#homeworks" ).empty();
-	}
-	console.log(groupId);
-	$.ajax({
-		url : './GetHomeworksOfGroupsServlet',
-		type : 'GET',
-		dataType : 'json',
-		data : {
-			groupId : groupId
-		},
-		success : function(response) {
-			for ( var h in response) {
-				var id = response[h].id;console.log(id)
-				$('#homeworks').append('<br><form action = "./GetHomeworkServlet" method = "GET"><input type = "hidden" name = "id" value = ' +id + '><button type = "submit">' + response[h].heading + '</form>');
-				homeworkId = id;
-				$('#homeworks').append(
-						'  ' + response[h].timeLeft + ' days left');
-
-			}
-		}
-	});
-}*/
-/*<button style = 'background:#9d9d9d; border: none;color:#9d9d9d;' id = 'response[i].id' onclick = 'seeHomeworks("
-	+ response[i].id + ")'>"
-	+ response[i].name + "</button></a>*/
-</script>
-</body>
-</html>

@@ -6,10 +6,7 @@
 <html>
 <head>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-<link rel="stylesheet"
-	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-<script
-	src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.1/css/bootstrap-select.min.css">
 
@@ -20,7 +17,19 @@
 <title>Insert title here</title>
 </head>
 <style>
-.multiselect {
+#image {
+	position: relative;
+	left: 850px;
+}
+
+#formAddHomework {
+	position: absolute;
+	left: 60px;
+	top: 220px;
+	background-color: #ffffff;
+	width: 500px;
+}
+/*.multiselect {
 	width: 200px;
 }
 
@@ -52,20 +61,45 @@
 
 #checkboxes label:hover {
 	background-color: #1e90ff;
-}
+}*/
 </style>
 <body>
-	New homework
+	<%@ include file="navBarTeacher.jsp"%>
+	<div id="image">
+		<img src="logo-black.png" class="img-rounded" width="380" height="236">
+	</div>
+	<div id="formAddHomework" align="right">
 	<form action="./AddHomework" method="POST"
 		enctype="multipart/form-data">
-		<br>Name<input type="text" name="name" /> 
-		<br>Opening time<input type='datetime-local' name="opens" data-val="true"> <br>Closing time<input
-			type='datetime-local' name="closes" data-val="true"> <br>Number of tasks<input
-			type="number" min="0" name="numberOfTasks" /> 
-			<br>Tasks<input type="file"
-				accept="application/pdf" name="file">
+		<label
+				style="position: absolute; left: 290px; text-decoration: underline;">Add
+				homework</label> <br> <br> <br>
+							<div class="form-group">
+				
+		<label class="control-label col-sm-6">Name</label><div class="col-sm-6"><input type="text" class="form-control" name="name" /> </div></div>
+		<div class="form-group">
+		<br><label class="control-label col-sm-6">Opening time</label><div class="col-sm-6"><input type='datetime-local' class="form-control" name="opens" data-val="true"></div>
 		
+		</div>
+		<div class="form-group">
+		 <br><label class="control-label col-sm-6">Closing time</label><div class="col-sm-6"><input
+			type='datetime-local' class="form-control" name="closes" data-val="true"></div>
+		</div>	
+		<div class="form-group">
+			<br><label class="control-label col-sm-6">Number of tasks</label><div class="col-sm-6"><input
+			type="number" min="0" class="form-control" name="numberOfTasks" /> </div>
+			
+		</div>	
+					<div class="form-group">
+			
+			<br><label class="control-label col-sm-6">Tasks</label>				<div class="col-sm-6">
+			<input type="file"
+				accept="application/pdf" name="file"></div>
+		</div>
 			<!--  <div class="multiselect"><div class="selectBox" onclick="showCheckboxes()">-->
+			<br><div class="form-group">
+					<label class="control-label col-sm-6">Groups</label>
+					<div class="col-sm-6">
 			<select class="selectpicker" multiple name = "groups">
 			
 			<c:forEach items="${applicationScope.allGroups}" var="group">
@@ -84,11 +118,18 @@
 				</c:forEach>
 			</div> -->
 			
-		</select>
-		<button type = "submit">Save</button>
+		</select></div></div>
+		
+		<div class="form-group">
+				<div class="col-sm-offset-3 col-sm-2" style="left: 290px">
+
+					<button style="align: right" type="button" class="btn btn-default">Save</button>
+				</div>
+			</div>
 	</form>
+	</div>
 	<script>
-    var expanded = false;
+    /*var expanded = false;
     function showCheckboxes() {
         var checkboxes = document.getElementById("checkboxes");
         if (!expanded) {
@@ -98,7 +139,7 @@
             checkboxes.style.display = "none";
             expanded = false;
         }
-    }
+    }*/
 </script>
 </body>
 </html>

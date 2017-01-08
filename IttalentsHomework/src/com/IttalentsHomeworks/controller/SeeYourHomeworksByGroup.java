@@ -105,6 +105,9 @@ public class SeeYourHomeworksByGroup extends HttpServlet {
 				response.getWriter().write(array.toString());
 			}
 
+		}else{
+			response.getWriter().write("null");
+
 		}
 	}
 

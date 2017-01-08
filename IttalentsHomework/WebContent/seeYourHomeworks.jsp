@@ -24,6 +24,12 @@
 	   left: 850px;
 	
 }
+#divTable{
+	position:absolute;
+	top:150px;
+	left:20px;
+	width:50%;
+}
 </style>
 <body>
 	<%@ include file="navBarStudent.jsp"%>
@@ -31,22 +37,46 @@
      <img src="logo-black.png" class="img-rounded" width="380" height="236"> 
 	</div>
 	<br>
-	<table border = "1">
-		<thead>
+		<div id = "divTable">
+	
+	<table border = "1" id = "resultTable">
+		<thead class="wrapword">
 			<tr>
-				<td class="wrapword">Heading</td>
-				<td class="wrapword">Days left</td>
+				<td >Heading</td>
+				<td>Days left</td>
 			</tr>
 		</thead>
-		<tbody>
+		<tbody class="wrapword">
 			<c:forEach var="homework" items = "${sessionScope.currHomeworksOfGroup}">
   				<tr>
-  				<td class="wrapword"><form action = "./GetHomeworkServlet" method = "GET"><input type = "hidden" name = "id" value = '${homework.id}'><button type = "submit"><c:out value="${homework.heading}"/></button></form>
+  				<td><form action = "./GetHomeworkServlet" method = "GET"><input type = "hidden" name = "id" value = '${homework.id}'><button type = "submit" class = "btn btn-link"><c:out value="${homework.heading}"/></button></form>
   					</td>
-  					<td class="wrapword"><c:out value="${homework.daysLeft}"/></td>
+  					<td><c:out value="${homework.daysLeft}"/></td>
   				</tr>
 			</c:forEach>
 		</tbody>
 	</table>
+</div>
 </body>
+<script>
+$(document).ready(function() {
+	var table = $('#resultTable');
+
+	var table = $('#resultTable').DataTable({
+		"aoColumnDefs" : [ {
+			'bSortable' : true,
+			'aTargets' : [0,1 ],
+			'className': "wrapword", "targets": [ 0,1]
+			
+		} ],
+	      "dom":'<"top"l>rt<"bottom"ip><"clear">',
+		 "aoColumns": [
+		               { sWidth: '4%' },
+		              { sWidth: '4%' },
+		              ],
+		"lengthMenu" : [5,8],
+		"bDestroy" : true
+	});
+});
+</script>
 </html>
