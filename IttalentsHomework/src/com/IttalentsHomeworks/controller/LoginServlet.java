@@ -35,7 +35,11 @@ public class LoginServlet extends HttpServlet {
 			allGroups = GroupDAO.getInstance().getAllGroups();
 			getServletContext().setAttribute("allGroups", allGroups);
 			ArrayList<Teacher> allTeachers = UserDAO.getInstance().getAllTeachers();
+			for(Teacher t : allTeachers){
+				t.setGroups(UserDAO.getInstance().getGroupsOfUser(t.getId()));
+			}
 			getServletContext().setAttribute("allTeachers", allTeachers);
+			
 		} catch (UserException | GroupException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

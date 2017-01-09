@@ -21,7 +21,7 @@
 	position:absolute;
 	top:150px;
 	left:10px;
-	width:60%;
+	width:70%;
 }
 #listOfStudentsOfGroup{
 	position:absolute;
@@ -61,23 +61,24 @@ Choose group: <select id =  "chosenGroup" class="selectpicker">
 	<option value = "${group.id}"><c:out value="${group.name}"></c:out></option>
 </c:forEach>
 </select>
-<div id = "divTable">
-	<table id="resultTable" border = "1" class="table table-striped table-bordered table-hover" style="width:60%">
-		<thead class = wrapword>
-			<tr>
-				<td>Heading</td>
-				<td>Opens</td>
-				<td>Closes</td>
-				<td></td>
-			</tr>
-		</thead>
-		<tbody  class = wrapwordLink>
-	
-		</tbody>
-	</table>
+	<div id="divTable">
+		<table id="resultTable" border="1"
+			class="table table-striped table-bordered table-hover"
+			style="width: 60%">
+			<thead class=wrapword>
+				<tr>
+					<td>Heading</td>
+					<td>Opens</td>
+					<td>Closes</td>
+					<td></td>
+				</tr>
+			</thead>
+			<tbody class=wrapword>
+			</tbody>
+		</table>
 	</div>
 
-	<ul id = "listOfStudentsOfGroup" class="editable wrapwordLink" style = "visibility:hidden;border-style: groove;z-index :1;height:300px; 
+	<ul id = "listOfStudentsOfGroup" class="editable" style = "visibility:hidden;z-index :1;height:300px; 
 	width:18%;
 	overflow:hidden; 
 	overflow-y:scroll;overflow-x:scroll;"></ul>
@@ -92,13 +93,14 @@ Choose group: <select id =  "chosenGroup" class="selectpicker">
 			} ],
 		      "dom":'<"top"l>rt<"bottom"ip><"clear">',
 			 "aoColumns": [
-			               { sWidth: '14%' },
-			              { sWidth: '12%' },
 			               { sWidth: '12%' },
-			               { sWidth: '10%' }],
+			              { sWidth: '5%' },
+			               { sWidth: '5%' },
+			               { sWidth: '7%' }],
 			"lengthMenu" : [5],
 			"bDestroy" : true
 		});
+
 	$('#chosenGroup').change(function(event) {
 		if(!$('#resultTable tbody').is(':empty') ) {
 			$( "#resultTable tbody" ).empty();
@@ -120,6 +122,10 @@ Choose group: <select id =  "chosenGroup" class="selectpicker">
 			$('#resultTable').DataTable().clear().draw();
 		}
 			for(var i in response){
+				var opens = response[i].opens;
+				var opensRep = opens.replace("T", " ");
+				var closes = response[i].closes;
+				var closesRep = closes.replace("T", " ");
 				if(response === 'null'){
 				
 				$('#resultTable tbody').html('no data available in table');
@@ -129,12 +135,13 @@ Choose group: <select id =  "chosenGroup" class="selectpicker">
 					var rowNode = table.row
 					.add(
 							["<button type = 'submit' class='btn btn-link' onclick = 'chooseGroupFirst()'>" +response[i].heading + "</button>",
-							 response[i].opens,response[i].closes,"<form action = './UpdateHomeworkServlet' method = 'GET'><input type = 'hidden' name = 'chosenHomework' value = "+response[i].id +"><button type = 'submit' style = 'color:black' class='btn btn-link'>Change</button></form>"]).draw().node();
+							 opensRep,closesRep,"<form action = './UpdateHomeworkServlet' method = 'GET'><input type = 'hidden' name = 'chosenHomework' value = "+response[i].id +"><button type = 'submit' style = 'color:black' class='btn btn-link'>Change</button></form>"]).draw().node();
 				}else{
+					
 					var rowNode = table.row
 					.add(
 					["<button type = 'submit' class='btn btn-link' onclick = 'chooseStudent(" + response[i].id +"," + groupId +")'>" +response[i].heading + "</button>",
-					 response[i].opens,response[i].closes,"<form action = './UpdateHomeworkServlet' method = 'GET'><input type = 'hidden' name = 'chosenHomework' value = "+response[i].id +"><button type = 'submit' class='btn btn-link' style = 'color:black'>Change</button></form>"]).draw().node();
+					 opensRep,closesRep,"<form action = './UpdateHomeworkServlet' method = 'GET'><input type = 'hidden' name = 'chosenHomework' value = "+response[i].id +"><button type = 'submit' class='btn btn-link' style = 'color:black'>Change</button></form>"]).draw().node();
 				}
 				
 			

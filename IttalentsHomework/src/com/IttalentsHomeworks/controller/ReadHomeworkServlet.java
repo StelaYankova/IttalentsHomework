@@ -33,7 +33,7 @@ public class ReadHomeworkServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String fileName = request.getParameter("fileName");
 		File file = new File(SAVE_DIR + File.separator + fileName);
-		response.addHeader("Content-Disposition", "attachment; filename=" + file);
+		response.addHeader("Content-Disposition", "attachment; filename=" + fileName);
 		response.setContentLength((int) file.length());
 
 		FileInputStream fileInputStream = new FileInputStream(file);

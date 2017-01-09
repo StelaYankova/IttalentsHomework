@@ -66,6 +66,8 @@ public interface IUserDAO {
 
 	ArrayList<Teacher> getAllTeachers() throws UserException;
 
-	ArrayList<Student> getAllStudents() throws UserException;;
+	ArrayList<Student> getAllStudents() throws UserException;
+
+	User getUserById(int userId) throws UserException, GroupException;
 
 }

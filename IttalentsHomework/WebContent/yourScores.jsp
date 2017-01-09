@@ -28,7 +28,7 @@
 	white-space: -moz-pre-wrap !important; /* Mozilla, since 1999 */
 	white-space: -webkit-pre-wrap; /*Chrome & Safari */
 	white-space: -pre-wrap; /* Opera 4-6 */
-	white-space: -o-pre-wrap; /* Opera 7 */
+	white-space: -o-pre-wrap; /* Opera 7 */1
 	white-space: pre-wrap; /* css-3 */
 	word-wrap: break-word; /* Internet Explorer 5.5+ */
 	word-break: break-all;
@@ -49,7 +49,7 @@
 	</div>
 	Choose a group:
 	<select id="selectGroup" class="selectpicker">
-		<option value="null">group</option>
+		<option value="null">-</option>
 		<option value="allGroups">All groups</option>
 		<c:forEach items="${sessionScope.user.groups}" var="group">
 			<option value="${group.id}">"${group.name}"</option>
@@ -113,11 +113,14 @@
 					}
 	
 					for ( var i in response) {
-						console.log(response[i].heading)
+						var opens = response[i].opens;
+						var opensRep = opens.replace("T", " ");
+						var closes = response[i].closes;
+						var closesRep = closes.replace("T", " ");
 						var rowNode = table.row
 												.add(
 														["<form action = './GetHomeworkServlet' method = 'GET'><input type = 'hidden' name = 'id' value = " + response[i].id+ "><button class='btn btn-link' type = 'submit'>" + response[i].heading +"</button></form>",
-														 response[i].opens,response[i].closes,response[i].teacherScore + "/100",response[i].teacherComment]).draw().node();
+														opensRep,closesRep,response[i].teacherScore + "/100",response[i].teacherComment]).draw().node();
 					/*var row = $("<tr>");
 
 						  row.append($("<td class = 'wrapword'><form action = './GetHomeworkServlet' method = 'GET'><input type = 'hidden' name = 'id' value = " + response[i].id+ "><button type = 'submit'>" + response[i].heading +"</button></form></td>"))

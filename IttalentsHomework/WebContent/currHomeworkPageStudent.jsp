@@ -85,8 +85,9 @@ position: absolute;
 			type : 'GET',
 			dataType: 'json',
 			success : function(response) {
-				console.log(response)
-				$("#taskUpload").html("<br><br><br><br>Task " + taskNum + " uploaded on: " + response.uploadedOn);
+				var uploaded = response.uploadedOn;
+				var uploadedRep = uploaded.replace("T", " ");
+				$("#taskUpload").html("<br><br><br><br>Task " + taskNum + " uploaded on: " + uploadedRep);
 				$("#currTaskSolution").html(response.solution);
 				document.getElementById("taskUpload").style.visibility = "visible";
 				document.getElementById("currTaskSolution").style.visibility = "visible";

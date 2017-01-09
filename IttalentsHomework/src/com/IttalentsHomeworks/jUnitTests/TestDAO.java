@@ -26,6 +26,8 @@ public class TestDAO {
 
 	static User user1 = new Student("user.1", "1234", "email@user1");
 	static Teacher user2 = null;
+	static Teacher user2ToAddToGroupUpdate1 = null;
+	static Teacher user2ToAddToGroupUpdate2 = null;
 	ArrayList<Teacher> teachersForGroup = new ArrayList<>();
 	static LocalDateTime opening = LocalDateTime.of(2016, 12, 24, 15, 00, 00);
 	static LocalDateTime closing = LocalDateTime.of(2016, 12, 30, 15, 00, 00);
@@ -46,6 +48,7 @@ public class TestDAO {
 	@Test 
 	public void test02createUser() throws UserException, GroupException{
 		UserDAO.getInstance().createNewUser(user1);
+		
 		User userReturned = UserDAO.getInstance().getUserByUsername(user1.getUsername());
 		String username = user1.getUsername();
 		String password = user1.getPassword();
@@ -76,6 +79,8 @@ public class TestDAO {
 	@Test
 	public void test05addTeacher() throws UserException, GroupException{
 		user2 = (Teacher) UserDAO.getInstance().getUserByUsername("user.2");
+		user2ToAddToGroupUpdate1 = (Teacher) UserDAO.getInstance().getUserByUsername("user2ToAddToGroupUpdate1");
+		user2ToAddToGroupUpdate2 = (Teacher) UserDAO.getInstance().getUserByUsername("user2ToAddToGroupUpdate2");
 		boolean answer = UserDAO.getInstance().isUserATeacher(user2.getId());
 		assertEquals(true, answer);
 	}
@@ -323,10 +328,54 @@ public class TestDAO {
 	}
 	
 	@Test
-	public void test24changeGroupName() throws GroupException, UserException{
+	public void test24updateGroup() throws GroupException, UserException{
 		String name = "newName";
 		Group updatedGroup = new Group(group1.getId(), name);
-		GroupDAO.getInstance().changeGroupName(updatedGroup);
+		//TODO 
+		//curr t - user2
+		ArrayList<Teacher> currTeachers = GroupDAO.getInstance().getTeachersOfGroup(group1);
+		updatedGroup.setTeachers(currTeachers);
+		ArrayList<Integer> currTeachersIds = new ArrayList<>();
+		for(Teacher t : currTeachers){
+			currTeachersIds.add(t.getId());
+		}
+		//wished t
+		
+		ArrayList<Integer> wishedTeachersIds = new ArrayList<>();
+		wishedTeachersIds.add(user2ToAddToGroupUpdate1.getId());
+		wishedTeachersIds.add(user2ToAddToGroupUpdate2.getId());
+		
+		//set the wished teachers
+		GroupDAO.getInstance().updateGroup(updatedGroup, wishedTeachersIds);
+		Group getUpdatedGroup = GroupDAO.getInstance().getGroupById(updatedGroup.getId());
+		//we return the curr teachers now and we check if group contains them all
+		boolean areWishedTeachersInGroupAndCurrNot = false;
+		ArrayList<Teacher> currTeachersInUpdatedGroup = GroupDAO.getInstance().getTeachersOfGroup(getUpdatedGroup);
+		ArrayList<Integer> currTeachersIdsInUpdatedGroup = new ArrayList<>();
+
+		for(Teacher t: currTeachersInUpdatedGroup){
+			currTeachersIdsInUpdatedGroup.add(t.getId());
+		}
+		if(currTeachersIdsInUpdatedGroup.contains(user2ToAddToGroupUpdate1.getId()) && currTeachersIdsInUpdatedGroup.contains(user2ToAddToGroupUpdate2.getId()) &&(!(currTeachersIdsInUpdatedGroup.contains(user2.getId()) ))){
+			areWishedTeachersInGroupAndCurrNot = true;
+		}
+		assertEquals(true, areWishedTeachersInGroupAndCurrNot);
+		
+		GroupDAO.getInstance().updateGroup(updatedGroup, currTeachersIds);
+		Group getUpdatedGroup1 = GroupDAO.getInstance().getGroupById(updatedGroup.getId());
+		//we return the curr teachers now and we check if group contains them all
+		boolean areWishedTeachersInGroupAndCurrNot1 = false;
+		
+		ArrayList<Teacher> currTeachersInUpdatedGroup1 = GroupDAO.getInstance().getTeachersOfGroup(getUpdatedGroup1);
+		ArrayList<Integer> currTeachersIdsInUpdatedGroup1 = new ArrayList<>();
+		for(Teacher t: currTeachersInUpdatedGroup1){
+			currTeachersIdsInUpdatedGroup1.add(t.getId());
+		}
+		if(!(currTeachersIdsInUpdatedGroup1.contains(user2ToAddToGroupUpdate1.getId())) && (!(currTeachersIdsInUpdatedGroup1.contains(user2ToAddToGroupUpdate2.getId()))) && (currTeachersIdsInUpdatedGroup1.contains(user2.getId()))){
+			areWishedTeachersInGroupAndCurrNot1 = true;
+		}
+		assertEquals(true, areWishedTeachersInGroupAndCurrNot1);
+		
 		Group returnGroup = GroupDAO.getInstance().getGroupById(group1.getId());
 		assertEquals("newName", returnGroup.getName());
 	}

@@ -56,7 +56,7 @@ public interface IGroupDAO {
 
 	void removeHomeworkDetails(HomeworkDetails hd) throws GroupException, UserException;
 
-	void changeGroupName(Group g) throws GroupException;
+	void updateGroup(Group group, ArrayList<Integer> wishedTeacherIds) throws GroupException;
 
 	ArrayList<Integer> getIdsOfGroupsForWhichIsHomework(HomeworkDetails homeworkDetails) throws GroupException;
 

@@ -39,7 +39,8 @@
 	<br>
 		<div id = "divTable">
 	
-	<table border = "1" id = "resultTable">
+	<table border="1"
+			class="table table-striped table-bordered table-hover" id = "resultTable">
 		<thead class="wrapword">
 			<tr>
 				<td >Heading</td>

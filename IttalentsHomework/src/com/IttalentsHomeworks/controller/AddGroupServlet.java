@@ -36,7 +36,7 @@ public class AddGroupServlet extends HttpServlet {
 		for (int i = 0; i < selectedTeachersUsername.length; i++) {
 			Teacher t = null;
 			try {
-				System.out.println("Izbran daskal: " + selectedTeachersUsername[i].toString());
+				System.out.println("Chosen teacher: " + selectedTeachersUsername[i].toString());
 			//	int currTeacherId = UserDAO.getInstance().getUserIdByUsername(username)
 				t = (Teacher) UserDAO.getInstance().getUserByUsername(selectedTeachersUsername[i]);
 				allSelectedTeachers.add(t);

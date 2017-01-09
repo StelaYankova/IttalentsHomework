@@ -39,6 +39,7 @@ public class UserDAO implements IUserDAO {
 	private static final String GET_GROUPS_OF_USER = "SELECT CONCAT(G.id) AS 'group_id', G.group_name FROM IttalentsHomeworks.User_has_Group UG JOIN IttalentsHomeworks.Groups G ON (G.id = UG.group_id) WHERE UG.user_id = ?";
 	private static final String GET_USER_ID_BY_USERNAME = "SELECT id FROM IttalentsHomeworks.Users WHERE username = ?;";
 	private static final String IS_USER_A_TEACHER = "SELECT isTeacher FROM IttalentsHomeworks.Users WHERE id = ?;";
+	private static final String GET_USER_BY_ID = "SELECT * FROM IttalentsHomeworks.Users WHERE id = ?;";
 	private static IUserDAO instance;
 	private DBManager manager;
 	
@@ -609,6 +610,31 @@ public class UserDAO implements IUserDAO {
 			throw new UserException("Something went wrong with getting all students..");
 		}
 		return allStudents;
+	}
+
+	@Override
+	public User getUserById(int userId) throws UserException, GroupException {
+		User u = null;
+		Connection con = manager.getConnection();
+		try {
+			PreparedStatement ps = con.prepareStatement(GET_USER_BY_ID);
+			ps.setInt(1, userId);
+			
+			ResultSet rs = ps.executeQuery();
+			if(rs.next()){
+				ArrayList<Group> groupsOfUser = UserDAO.getInstance().getGroupsOfUser(userId);
+				if(UserDAO.getInstance().isUserATeacher(userId)){
+					u = new Teacher(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getBoolean(5), groupsOfUser);
+				}else{
+					ArrayList<Homework> homeworksOfStudent = UserDAO.getInstance().getHomeworksOfStudent(userId);
+					u = new Student(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getBoolean(5), groupsOfUser, homeworksOfStudent);
+				}
+			}
+		} catch (SQLException e) {
+			throw new UserException("Something went wrong with getting user by username..");
+		}
+		
+		return u;
 	}
 
 	

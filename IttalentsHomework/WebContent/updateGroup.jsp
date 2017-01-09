@@ -69,24 +69,41 @@
 	</div>
 
 	<div id="formAddGroup" align="right">
-		<form action="./AddGroupServlet" method="POST">
+		<form action="./UpdateGroupServlet" method="POST">
 			<label
-				style="position: absolute; left: 290px; text-decoration: underline;">New
+				style="position: absolute; left: 290px; text-decoration: underline;">Update
 				group</label> <br> <br> <br>
 			<div class="form-group">
 				<label class="control-label col-sm-6">Name</label>
 				<div class="col-sm-6">
-					<input type="text" name="groupName" class="form-control">
+					<input type="text" name="groupName" class="form-control" value = "${sessionScope.currGroup.name}">
 				</div>
 			</div>
 			<br><div class="form-group">
 					<label class="control-label col-sm-6">Teachers</label>
 					<div class="col-sm-6">
 						<select class="selectpicker" multiple name = "teachers">
-						<c:forEach items="${applicationScope.allTeachers}" var="teacher">
+						<!--<c:forEach items="${applicationScope.allTeachers}" var="teacher">
 							<option value="${teacher.username}">
 								<c:out value="${teacher.username}"></c:out></option>
-						</c:forEach>
+						</c:forEach>-->
+						<c:forEach items="${applicationScope.allTeachers}" var="teacher">
+								<c:set var="isTeacherInGroup" value="false"></c:set>
+								<c:forEach items="${teacher.groups}" var="group">
+									<c:if test="${group.id==sessionScope.currGroup.id}">
+										<c:set var="isTeacherInGroup" value="true"></c:set>
+									</c:if>
+								</c:forEach>
+								<c:if test="${isTeacherInGroup}">
+									<option value="${teacher.username}" selected>
+										<c:out value="${teacher.username}"></c:out></option>
+								</c:if>
+								<c:if test="${not isTeacherInGroup}">
+									<option value="${teacher.username}">
+										<c:out value="${teacher.username}"></c:out></option>
+								</c:if>
+							</c:forEach>
+						
 					</select>
 				</div>
 				<!-- <div class="multiselect">
