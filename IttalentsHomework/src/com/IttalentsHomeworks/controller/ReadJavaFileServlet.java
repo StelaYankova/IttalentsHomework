@@ -42,6 +42,7 @@ public class ReadJavaFileServlet extends HttpServlet {
 		}
 		File f = new File(fileName);
 		System.out.println("AUGSS" + fileName);
+		
 		String strLine = "";
 		if (f.exists()) {
 			FileInputStream fstream = new FileInputStream(fileName);
@@ -61,10 +62,10 @@ public class ReadJavaFileServlet extends HttpServlet {
 		System.out.println(homework.getTasks().size());
 
 		System.out.println(task);
-		if(strLine.equals("Solution is not uploaded yet.")){
-		obj.addProperty("uploadedOn", "-");
-		obj.addProperty("solution", strLine);
-		}else{
+		if (strLine.equals("Solution is not uploaded yet.")) {
+			obj.addProperty("uploadedOn", "-");
+			obj.addProperty("solution", strLine);
+		} else {
 			obj.addProperty("uploadedOn", task.getUploadedOn().toString());
 			obj.addProperty("solution", strLine);
 		}

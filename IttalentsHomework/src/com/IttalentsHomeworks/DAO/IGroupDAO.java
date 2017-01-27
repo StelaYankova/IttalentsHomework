@@ -23,7 +23,7 @@ public interface IGroupDAO {
 
 	ArrayList<HomeworkDetails> getHomeworkDetailsOfGroup(Group g) throws GroupException;
 
-	boolean isUserAlreadyInGroup(Group g, User u) throws GroupException;
+	boolean isUserAlreadyInGroup(Group g, User u) throws GroupException, UserException;
 
 	void addUserToGroup(Group g, User u) throws GroupException, UserException;
 
@@ -52,7 +52,7 @@ public interface IGroupDAO {
 
 	Group getGroupById(int id) throws GroupException, UserException;
 
-	int getGroupIdByGroupName(Group g) throws GroupException;
+	int getGroupIdByGroupName(String groupName) throws GroupException;
 
 	void removeHomeworkDetails(HomeworkDetails hd) throws GroupException, UserException;
 
@@ -61,5 +61,7 @@ public interface IGroupDAO {
 	ArrayList<Integer> getIdsOfGroupsForWhichIsHomework(HomeworkDetails homeworkDetails) throws GroupException;
 
 	HomeworkDetails getHomeworkDetailsById(int chosenHomeworkId) throws GroupException;;
+
+	public boolean isHomeworkHeadingUnique(String heading);
 
 }

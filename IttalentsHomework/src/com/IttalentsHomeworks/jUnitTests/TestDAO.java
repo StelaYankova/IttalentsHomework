@@ -90,7 +90,7 @@ public class TestDAO {
 		teachersForGroup.add(user2);
 		group1 = new Group("groupTest", teachersForGroup);
 		GroupDAO.getInstance().createNewGroup(group1);
-		group1.setId(GroupDAO.getInstance().getGroupIdByGroupName(group1));
+		group1.setId(GroupDAO.getInstance().getGroupIdByGroupName(group1.getName()));
 	
 		boolean contains = false;
 		for(Group g: GroupDAO.getInstance().getAllGroups()){
@@ -128,7 +128,7 @@ public class TestDAO {
 	}
 	
 	@Test
-	public void test09isUserAlreadyInGroup() throws GroupException{
+	public void test09isUserAlreadyInGroup() throws GroupException, UserException{
 		boolean isStudentReturned = GroupDAO.getInstance().isUserAlreadyInGroup(group1, user1);
 		assertEquals(false, isStudentReturned);
 		boolean isTeacherReturned = GroupDAO.getInstance().isUserAlreadyInGroup(group1, user2);

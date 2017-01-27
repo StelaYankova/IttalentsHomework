@@ -6,9 +6,11 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
@@ -31,6 +33,7 @@ import com.IttalentsHomeworks.Exceptions.UserException;
 import com.IttalentsHomeworks.model.Homework;
 import com.IttalentsHomeworks.model.HomeworkDetails;
 import com.IttalentsHomeworks.model.Student;
+import com.IttalentsHomeworks.model.Task;
 import com.IttalentsHomeworks.model.User;
 
 /**
@@ -117,36 +120,56 @@ public class UploadSolutionServlet extends HttpServlet {
 		// gets absolute path of the web application
 		//String appPath = request.getServletContext().getRealPath("");
 		// constructs path of the directory to save uploaded file
+		//Pattern p = Pattern.compile("/[^/]+\\.(.*)");
+	    //String[] tests = { "/var/www.dir/file.tar.gz", "/var/www.dir/file.exe" };
+	 /*   for (String s : tests) {
+		    String lastPart = s.substring(s.lastIndexOf("/"));
+		    String file = s.substring(s.lastIndexOf("/"));
+		    String extension = file.substring(file.indexOf(".")); // .tar.gz
+		    System.out.println(extension);
+	    }*/
+	   
 		int taskNum = Integer.parseInt(request.getParameter("taskNum"))-1;
 		Homework homework = (Homework) request.getSession().getAttribute("currHomework");
 		HomeworkDetails homeworkDetails = homework.getHomeworkDetails();
 		User user = (User) request.getSession().getAttribute("user");
 
 		String savePath = SAVE_DIR;
-
+		
 		// creates the save directory if it does not exists
 		File fileSaveDir = new File(savePath);
 		if (!fileSaveDir.exists()) {
 			fileSaveDir.mkdir();
 		}
 		String fileName = " ";
-		for (Part part : request.getParts()) {
-			// fileName = extractFileName(part);
-			// refines the fileName in case it is an absolute path
-			//fileName = new File(fileName).getName();
-			 fileName = "hwId"+homeworkDetails.getId() +"userId" +user.getId() +"taskNum"+ taskNum + ".java";
-			part.write(savePath + File.separator+ fileName);
+		Part file = request.getPart("file");
+		String contentType = file.getSubmittedFileName().substring(file.getSubmittedFileName().indexOf("."));
+		boolean isContentTypeValid = true;
+		long sizeInMb = file.getSize() / (1024 * 1024);
+		if(sizeInMb>=1){
+			request.getSession().setAttribute("wrongSize", true);
+		}else{
+		if(!(contentType.equals(".java"))){
+			isContentTypeValid = false;
+			request.getSession().setAttribute("wrongContentType", true);
 		}
+		if(isContentTypeValid){
+			 fileName = "hwId"+homeworkDetails.getId() +"userId" +user.getId() +"taskNum"+ taskNum + ".java";
+			file.write(savePath + File.separator+ fileName);
 		try {
 			UserDAO.getInstance().setSolutionOfTask(homeworkDetails, (Student) user, taskNum, fileName, LocalDateTime.now());
 			homework.getTasks().get(taskNum).setSolution(fileName);
-			homework.getTasks().get(taskNum).setUploadedOn(UserDAO.getInstance().getTasksOfHomeworkOfStudent(user.getId(), homeworkDetails).get(taskNum).getUploadedOn());
-			
+			//homework.getTasks().get(taskNum).setUploadedOn(UserDAO.getInstance().getTasksOfHomeworkOfStudent(user.getId(), homeworkDetails).get(taskNum).getUploadedOn());
+			homework.getTasks().get(taskNum).setUploadedOn(LocalDateTime.now());
+
 		} catch (UserException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
+		}
+		}
+		request.getSession().setAttribute("currTaskUpload", taskNum);
+		request.getRequestDispatcher("currHomeworkPageStudent.jsp").forward(request, response);
 	}
 
 	/**
@@ -157,7 +180,7 @@ public class UploadSolutionServlet extends HttpServlet {
 		String[] items = contentDisp.split(";");
 		for (String s : items) {
 			if (s.trim().startsWith("filename")) {
-				return s.substring(s.indexOf("=") + 2, s.length() - 1);
+				return s.substring((part.getName()).lastIndexOf('/') + 1);
 			}
 		}
 		return "";

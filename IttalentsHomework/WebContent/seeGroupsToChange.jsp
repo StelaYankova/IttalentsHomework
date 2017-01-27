@@ -62,10 +62,10 @@
 										<c:out value="${group.name}"></c:out>
 									</button>
 								</form>
-							<td><form action="./RemoveGroupServlet" method="POST">
+							<td><form action="./RemoveGroupServlet" method="POST" id = "removeGroupForm">
 									<input type="hidden" name="groupId" value="${group.id}">
 									<button type="submit"
-										class="glyphicon glyphicon-remove btn btn-default btn-xs"></button>
+										class="glyphicon glyphicon-remove btn btn-default btn-xs" onclick="javascript:return confirm('Are you sure you want to remove this group permanently?')"></button>
 								</form></td>
 
 						</tr>
@@ -76,7 +76,10 @@
 	</div>
 </body>
 <script>
+
 	$(document).ready(function() {
+
+		
 		var table = $('#resultTable').DataTable({
 			"aoColumnDefs" : [ {
 				'bSortable' : false,

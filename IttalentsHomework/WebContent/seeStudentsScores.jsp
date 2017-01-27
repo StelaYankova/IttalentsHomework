@@ -82,7 +82,7 @@
 	
 	<div id="divTable">
 		<table id="resultTable" border="1"
-			class="table table-striped table-bordered table-hover"
+			class="table table-striped table-bordered table-hover dataTables_wrapper form-inline dt-bootstrap"
 			style="width: 60%">
 			<thead class="wrapword">
 				<tr>
@@ -149,11 +149,22 @@ function seeHomeworks(e,e1){
 						var opensRep = opens.replace("T", " ");
 						var closes = response[i].closes;
 						var closesRep = closes.replace("T", " ");
-					var rowNode = table.row
-					.add(
+						var hasStudentGivenMinOneTask = response[i].hasStudentGivenMinOneTask;
+						console.log(hasStudentGivenMinOneTask)
+					
+							if(hasStudentGivenMinOneTask===true){
+								var rowNode = table.row
+								.add(	
+							
 							["<form action = './GetHomeworkOfStudentServlet' method = 'GET'><input type = 'hidden' name = 'id' value = " + response[i].id+ "><input type = 'hidden' name = 'studentId' value = "+studentId+"><button type = 'submit' class = 'btn btn-link'>" + response[i].heading +"</button></form>",
 							 opensRep,closesRep,response[i].teacherScore+"/100",response[i].teacherComment]).draw().node();
-					}
+					}else{
+						var rowNode = table.row
+						.add(
+						["<form action = './GetHomeworkOfStudentServlet' method = 'GET'><input type = 'hidden' name = 'id' value = " + response[i].id+ "><input type = 'hidden' name = 'studentId' value = "+studentId+"><button style= 'color:#620062' type = 'button' class = 'btn btn-link'>" + response[i].heading +"</button></form>",
+						 opensRep,closesRep,response[i].teacherScore+"/100",response[i].teacherComment]).draw().node();
+						
+					}}
 					}
 				}
 			

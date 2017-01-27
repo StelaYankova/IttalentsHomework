@@ -159,20 +159,21 @@ public class GroupDAO implements IGroupDAO {
 	 * @see com.IttalentsHomeworks.DAO.IGroupDAO#isUserAlreadyInGroup(com.IttalentsHomeworks.model.Group, com.IttalentsHomeworks.model.User)
 	 */
 	@Override
-	public boolean isUserAlreadyInGroup(Group group, User user) throws GroupException {
+	public boolean isUserAlreadyInGroup(Group group, User user) throws GroupException, UserException {
 		Connection con = manager.getConnection();
 		boolean isUserAlreadyInGroup = false;
-		try {
-			PreparedStatement ps = con.prepareStatement(
-					IS_USER_ALREADY_IN_GROUP);
-			ps.setInt(1, user.getId());
-			ps.setInt(2, group.getId());
-			ResultSet rs = ps.executeQuery();
-			if (rs.next()) {
-				isUserAlreadyInGroup = true;
+		if (UserDAO.getInstance().doesUserExistInDB(user.getUsername(), user.getPassword())) {
+			try {
+				PreparedStatement ps = con.prepareStatement(IS_USER_ALREADY_IN_GROUP);
+				ps.setInt(1, user.getId());
+				ps.setInt(2, group.getId());
+				ResultSet rs = ps.executeQuery();
+				if (rs.next()) {
+					isUserAlreadyInGroup = true;
+				}
+			} catch (SQLException e) {
+				throw new GroupException("Something went wrong with checking if user is already in a group..");
 			}
-		} catch (SQLException e) {
-			throw new GroupException("Something went wrong with checking if user is already in a group..");
 		}
 		return isUserAlreadyInGroup;
 	}
@@ -235,7 +236,7 @@ public class GroupDAO implements IGroupDAO {
 						.prepareStatement(CREATE_NEW_GROUP);
 				ps.setString(1, group.getName());
 				ps.executeUpdate();
-				group.setId(GroupDAO.getInstance().getGroupIdByGroupName(group));
+				group.setId(GroupDAO.getInstance().getGroupIdByGroupName(group.getName()));
 				for (int i = 0; i < group.getTeachers().size(); i++) {
 					ps = con.prepareStatement(ADD_USER_TO_GROUP);
 					ps.setInt(1, group.getTeachers().get(i).getId());
@@ -276,6 +277,7 @@ public class GroupDAO implements IGroupDAO {
 			ps.setString(1, groupName);
 			ResultSet rs = ps.executeQuery();
 			if (rs.next()) {
+				System.out.println("IMETO NA GRUPATA NE E UNIKALNO");
 				isGroupNameUnique = false;
 			}
 		} catch (SQLException e) {
@@ -385,6 +387,24 @@ public class GroupDAO implements IGroupDAO {
 		}
 	}
 
+	@Override
+	public boolean isHomeworkHeadingUnique(String heading){
+		Connection con = null;
+		try {
+			PreparedStatement ps = con.prepareStatement("SELECT * FROM IttalentsHomeworks.Homework WHERE heading = ?");
+			ps.setString(1, heading);
+			ResultSet rs = ps.executeQuery();
+			if(rs.next()){
+				return false;
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return true;
+		
+	}
+	//TODO pri update da gledam hem dali e unikalno, no ako e kato minaloto mu nqma problem
 	/* (non-Javadoc)
 	 * @see com.IttalentsHomeworks.DAO.IGroupDAO#createHomeworkForGroup(com.IttalentsHomeworks.model.HomeworkDetails, java.util.ArrayList)
 	 */
@@ -393,9 +413,10 @@ public class GroupDAO implements IGroupDAO {
 			throws GroupException, UserException {
 		Connection con = manager.getConnection();
 		//con.setAutoCommit(false);
+		if(GroupDAO.getInstance().isHomeworkHeadingUnique(homeworkDetails.getHeading())){
+
 		try {
 			//con.setAutoCommit(false);
-
 			PreparedStatement ps = con
 					.prepareStatement(CREATE_HOMEWORK_DETAILS);
 			ps.setString(1, homeworkDetails.getHeading());
@@ -422,6 +443,7 @@ public class GroupDAO implements IGroupDAO {
 			throw new GroupException("Something went wrong with creating a homework..");
 		} finally {
 			//con.setAutoCommit(true);
+		}
 		}
 	}
 
@@ -638,12 +660,12 @@ public class GroupDAO implements IGroupDAO {
 	}
 
 	@Override
-	public int getGroupIdByGroupName(Group group) throws GroupException {
+	public int getGroupIdByGroupName(String groupName) throws GroupException {
 		int idGroup = 0;
 		Connection con = manager.getConnection();
 		try {
 			PreparedStatement ps = con.prepareStatement(GET_GROUP_ID_BY_GROUP_NAME);
-			ps.setString(1, group.getName());
+			ps.setString(1, groupName);
 			ResultSet rs = ps.executeQuery();
 			if(rs.next()){
 				idGroup = rs.getInt(1);

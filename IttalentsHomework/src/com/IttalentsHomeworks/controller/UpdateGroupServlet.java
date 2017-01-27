@@ -43,7 +43,7 @@ protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws Se
 		String newGroupName = request.getParameter("groupName");
 		String[] selectedTeachersUsername = request.getParameterValues("teachers");
 		ArrayList<Integer> allSelectedTeachers = new ArrayList<>();
-		if(selectedTeachersUsername != null && selectedTeachersUsername.length > 0){
+		if(selectedTeachersUsername != null){
 		for (int i = 0; i < selectedTeachersUsername.length; i++) {
 			Teacher t = null;
 			try {

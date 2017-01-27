@@ -6,7 +6,6 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Insert title here</title>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-
 <link rel="stylesheet"
 	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 <script
@@ -15,9 +14,15 @@
 	href="//cdn.datatables.net/1.10.12/css/jquery.dataTables.css">
 <script type="text/javascript" charset="utf8"
 	src="//cdn.datatables.net/1.10.12/js/jquery.dataTables.js"></script>
+	
 </head>
 <style>
-
+.input-invalid-login{
+position:absolute;
+top:30px;
+right:270px;
+	color:red;
+}
 .footerText{
 	color:white;
 }
@@ -48,15 +53,16 @@ float:left;
   display: inline-block;
 
 }
- .footer {
-  position: absolute;
+.footer {
+    position: absolute;
+    position: fixed;
     bottom: 0;
     height: 60px;
- background-color:  #404040;
-     width: 100%;
-         overflow: hidden; /* will contain if #first is longer than #second */
-     
-  }
+    background-color: #404040;
+    width: 100%;
+    overflow: hidden;
+    z-index: 1;
+}
 .navbar {
 	background-color: #2E71AC;
 	border-color: #2e6da4;
@@ -105,7 +111,7 @@ float:left;
 		<ul class="nav navbar-nav navbar-right">
 			<li>
 				<div class="container">
-					<form class="form-inline" action="./LoginServlet" method="POST">
+					<form class="form-inline" action="./LoginServlet" method="POST" name = "signInForm" id = "signInForm">
 						<div class="form-group">
 							<label>Username:</label> <input type="text"
 								class=" form-control input-sm" name="username">
@@ -114,19 +120,58 @@ float:left;
 							<label>Password:</label> <input type="password"
 								class="form-control input-sm" name="password">
 						</div>
-						<button type="submit" class="btn btn-xs btn-default">Sign
-							in</button>
+						<input style="align: right" type="submit" class="btn btn-xs btn-default"
+						value="Sign in">
+					<!-- <input type="button" class="btn btn-xs btn-default" value = "Sign
+							in" onclick = "validateFormLogin()"/> -->
+					
 					</form>
+						<p id = "usernamePasswordMsg" class = "input-invalid-login"></p>
 				</div>
 			</li>
 			<div class="container">
 				<li><a href="registerPage.jsp" style ="color:#9d9d9d"><span
-						class="glyphicon glyphicon-log-in btn-sm"></span>Register here</a></li>
+						class="glyphicon glyphicon-log-in btn-sm"></span>Register here</a>
+				</li>
 			</div>
 		</ul>
 	</div>
 	</nav>
 
 </body>
+<script>
+	$('#signInForm')
+	.submit(
+			function(e) {
+				e.preventDefault();
+	var username = document.forms["signInForm"]["username"].value;
+	var password = document.forms["signInForm"]["password"].value;
+	console.log(username)
+	console.log(password)
 
+	if (!$('#usernamePasswordMsg').is(':empty')) {
+		$("#usernamePasswordMsg").empty();
+	}
+	
+	$.ajax({
+		url: './ValidateLogin',
+		method: 'GET',
+		data:{
+			"username": username,
+			"password": password
+		},
+		success: function(response){
+			console.log(1)
+			document.getElementById("signInForm").submit();
+			return true;
+		},
+		error: function(response){
+			console.log(2)
+			document.getElementById("usernamePasswordMsg").append("Wrong username/password");
+			return false;
+		}
+	});
+});
+
+</script>
 </html>

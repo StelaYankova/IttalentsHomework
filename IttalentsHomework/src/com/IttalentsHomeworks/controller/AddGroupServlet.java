@@ -33,11 +33,10 @@ public class AddGroupServlet extends HttpServlet {
 		String groupName = request.getParameter("groupName");
 		String[] selectedTeachersUsername = request.getParameterValues("teachers");
 		ArrayList<Teacher> allSelectedTeachers = new ArrayList<>();
+		if(selectedTeachersUsername != null){
 		for (int i = 0; i < selectedTeachersUsername.length; i++) {
 			Teacher t = null;
 			try {
-				System.out.println("Chosen teacher: " + selectedTeachersUsername[i].toString());
-			//	int currTeacherId = UserDAO.getInstance().getUserIdByUsername(username)
 				t = (Teacher) UserDAO.getInstance().getUserByUsername(selectedTeachersUsername[i]);
 				allSelectedTeachers.add(t);
 				System.out.println(t.getId());
@@ -46,13 +45,18 @@ public class AddGroupServlet extends HttpServlet {
 				e.printStackTrace();
 			}
 		}
-		System.out.println("Izbrana grupa: " + groupName);
+		}
 		Group newGroup = new Group(groupName,allSelectedTeachers);
 		
 		try {
 			GroupDAO.getInstance().createNewGroup(newGroup);
 			ArrayList<Group> allGroupsUpdated = GroupDAO.getInstance().getAllGroups();
 			request.getServletContext().setAttribute("allGroups", allGroupsUpdated);
+			ArrayList<Teacher> allTeachers = UserDAO.getInstance().getAllTeachers();
+			getServletContext().setAttribute("allTeachers", allTeachers);
+			for(Teacher t : allTeachers){
+				t.setGroups(UserDAO.getInstance().getGroupsOfUser(t.getId()));
+			}
 		} catch (GroupException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -60,6 +64,7 @@ public class AddGroupServlet extends HttpServlet {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		response.sendRedirect("seeGroupsToChange.jsp");
 	}
 
 }

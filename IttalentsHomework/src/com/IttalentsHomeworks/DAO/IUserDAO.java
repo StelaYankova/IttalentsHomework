@@ -69,5 +69,9 @@ public interface IUserDAO {
 	ArrayList<Student> getAllStudents() throws UserException;
 
 	User getUserById(int userId) throws UserException, GroupException;
+	
+	boolean isUsernameValid(String username);
+	
+	boolean isEmailValid(String email);
 
 }

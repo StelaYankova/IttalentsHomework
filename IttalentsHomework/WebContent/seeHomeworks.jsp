@@ -156,6 +156,8 @@ Choose group: <select id =  "chosenGroup" class="selectpicker">
 	}
 	
 	function chooseStudent(homeworkId, groupId){
+		
+	console.log("hw id: "  + homeworkId)
 		if(!$('#listOfStudentsOfGroup').is(':empty') ) {
 			$( "#listOfStudentsOfGroup").empty();
 		}
@@ -163,15 +165,22 @@ Choose group: <select id =  "chosenGroup" class="selectpicker">
 			url:'./getAllStudentsOfGroupServlet',
 			type:'GET',
 			data:{
-				"chosenGroupId": groupId
+				"chosenGroupId": groupId,
+				"homeworkId": homeworkId
 			},
 		dataType:'json',
 		success: function(response){
 			 var div = document.getElementById("listOfStudentsOfGroup");
+			 
 				for(var i in response){
+					 var hasStudentGivenMinOneTask = response[i].hasStudentGivenMinOneTask;
+					if(hasStudentGivenMinOneTask == true){
 					$('#listOfStudentsOfGroup').append("<li><form action = './GetHomeworkOfStudentServlet'><input type = 'hidden' name = 'id' value = "+homeworkId +"><input type = 'hidden' name = 'studentId' value = "+response[i].id+"><button type = 'submit' class='btn btn-link'>"+response[i].username + "</button></form></li>");
 					document.getElementById("listOfStudentsOfGroup").style.visibility = "visible";
-
+					}else{
+						$('#listOfStudentsOfGroup').append("<li><form action = './GetHomeworkOfStudentServlet'><input type = 'hidden' name = 'id' value = "+homeworkId +"><input type = 'hidden' name = 'studentId' value = "+response[i].id+"><button type = 'button' style= 'color:#620062' class='btn btn-link'>"+response[i].username + "</button></form></li>");
+						document.getElementById("listOfStudentsOfGroup").style.visibility = "visible";
+					}
 
 				}
 			}

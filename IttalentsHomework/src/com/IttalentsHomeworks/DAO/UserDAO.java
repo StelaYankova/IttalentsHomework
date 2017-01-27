@@ -6,6 +6,8 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.IttalentsHomeworks.DB.DBManager;
 import com.IttalentsHomeworks.Exceptions.GroupException;
@@ -34,7 +36,7 @@ public class UserDAO implements IUserDAO {
 	private static final String IS_USERNAME_UNIQUE = "SELECT * FROM IttalentsHomeworks.Users WHERE username = ?;";
 	private static final String GET_HOMEWORKS_OF_STUDENT = "SELECT H.id, H.heading, H.num_of_tasks, H.tasks_pdf, H.opens, H.closes, UH.teacher_grade, UH.teacher_comment FROM IttalentsHomeworks.User_has_homework UH JOIN IttalentsHomeworks.Homework H ON (H.id = UH.homework_id) WHERE UH.user_id = ?;";
 	private static final String GET_USER_BY_USERNAME = "SELECT * FROM IttalentsHomeworks.Users WHERE id = ?;";
-	private static final String GET_TASKS_OF_HOMEWORK_OF_STUDENT = "SELECT CONCAT(H.id) AS 'homework_id', HTS.task_number, HTS.solution_java, HTS.uploaded_on FROM IttalentsHomeworks.User_has_homework UH JOIN IttalentsHomeworks.Homework H ON (H.id = UH.homework_id) JOIN IttalentsHomeworks.Homework_task_solution HTS ON (H.id = HTS.homework_id) WHERE UH.user_id = ? AND H.id = ?;";
+	private static final String GET_TASKS_OF_HOMEWORK_OF_STUDENT = "SELECT homework_id,task_number,uploaded_on,solution_java FROM IttalentsHomeworks.Homework_task_solution WHERE student_id = ? AND homework_id = ?;";
 	private static final String GET_HOMEWORKS_OF_STUDENT_BY_GROUP = "SELECT H.id, H.heading, H.num_of_tasks, H.tasks_pdf, H.opens, H.closes, UH.teacher_grade, UH.teacher_comment FROM IttalentsHomeworks.User_has_homework UH JOIN IttalentsHomeworks.Homework H ON (H.id = UH.homework_id) JOIN IttalentsHomeworks.Group_has_Homework GH ON (H.id = GH.homework_id) WHERE UH.user_id = ? AND GH.group_id = ?;";
 	private static final String GET_GROUPS_OF_USER = "SELECT CONCAT(G.id) AS 'group_id', G.group_name FROM IttalentsHomeworks.User_has_Group UG JOIN IttalentsHomeworks.Groups G ON (G.id = UG.group_id) WHERE UG.user_id = ?";
 	private static final String GET_USER_ID_BY_USERNAME = "SELECT id FROM IttalentsHomeworks.Users WHERE username = ?;";
@@ -42,7 +44,11 @@ public class UserDAO implements IUserDAO {
 	private static final String GET_USER_BY_ID = "SELECT * FROM IttalentsHomeworks.Users WHERE id = ?;";
 	private static IUserDAO instance;
 	private DBManager manager;
-	
+	/*SELECT UH.user_id,HTS.homework_id, HTS.task_number, HTS.solution_java, HTS.uploaded_on 
+FROM IttalentsHomeworks.User_has_homework UH 
+JOIN IttalentsHomeworks.Homework_task_solution HTS ON 
+(UH.homework_id=HTS.homework_id AND UH.user_id = HTS.student_id)
+WHERE UH.user_id = 3 AND UH.homework_id= 4;*/
 	private UserDAO() {
 		setManager(DBManager.getInstance());
 	}
@@ -185,11 +191,12 @@ public class UserDAO implements IUserDAO {
 				String uploadedOnString = null;
 				if(rs.getString(4) == null){
 					uploadedOnString = "";
-					tasksOfHomeworkOfStudent.add(new Task(rs.getInt(2), rs.getString(3), null));
+					tasksOfHomeworkOfStudent.add(new Task(rs.getInt(2), rs.getString(4), null));
 				}else{
-					uploadedOnString = rs.getString(4); 
+					uploadedOnString = rs.getString(3); 
 					LocalDateTime uploadedOn = LocalDateTime.parse(uploadedOnString, formatter);
-					tasksOfHomeworkOfStudent.add(new Task(rs.getInt(2), rs.getString(3), uploadedOn));
+					System.out.println("DAO UPLOADED ON : " + uploadedOn);
+					tasksOfHomeworkOfStudent.add(new Task(rs.getInt(2), rs.getString(4), uploadedOn));
 				}
 			}
 		} catch (SQLException e) {
@@ -293,11 +300,11 @@ public class UserDAO implements IUserDAO {
 	@Override
 	public boolean isPasswordValid(String pass){
 		boolean isPasswordValid = true;
-		if(pass.length() >= 6 && pass.length() <= 10){
+		if(pass.length() >= 6 && pass.length() <= 15){
 			for (int i = 0; i < pass.length(); i++) {
-				if (!(((int) pass.charAt(i) > 47 && (int) pass.charAt(i) < 58)
-						|| ((int) pass.charAt(i) > 64 && (int) pass.charAt(i) < 91)
-						|| ((int) pass.charAt(i) > 96 && (int) pass.charAt(i) < 123))) {
+				if (!(((int) pass.charAt(i) >= 48 && (int) pass.charAt(i) <= 57)
+						|| ((int) pass.charAt(i) >= 65 && (int) pass.charAt(i) <= 90)
+						|| ((int) pass.charAt(i) >= 97 && (int) pass.charAt(i) <= 122))) {
 					isPasswordValid = false;
 					break;
 				}
@@ -306,14 +313,40 @@ public class UserDAO implements IUserDAO {
 		return isPasswordValid;
 	}
 	
+	@Override
+	public boolean isUsernameValid(String username){
+		boolean isUsernameValid = true;
+		if(username.length() >= 6 && username.length() <= 15){
+			for (int i = 0; i < username.length(); i++) {
+				if (!(((int) username.charAt(i) >= 48 && (int) username.charAt(i) <= 57)
+						|| ((int) username.charAt(i) >= 65 && (int) username.charAt(i) <= 90)
+						|| ((int) username.charAt(i) >= 97 && (int) username.charAt(i) <= 122))) {
+					isUsernameValid = false;
+					break;
+				}
+			}
+		}
+		
+		return isUsernameValid;
+	}
+	
+	@Override
+	public boolean isEmailValid(String email) {
+		
+		String regex = "^(.+)@(.+)$";
+		Pattern pattern = Pattern.compile(regex);
+		Matcher matcher = pattern.matcher((CharSequence) email);
+		return matcher.matches();
+	}
+	
 	/* (non-Javadoc)
 	 * @see com.IttalentsHomeworks.DAO.IUserDAO#createNewUser(com.IttalentsHomeworks.model.User)
 	 */
 	@Override
 	public void createNewUser(User user) throws UserException{
 		Connection con = manager.getConnection();
-		if (UserDAO.getInstance().isUsernameUnique(user.getUsername())
-				&& UserDAO.getInstance().isPasswordValid(user.getPassword())) {
+		if (UserDAO.getInstance().isUsernameUnique(user.getUsername()) && UserDAO.getInstance().isEmailValid(user.getEmail())
+				&& UserDAO.getInstance().isPasswordValid(user.getPassword()) && UserDAO.getInstance().isUsernameValid(user.getUsername())) {
 			try {
 				PreparedStatement ps = con.prepareStatement(
 						CREATE_NEW_USER);
@@ -328,6 +361,7 @@ public class UserDAO implements IUserDAO {
 			}
 		}
 	}
+
 	
 	/* (non-Javadoc)
 	 * @see com.IttalentsHomeworks.DAO.IUserDAO#removeUserProfile(com.IttalentsHomeworks.model.User)
@@ -469,6 +503,8 @@ public class UserDAO implements IUserDAO {
 	public void updateUser(User user) throws UserException{
 		int id = UserDAO.getInstance().getUserIdByUsername(user.getUsername());
 		Connection con = manager.getConnection();
+		if(UserDAO.getInstance().isEmailValid(user.getEmail())
+		&& UserDAO.getInstance().isPasswordValid(user.getPassword())){
 		try {
 			PreparedStatement ps = con.prepareStatement(UPDATE_USER_PROFILE);
 			ps.setString(1, user.getPassword());
@@ -478,6 +514,7 @@ public class UserDAO implements IUserDAO {
 		} catch (SQLException e) {
 			throw new UserException("Something went wrong with updating user..");
 		}
+	}
 	}
 //we dont have to know his groups
 	@Override

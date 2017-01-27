@@ -1,6 +1,7 @@
 package com.IttalentsHomeworks.controller;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 import javax.servlet.ServletException;
@@ -16,6 +17,7 @@ import com.IttalentsHomeworks.Exceptions.UserException;
 import com.IttalentsHomeworks.model.Group;
 import com.IttalentsHomeworks.model.Homework;
 import com.IttalentsHomeworks.model.HomeworkDetails;
+import com.IttalentsHomeworks.model.Task;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
@@ -39,27 +41,33 @@ public class SeeAllHomeworksOfStudentByGroupServlet extends HttpServlet {
 		} catch (GroupException | UserException e) {
 			e.printStackTrace();
 		}
+		boolean hasStudentGivenMinOneTask = false;
+		
 		for (HomeworkDetails hd : homeworkDetailsByGroup) {
 			JsonObject obj = new JsonObject();
 			obj.addProperty("heading", hd.getHeading());
 			obj.addProperty("id", hd.getId());
 			obj.addProperty("opens", hd.getOpeningTime().toString());
 			obj.addProperty("closes", hd.getClosingTime().toString());
-			/*request.getSession().setAttribute("heading", hd.getHeading());
-			request.getSession().setAttribute("id", hd.getId());
-			request.getSession().setAttribute("opens", hd.getOpeningTime());
-			request.getSession().setAttribute("closes", hd.getClosingTime());*/
 			try {
 				for (Homework h : UserDAO.getInstance().getHomeworksOfStudentByGroup(studentId,
 						selectedGroup)) {
 					if (hd.getId() == h.getHomeworkDetails().getId()) {
 						int grade = h.getTeacherGrade();
 						String comment = h.getTeacherComment();
-						//request.getSession().setAttribute("grade", h.getTeacherGrade());
-//						request.getSession().setAttribute("comment", h.getTeacherComment());
-
+						for(Task t: h.getTasks()){
+							String x = t.getSolution();
+							if(x != null){
+								hasStudentGivenMinOneTask = true;
+								break;
+							}
+						}
+						
+						obj.addProperty("hasStudentGivenMinOneTask", hasStudentGivenMinOneTask);
 						obj.addProperty("teacherScore", grade);
 						obj.addProperty("teacherComment", comment);
+						hasStudentGivenMinOneTask = false;
+
 						break;
 					}
 				}

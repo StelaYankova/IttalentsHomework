@@ -2,7 +2,7 @@
     pageEncoding="UTF-8"%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
     
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE html>
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -27,6 +27,9 @@
 	top: 220px;
 	background-color: #ffffff;
 	width: 500px;
+}
+.input-invalid{
+	color:red;
 }
 /*.multiselect {
 	width: 200px;
@@ -69,14 +72,15 @@
 	</div>
 
 	<div id="formAddGroup" align="right">
-		<form action="./AddGroupServlet" method="POST">
+		<form action="./AddGroupServlet" method="POST" id = "addGroupForm">
 			<label
 				style="position: absolute; left: 290px; text-decoration: underline;">New
 				group</label> <br> <br> <br>
 			<div class="form-group">
 				<label class="control-label col-sm-6">Name</label>
 				<div class="col-sm-6">
-					<input type="text" name="groupName" class="form-control">
+					<input type="text" name="groupName" class="form-control" placeholder="Enter name" value data-toggle = "popover" data-placement = "bottom" data-trigger = "focus" data-content = "Size of name - 4 to 15 symbols. Valid inputs are numbers and letters (large and small)" required/>
+					<p id = "nameMsg" class = "input-invalid"></p>
 				</div>
 			</div>
 			<br><div class="form-group">
@@ -110,12 +114,90 @@
 			<div class="form-group">
 				<div class="col-sm-offset-3 col-sm-2" style="left: 290px">
 
-					<button style="align: right" type="submit" class="btn btn-default">Save</button>
+					<input  style="align: right" type="submit" class="btn btn-default" value = "Save">
 				</div>
 			</div>
 		</form>
 	</div>
 	<script>
+	$('#addGroupForm').submit(function(e) {
+		e.preventDefault();
+		var name = document.forms["addGroupForm"]["groupName"].value;
+
+		var isNameValid = true;
+		if(name == ""){
+			console.log(1)
+			isNameValid = false;
+		}
+		console.log(name)
+		if((isNameValid === false) || (name.length < 4 && name.length > 15)){			console.log(2)
+
+			if (!$('#nameMsg').is(':empty')) {
+				$("#nameMsg").empty();
+			}
+			document.getElementById("nameMsg").append(
+					"Invalid symbols or length");
+			
+			return false;
+		}
+		$.ajax({
+
+			url : './IsGroupNameUnique',
+			type : 'GET',
+			data : {
+				"name" : name
+			},
+			success : function(response) {
+				if (!$('#nameMsg').is(':empty')) {
+					$("#nameMsg").empty();
+					isNameValid = true;
+				}
+				$.ajax({
+					url : './IsGroupNameValid',
+					type : 'GET',
+					data : {
+						"name" : name
+					},
+					success : function(response) {
+						if (!$('#nameMsg').is(':empty')) {
+							$("#nameMsg").empty();
+							isNameValid = true;
+						}
+					},
+					error : function(data) {
+						if (!$('#nameMsg').is(':empty')) {
+							$("#nameMsg").empty();
+						}
+						isNameValid = false;
+						document.getElementById("nameMsg").append(
+								"name is not valid");
+						console.log("invalid name")
+
+					}
+				});
+				},
+			error : function(data) {				
+				console.log(5)
+
+				if (!$('#nameMsg').is(':empty')) {
+					$("#nameMsg").empty();
+				}
+				isNameValid = false;
+				document.getElementById("nameMsg").append(
+						"Group with this name already exists");
+				console.log("invalid heading")
+			}
+		});
+		$( document ).ajaxStop(function() {
+			
+	if((isNameValid === true)){
+		console.log(6)
+		document.getElementById("addGroupForm").submit();
+	}else{
+		return false;
+	}
+	});
+	});
    /* var expanded = false;
     function showCheckboxes() {
         var checkboxes = document.getElementById("checkboxes");

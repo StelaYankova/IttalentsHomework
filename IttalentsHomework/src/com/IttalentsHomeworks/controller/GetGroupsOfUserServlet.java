@@ -38,7 +38,6 @@ public class GetGroupsOfUserServlet extends HttpServlet {
 					obj.addProperty("id", g.getId());
 					obj.add("homeworks", null);
 					JsonArray homeworks = new JsonArray();
-					//obj.addProperty("students", g.getStudents());
 					for(HomeworkDetails h: g.getHomeworks()){
 						System.out.println("!! " + h.getId());
 						JsonObject obj1 = new JsonObject();

@@ -35,6 +35,7 @@ public class RemoveGroupServlet extends HttpServlet {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		response.sendRedirect("seeGroupsToChange.jsp");
 	}
 
 }

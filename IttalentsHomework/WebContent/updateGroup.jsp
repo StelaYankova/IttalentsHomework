@@ -20,7 +20,9 @@
 	position: relative;
 	left: 850px;
 }
-
+.input-invalid{
+	color:red;
+}
 #formAddGroup {
 	position: absolute;
 	left: 60px;
@@ -69,7 +71,7 @@
 	</div>
 
 	<div id="formAddGroup" align="right">
-		<form action="./UpdateGroupServlet" method="POST">
+		<form action="./UpdateGroupServlet" method="POST" id = "updateGroupForm">
 			<label
 				style="position: absolute; left: 290px; text-decoration: underline;">Update
 				group</label> <br> <br> <br>
@@ -77,6 +79,7 @@
 				<label class="control-label col-sm-6">Name</label>
 				<div class="col-sm-6">
 					<input type="text" name="groupName" class="form-control" value = "${sessionScope.currGroup.name}">
+					<p id = "nameMsg" class = "input-invalid"></p>
 				</div>
 			</div>
 			<br><div class="form-group">
@@ -133,17 +136,84 @@
 		</form>
 	</div>
 	<script>
-   /* var expanded = false;
-    function showCheckboxes() {
-        var checkboxes = document.getElementById("checkboxes");
-        if (!expanded) {
-            checkboxes.style.display = "block";
-            expanded = true;
-        } else {
-            checkboxes.style.display = "none";
-            expanded = false;
-        }
-    }*/
+	$('#updateGroupForm').submit(function(e) {
+		e.preventDefault();
+		var name = document.forms["updateGroupForm"]["groupName"].value;
+
+		var isNameValid = true;
+		if(name == ""){
+			console.log(1)
+			isNameValid = false;
+		}
+		console.log(name)
+		if((isNameValid === false) || (name.length < 4 && name.length > 15)){			console.log(2)
+
+			if (!$('#nameMsg').is(':empty')) {
+				$("#nameMsg").empty();
+			}
+			document.getElementById("nameMsg").append(
+					"Invalid symbols or length");
+			
+			return false;
+		}
+		$.ajax({
+
+			url : './IsGroupNameUniqueUpdate',
+			type : 'GET',
+			data : {
+				"name" : name
+			},
+			success : function(response) {
+				if (!$('#nameMsg').is(':empty')) {
+					$("#nameMsg").empty();
+					isNameValid = true;
+				}
+				$.ajax({
+					url : './IsGroupNameValid',
+					type : 'GET',
+					data : {
+						"name" : name
+					},
+					success : function(response) {
+						if (!$('#nameMsg').is(':empty')) {
+							$("#nameMsg").empty();
+							isNameValid = true;
+						}
+					},
+					error : function(data) {
+						if (!$('#nameMsg').is(':empty')) {
+							$("#nameMsg").empty();
+						}
+						isNameValid = false;
+						document.getElementById("nameMsg").append(
+								"name is not valid");
+						console.log("invalid name")
+
+					}
+				});
+				},
+			error : function(data) {				
+				console.log(5)
+
+				if (!$('#nameMsg').is(':empty')) {
+					$("#nameMsg").empty();
+				}
+				isNameValid = false;
+				document.getElementById("nameMsg").append(
+						"Group with this name already exists");
+				console.log("invalid heading")
+			}
+		});
+		$( document ).ajaxStop(function() {
+			
+	if((isNameValid === true)){
+		console.log(6)
+		document.getElementById("updateGroupForm").submit();
+	}else{
+		return false;
+	}
+	});
+	});
 </script>
 </body>
 </html>

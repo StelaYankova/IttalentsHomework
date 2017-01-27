@@ -1,6 +1,9 @@
 package com.IttalentsHomeworks.controller;
 
 import java.io.IOException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -34,7 +37,7 @@ public class UpdateYourProfileServlet extends HttpServlet {
 		String repeatedPassword = request.getParameter("repeatedPassword");
 		String email = request.getParameter("email");
 		//TODO add validations
-		if(password.equals(repeatedPassword)){
+		if(password.equals(repeatedPassword) && isEmailValid(email) && isLengthValidPass(password) && areCharactersValidPass(password)){
 			User newUser = null;
 			if(user.isTeacher()){
 				newUser = new Teacher(username, password,email);
@@ -49,8 +52,36 @@ public class UpdateYourProfileServlet extends HttpServlet {
 				e.printStackTrace();
 			}
 
+		}else{
+			//TODO
+		}
+	}
+		
+		private boolean isLengthValidPass(String password) {
+			if (password.length() >= 6 && password.length() <= 15) {
+				return true;
+			}
+			return false;
+		}
+
+		private boolean areCharactersValidPass(String password) {
+			for(int i = 0; i < password.length(); i++){
+				if(!(((int)password.charAt(i) >= 48 && (int)password.charAt(i) <= 57) || ((int)password.charAt(i) >= 65 && (int)password.charAt(i) <= 90) || ((int)password.charAt(i) >= 97 && (int)password.charAt(i) <= 122))){
+					return false;
+				}
+			}
+			return true;
+		}
+		
+		private boolean isEmailValid(String email){
+			 String regex = "^(.+)@(.+)$";
+		      Pattern pattern = Pattern.compile(regex);
+		      Matcher matcher = pattern.matcher((CharSequence) email);
+		         System.out.println(email + " : " + matcher.matches());
+		         
+				return matcher.matches();
 		}
 	}
 	
 
-}
+
