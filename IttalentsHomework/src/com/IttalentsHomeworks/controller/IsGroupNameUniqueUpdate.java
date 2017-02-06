@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.IttalentsHomeworks.DAO.GroupDAO;
+import com.IttalentsHomeworks.DAO.ValidationsDAO;
 import com.IttalentsHomeworks.Exceptions.GroupException;
 import com.IttalentsHomeworks.model.Group;
 
@@ -25,7 +26,7 @@ public class IsGroupNameUniqueUpdate extends HttpServlet {
 		try {
 			int wantedGroupNameId = GroupDAO.getInstance().getGroupIdByGroupName(groupName);
 
-			if(GroupDAO.getInstance().isGroupNameUnique(groupName)){
+			if(ValidationsDAO.getInstance().isGroupNameUnique(groupName)){
 				response.setStatus(200);
 			}else{
 				if(wantedGroupNameId == currGroupId){

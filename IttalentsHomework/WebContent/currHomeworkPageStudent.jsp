@@ -40,8 +40,9 @@ position: absolute;
 		<img src="logo-black.png" class="img-rounded" width="380" height="236">
 	</div>
 	<div id = "pageContent">
-	
 	<br><form style="display:inline" action="./ReadHomeworkServlet" method="GET">
+	
+				
 		<input type='hidden'
 			value='${sessionScope.currHomework.homeworkDetails.tasksFile}'
 			name='fileName'>
@@ -79,15 +80,21 @@ position: absolute;
 					<c:if test="${hasUploadTimePassed == 'false'}">
 						<c:if test="${hasUploadTimeCome == 'true'}">
 							<form action="./UploadSolutionServlet" method="POST"
-								enctype="multipart/form-data">
+								enctype="multipart/form-data" id = "uploadSolutionForm">
 								
 								<input type="hidden" value="${i}" name="taskNum"><input
-									type="file" accept="application/java" size="50" name="file">
-								<button class="btn btn-default btn-xs" type="Submit">Upload
-									solution</button>
+									type="file" accept="application/java" size="50" name="file" id = "file">
+								 <!--   <button class="btn btn-default btn-xs" type="Submit">Upload
+									solution</button>-->
+		<input type="submit" class="btn btn-default btn-xs" value = "Upload
+									solution">
+									
+									
 							</form>
 								<div id = "invalidData">
-								<c:if test="${sessionScope.currTaskUpload+1 == i}">
+								<c:if test="${currTaskUpload+1 == i}">
+													<p id = "fileMsg" class = "input-invalid"></p>
+								
 									<c:if test="${wrongContentType == true}">You can upload only .java files</c:if>
 									<c:if test="${wrongSize == true}">You can upload only files up to 1 MB</c:if>
 								</c:if>
@@ -109,9 +116,6 @@ position: absolute;
 	
 		</div>
 	</div>
-		<c:remove var="wrongContentType" scope = "session"/>
-	<c:remove var="wrongSize" scope = "session"/>
-	<c:remove var="currTaskUpload" scope = "session"/>
 	<script>
 	
 	function seeTaskSolution(taskNum){
@@ -132,8 +136,45 @@ position: absolute;
 			}
 		});
 	}
-	
+	 function isFileValidCheck() {
+			var file = document.forms["uploadSolutionForm"]["file"].value;
+			var val = file.toLowerCase();
+			var regex = new RegExp("(.*?)\.(java)$");
+			if (!(regex.test(val))) {
+				return false;
+			}
+			
+			 var size = (document.forms["uploadSolutionForm"]["file"].files[0].size/1024/1024).toFixed(2);
+			console.log(size)
+			if(size > 1){
+				console.log(false)
+				return false;
+			}
+			//console.log('This file size is: ' + (document.forms["addHomeworkForm"].files[0].size/1024/1024).toFixed(2) + " MB");
+			return true;
+		}
+	 
+	$('#uploadSolutionForm').submit(function(e) {
+		e.preventDefault();
+		var file = document.forms["uploadSolutionForm"]["file"].value;
+		if(file == ""){
+			isFileValid = false;
+			return false;
+		}
+		var isFileValid = isFileValidCheck();
+		if(!isFileValid){
+			if (!$('#fileMsg').is(':empty')) {
+				$("#fileMsg").empty();
+			}
+			document.getElementById("fileMsg").append(
+			"File format-pdf, maxSize - 20MB");
+			console.log("invalid file")
+		}
+		if(isFileValid === true){
+			document.getElementById("uploadSolutionForm").submit();
 
+		}
+	});
 	</script>
 </body>
 </html>

@@ -1,6 +1,8 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+	
+<!DOCTYPE html>
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -104,46 +106,67 @@ float:left;
 	</div>
 
 	<nav class="navbar navbar-inverse">
-	<div class="container-fluid" >
-		<div class="navbar-header" >
-			<a class="navbar-brand" href="homePage.jsp" style ="padding-top:30px"> ITTalents Homework System</a>
-		</div>
-		<ul class="nav navbar-nav navbar-right">
-			<li>
-				<div class="container">
-					<form class="form-inline" action="./LoginServlet" method="POST" name = "signInForm" id = "signInForm">
-						<div class="form-group">
-							<label>Username:</label> <input type="text"
-								class=" form-control input-sm" name="username">
-						</div>
-						<div class="form-group">
-							<label>Password:</label> <input type="password"
-								class="form-control input-sm" name="password">
-						</div>
-						<input style="align: right" type="submit" class="btn btn-xs btn-default"
-						value="Sign in">
-					<!-- <input type="button" class="btn btn-xs btn-default" value = "Sign
-							in" onclick = "validateFormLogin()"/> -->
-					
-					</form>
-						<p id = "usernamePasswordMsg" class = "input-invalid-login"></p>
-				</div>
-			</li>
-			<div class="container">
-				<li><a href="registerPage.jsp" style ="color:#9d9d9d"><span
-						class="glyphicon glyphicon-log-in btn-sm"></span>Register here</a>
-				</li>
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<a class="navbar-brand" href="homePage.jsp"
+					style="padding-top: 30px"> ITTalents Homework System</a>
 			</div>
-		</ul>
-	</div>
-	</nav>
+			<ul class="nav navbar-nav navbar-right">
+				<li>
+					<div class="container">
+						<form class="form-inline" action="./LoginServlet" method="POST"
+							name="signInForm" id="signInForm">
+							<div class="form-group">
+								<label>Username:</label> <input type="text"
+									class=" form-control input-sm" maxlength="15"
+									value="${sessionScope.usernameTry}" name="username" required />
+							</div>
+							<div class="form-group">
+								<label>Password:</label> <input type="password"
+									class="form-control input-sm" value="${sessionScope.passwordTry}"
+									maxlength="15" name="password" required />
+							</div>
+							<input style="align: right" type="submit"
+								class="btn btn-xs btn-default" value="Sign in">
+							<!-- <input type="button" class="btn btn-xs btn-default" value = "Sign
+							in" onclick = "validateFormLogin()"/> -->
 
+						</form>
+						<c:if test="${not empty sessionScope.invalidField}">
+							<c:if test="${sessionScope.invalidField}">
+								<p id="usernamePasswordMsg" class="input-invalid-login">Wrong
+									username/password!@</p>
+							</c:if>
+							<c:remove var="invalidField" scope="session" />
+
+						</c:if>
+						<p id="usernamePasswordMsg" class="input-invalid-login"></p>
+					</div>
+				</li>
+				<div class="container">
+					<li><a href="registerPage.jsp" style="color: #9d9d9d"><span
+							class="glyphicon glyphicon-log-in btn-sm"></span>Register here</a></li>
+				</div>
+			</ul>
+		</div>
+	</nav>
+	<c:if test="${not empty sessionScope.usernameTry}">
+
+		<c:remove var="usernameTry" scope="session" />
+
+	</c:if>
+	<c:if test="${not empty sessionScope.passwordTry}">
+
+		<c:remove var="passwordTry" scope="session" />
+
+	</c:if>
 </body>
 <script>
 	$('#signInForm')
 	.submit(
 			function(e) {
 				e.preventDefault();
+
 	var username = document.forms["signInForm"]["username"].value;
 	var password = document.forms["signInForm"]["password"].value;
 	console.log(username)
@@ -161,12 +184,10 @@ float:left;
 			"password": password
 		},
 		success: function(response){
-			console.log(1)
 			document.getElementById("signInForm").submit();
 			return true;
 		},
 		error: function(response){
-			console.log(2)
 			document.getElementById("usernamePasswordMsg").append("Wrong username/password");
 			return false;
 		}

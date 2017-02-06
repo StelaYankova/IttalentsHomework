@@ -2,20 +2,24 @@
     pageEncoding="UTF-8"%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
     
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE html>
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.1/css/bootstrap-select.min.css">
+<!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.1/css/bootstrap-select.min.css">
 
-<!-- Latest compiled and minified JavaScript -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.1/js/bootstrap-select.min.js"></script>
-
+  -->
 <title>Insert title here</title>
 </head>
 <style>
+.alert {
+	position: absolute;
+	top: 81px;
+	width: 100%;
+}
 #image {
 	position: relative;
 	left: 850px;
@@ -30,42 +34,17 @@
 	background-color: #ffffff;
 	width: 500px;
 }
-/*.multiselect {
-	width: 200px;
-}
 
-.selectBox {
-	position: relative;
-}
-
-.selectBox select {
-	width: 100%;
-	font-weight: bold;
-}
-
-.overSelect {
-	position: absolute;
-	left: 0;
-	right: 0;
-	top: 0;
-	bottom: 0;
-}
-
-#checkboxes {
-	display: none;
-	border: 1px #dadada solid;
-}
-
-#checkboxes label {
-	display: block;
-}
-
-#checkboxes label:hover {
-	background-color: #1e90ff;
-}*/
 </style>
 <body>
 	<%@ include file="navBarTeacher.jsp"%>
+	<c:if test="${not empty invalidFields}">
+		<c:if test="${not invalidFields}">
+			<div class="alert alert-success">
+				<strong>Success!</strong> Indicates a successful or positive action.
+			</div>
+		</c:if>
+	</c:if>
 	<div id="image">
 		<img src="logo-black.png" class="img-rounded" width="380" height="236">
 	</div>
@@ -75,10 +54,35 @@
 			<label
 				style="position: absolute; left: 290px; text-decoration: underline;">Update
 				group</label> <br> <br> <br>
+				<c:if test="${not empty invalidFields}">
+			<c:if test="${invalidFields}">
+			<p style = "text-align:center" class="input-invalid">Invalid fields</p>
+			</c:if>
+				
+		</c:if>
+			<c:if test="${not empty emptyFields}">
+				<c:if test="${emptyFields}">
+					<p style="text-align: center" class="input-invalid">You cannot
+						have empty fields</p>
+				</c:if>
+			</c:if>
 			<div class="form-group">
 				<label class="control-label col-sm-6">Name</label>
 				<div class="col-sm-6">
-					<input type="text" name="groupName" class="form-control" value = "${sessionScope.currGroup.name}">
+					<input type="text" name="groupName" maxlength="20" placeholder="Enter name" data-toggle="popover" class="form-control" value = "${sessionScope.currGroup.name}" data-placement="bottom" data-trigger="focus" maxlength="20"
+						data-content="Size of name - 4 to 15 symbols. Valid inputs are numbers and letters (large and small)" />
+					<c:if test="${not empty validName}">
+						<c:if test="${not validName}">
+							<p id="nameMsg" class="input-invalid">Invalid name</p>
+						</c:if>
+						<c:if test="${not empty uniqueName}">
+							<c:if test="${validName}">
+								<c:if test="${not uniqueName}">
+									<p id="nameMsg" class="input-invalid">Name already exists</p>
+								</c:if>
+							</c:if>
+						</c:if>
+					</c:if>
 					<p id = "nameMsg" class = "input-invalid"></p>
 				</div>
 			</div>
@@ -86,10 +90,6 @@
 					<label class="control-label col-sm-6">Teachers</label>
 					<div class="col-sm-6">
 						<select class="selectpicker" multiple name = "teachers">
-						<!--<c:forEach items="${applicationScope.allTeachers}" var="teacher">
-							<option value="${teacher.username}">
-								<c:out value="${teacher.username}"></c:out></option>
-						</c:forEach>-->
 						<c:forEach items="${applicationScope.allTeachers}" var="teacher">
 								<c:set var="isTeacherInGroup" value="false"></c:set>
 								<c:forEach items="${teacher.groups}" var="group">
@@ -109,21 +109,6 @@
 						
 					</select>
 				</div>
-				<!-- <div class="multiselect">
-					<div class="selectBox" onclick="showCheckboxes()">
-						<select required>
-							<option>Select an option</option>
-						</select>
-						<div class="overSelect"></div>
-					</div>
-					<div id="checkboxes">
-						<c:forEach items="${applicationScope.allTeachers}" var="teacher">
-							<input type="checkbox" name="teachers"
-								value="${teacher.username}" />
-							<c:out value="${teacher.username}"></c:out>
-						</c:forEach>
-					</div>
-				</div> -->
 			</div>
 			<br>
 			<br>
@@ -142,11 +127,10 @@
 
 		var isNameValid = true;
 		if(name == ""){
-			console.log(1)
 			isNameValid = false;
 		}
 		console.log(name)
-		if((isNameValid === false) || (name.length < 4 && name.length > 15)){			console.log(2)
+		if((isNameValid === false) || (name.length < 4 && name.length > 15)){
 
 			if (!$('#nameMsg').is(':empty')) {
 				$("#nameMsg").empty();
@@ -213,6 +197,9 @@
 		return false;
 	}
 	});
+	});
+	$(document).ready(function() {
+		$('[data-toggle="popover"]').popover();
 	});
 </script>
 </body>

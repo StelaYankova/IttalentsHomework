@@ -40,68 +40,6 @@ import com.IttalentsHomeworks.model.User;
  * Servlet implementation class UploadSolutionServlet
  */
 @WebServlet("/UploadSolutionServlet")
-/*@MultipartConfig
-public class UploadSolutionServlet extends HttpServlet {
-	private static final long serialVersionUID = 1L;
-	private static final String saveFile = "/Users/Stela/Desktop/imagesIttalentsHomework";
-	
-   
-	@Override
-
-	protected void doPost(HttpServletRequest request, HttpServletResponse response)
-	
-			throws ServletException, IOException {
-		
-		// process only if its multipart content
-
-		if (ServletFileUpload.isMultipartContent(request)) {
-			System.out.println("YAYAYAYAYYA");
-			DiskFileItemFactory factory = new DiskFileItemFactory();
-			ServletFileUpload upload = new ServletFileUpload(factory);
-				// File uploaded successfully
-			List items = null;
-			try {
-				items = upload.parseRequest((RequestContext) request);
-			} catch (FileUploadException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			Iterator itr = items.iterator();
-			while(itr.hasNext()){
-				FileItem item = (FileItem) itr.next();
-				if(!item.isFormField()){
-					String itemname = item.getName();
-					if(!(itemname == null || itemname.equals(""))){
-						String filename = FilenameUtils.getName(itemname);
-						File f = checkExist(filename);
-						try {
-							item.write(f);
-						} catch (Exception e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					}
-				}
-			}
-				request.setAttribute("message", "File Uploaded Successfully");
-
-		}
-		request.getRequestDispatcher("/result.jsp").forward(request, response);
-
-	}
-
-
-	private File checkExist(String filename) {
-		File f = new File(saveFile + "/" + filename);
-		if(f.exists()){
-			StringBuffer sb = new StringBuffer(filename);
-			sb.insert(sb.lastIndexOf("."), "-" + new Date().getTime());
-			f = new File(saveFile + "/" + sb.toString());
-		}
-		return f;
-	}
-
-}*/
 @MultipartConfig(fileSizeThreshold = 1024 * 1024 * 2, // 2MB
 		maxFileSize = 1024 * 1024 * 10, // 10MB
 		maxRequestSize = 1024 * 1024 * 50) // 50MB
@@ -117,25 +55,13 @@ public class UploadSolutionServlet extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		// gets absolute path of the web application
-		//String appPath = request.getServletContext().getRealPath("");
-		// constructs path of the directory to save uploaded file
-		//Pattern p = Pattern.compile("/[^/]+\\.(.*)");
-	    //String[] tests = { "/var/www.dir/file.tar.gz", "/var/www.dir/file.exe" };
-	 /*   for (String s : tests) {
-		    String lastPart = s.substring(s.lastIndexOf("/"));
-		    String file = s.substring(s.lastIndexOf("/"));
-		    String extension = file.substring(file.indexOf(".")); // .tar.gz
-		    System.out.println(extension);
-	    }*/
-	   
-		int taskNum = Integer.parseInt(request.getParameter("taskNum"))-1;
+		int taskNum = Integer.parseInt(request.getParameter("taskNum")) - 1;
 		Homework homework = (Homework) request.getSession().getAttribute("currHomework");
 		HomeworkDetails homeworkDetails = homework.getHomeworkDetails();
 		User user = (User) request.getSession().getAttribute("user");
 
 		String savePath = SAVE_DIR;
-		
+
 		// creates the save directory if it does not exists
 		File fileSaveDir = new File(savePath);
 		if (!fileSaveDir.exists()) {
@@ -143,32 +69,37 @@ public class UploadSolutionServlet extends HttpServlet {
 		}
 		String fileName = " ";
 		Part file = request.getPart("file");
-		String contentType = file.getSubmittedFileName().substring(file.getSubmittedFileName().indexOf("."));
-		boolean isContentTypeValid = true;
-		long sizeInMb = file.getSize() / (1024 * 1024);
-		if(sizeInMb>=1){
-			request.getSession().setAttribute("wrongSize", true);
-		}else{
-		if(!(contentType.equals(".java"))){
-			isContentTypeValid = false;
-			request.getSession().setAttribute("wrongContentType", true);
-		}
-		if(isContentTypeValid){
-			 fileName = "hwId"+homeworkDetails.getId() +"userId" +user.getId() +"taskNum"+ taskNum + ".java";
-			file.write(savePath + File.separator+ fileName);
-		try {
-			UserDAO.getInstance().setSolutionOfTask(homeworkDetails, (Student) user, taskNum, fileName, LocalDateTime.now());
-			homework.getTasks().get(taskNum).setSolution(fileName);
-			//homework.getTasks().get(taskNum).setUploadedOn(UserDAO.getInstance().getTasksOfHomeworkOfStudent(user.getId(), homeworkDetails).get(taskNum).getUploadedOn());
-			homework.getTasks().get(taskNum).setUploadedOn(LocalDateTime.now());
+		if (!isFileEmpty(file)) {
+			//boolean isContentTypeValid = true;
 
-		} catch (UserException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			if (!isSizeValid(file)) {
+				System.out.println("EMPTY");
+
+				request.setAttribute("wrongSize", true);
+			} else {
+
+				if (!isContentTypeValid(file)) {
+					//isContentTypeValid = false;
+					System.out.println("INVALID");
+					request.setAttribute("wrongContentType", true);
+				}else{
+					fileName = "hwId" + homeworkDetails.getId() + "userId" + user.getId() + "taskNum" + taskNum
+							+ ".java";
+					file.write(savePath + File.separator + fileName);
+					try {
+						UserDAO.getInstance().setSolutionOfTask(homeworkDetails, (Student) user, taskNum, fileName,
+								LocalDateTime.now());
+						homework.getTasks().get(taskNum).setSolution(fileName);
+						homework.getTasks().get(taskNum).setUploadedOn(LocalDateTime.now());
+						request.setAttribute("invalidFields", true);
+					} catch (UserException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
 		}
-		}
-		}
-		request.getSession().setAttribute("currTaskUpload", taskNum);
+		request.setAttribute("currTaskUpload", taskNum);
 		request.getRequestDispatcher("currHomeworkPageStudent.jsp").forward(request, response);
 	}
 
@@ -185,4 +116,28 @@ public class UploadSolutionServlet extends HttpServlet {
 		}
 		return "";
 	}*/
+	private boolean isContentTypeValid(Part file) {
+		String contentType = file.getSubmittedFileName().substring(file.getSubmittedFileName().indexOf("."));
+		if (!(contentType.equals(".java"))) {
+			return false;
+		}
+		return true;
+	}
+
+	private boolean isFileEmpty(Part file) {
+		if (file.getSize() != 0) {
+			System.out.println("SEZE : " + file.getSize());
+
+			return false;
+		}
+		return true;
+	}
+
+	private boolean isSizeValid(Part file) {
+		long sizeInMb = file.getSize() / (1024 * 1024);
+		if (sizeInMb >= 1) {
+			return false;
+		}
+		return true;
+	}
 }

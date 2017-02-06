@@ -9,8 +9,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.IttalentsHomeworks.DAO.GroupDAO;
 import com.IttalentsHomeworks.DAO.UserDAO;
+import com.IttalentsHomeworks.DAO.ValidationsDAO;
 import com.IttalentsHomeworks.Exceptions.GroupException;
 import com.IttalentsHomeworks.Exceptions.UserException;
+import com.IttalentsHomeworks.Exceptions.ValidationException;
 import com.IttalentsHomeworks.model.Group;
 import com.IttalentsHomeworks.model.Student;
 
@@ -20,31 +22,94 @@ import com.IttalentsHomeworks.model.Student;
 @WebServlet("/AddStudentToGroupServlet")
 public class AddStudentToGroupServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-       
- 
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
 		request.getRequestDispatcher("addStudentToGroup.jsp").forward(request, response);
 	}
 
-	
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		if(!request.getParameter("chosenGroup").equals("null")){
-			//addnahme mu si4ki doma6ni ne samo 4, ne e v taskovete
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		String chosenGroupIdString = request.getParameter("chosenGroup");
+		String chosenStudentUsername = request.getParameter("selectedStudent").trim();
+
+		// empty fields
+		request.setAttribute("chosenUsernameTry", chosenStudentUsername);
+		if (isThereEmptyField(chosenGroupIdString, chosenStudentUsername)) {
+			request.setAttribute("emptyFields", true);
+		} else {
+			// does student exist
+			boolean doesStudentExist = false;
+			boolean isStudentInGroup = false;
+			int chosenGroupId = Integer.parseInt(chosenGroupIdString);
+			if (doesStudentExist(chosenStudentUsername)) {
+				doesStudentExist = true;
+			}
+			request.setAttribute("doesStudentExist", doesStudentExist);
+
+			if (doesStudentExist == true) {
+				// is student already in group
+				if (isStudentAlreadyInGroup(chosenGroupId, chosenStudentUsername)) {
+					isStudentInGroup = true;
+				}
+			}
+			request.setAttribute("isStudentInGroup", isStudentInGroup);
+
+			if (doesStudentExist == true && isStudentInGroup == false) {
+
+				try {
+					Group group = GroupDAO.getInstance().getGroupById(chosenGroupId);
+					Student student = UserDAO.getInstance().getStudentsByUsername(chosenStudentUsername);
+					GroupDAO.getInstance().addUserToGroup(group, student);
+					request.setAttribute("invalidFields", false);
+				} catch (UserException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (GroupException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (ValidationException e) {
+					request.setAttribute("invalidFields", true);
+				}
+
+			}
+		}
+		request.getRequestDispatcher("addStudentToGroup.jsp").forward(request, response);
+
+	}
+
+	private boolean doesStudentExist(String username) {
 		try {
-			String studentUsername = request.getParameter("selectedStudent");
-				int chosenGroupId = Integer.parseInt(request.getParameter("chosenGroup"));
-				Group group;
-					group = GroupDAO.getInstance().getGroupById(chosenGroupId);
-			Student student = UserDAO.getInstance().getStudentsByUsername(studentUsername);
-			GroupDAO.getInstance().addUserToGroup(group, student);
+			if (ValidationsDAO.getInstance().isUsernameUnique(username)) {
+				return false;
+			}
 		} catch (UserException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (GroupException e) {
+		}
+		return true;
+	}
+
+	public boolean isStudentAlreadyInGroup(int groupId, String username) {
+		Group chosenGroup;
+		try {
+			chosenGroup = GroupDAO.getInstance().getGroupById(groupId);
+			com.IttalentsHomeworks.model.User chosenStudent = UserDAO.getInstance().getUserByUsername(username);
+			if (GroupDAO.getInstance().isUserAlreadyInGroup(chosenGroup, chosenStudent)) {
+				return true;
+			}
+		} catch (GroupException | UserException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-	}}
+		return false;
 
+	}
+
+	private boolean isThereEmptyField(String groupIdString, String username) {
+		if (groupIdString.equals("null") || (groupIdString.equals("")) || (username.equals("")) || username == null) {
+			return true;
+		}
+		return false;
+	}
 }

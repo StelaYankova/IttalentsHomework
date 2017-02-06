@@ -10,7 +10,7 @@ public class Teacher extends User{
 	public Teacher(int id, String username, String email, boolean isTeacher) {
 		super(id, username, email, isTeacher);
 	}
-	public Teacher(String username, String password, String email) {
-		super(username, password, email);
+	public Teacher(String username, String password, String repeatedPassword, String email) {
+		super(username, password, repeatedPassword, email);
 	}
 }

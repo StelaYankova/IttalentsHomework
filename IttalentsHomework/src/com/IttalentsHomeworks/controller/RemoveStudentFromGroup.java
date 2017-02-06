@@ -33,12 +33,15 @@ public class RemoveStudentFromGroup extends HttpServlet {
 				Student chosenStudent = (Student) UserDAO.getInstance().getUserByUsername(studentUsername);
 
 				GroupDAO.getInstance().removeUserFromGroup(chosenGroup, chosenStudent);
+				request.setAttribute("invalidFields", false);
+
 			} catch (GroupException | UserException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 
 		}
+		request.getRequestDispatcher("addStudentToGroup.jsp").forward(request, response);
 	}
 
 }

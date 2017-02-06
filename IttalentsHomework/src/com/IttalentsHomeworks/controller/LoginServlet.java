@@ -48,18 +48,21 @@ public class LoginServlet extends HttpServlet {
 	}
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		User user = null;
-		String username = request.getParameter("username");
+		String username = request.getParameter("username").trim();
 		String password = request.getParameter("password");
 		request.getSession().setMaxInactiveInterval(100000);
-
+		if(isThereEmptyField(username, password)){
+			request.getSession().setAttribute("invalidField", true);
+		}
+		else{
 		try {
-			if(UserDAO.getInstance().doesUserExistInDB(username, password)){
+			if(doesUserExist(username,password)){
 				user = UserDAO.getInstance().getUserByUsername(username);
 				request.getSession().setAttribute("user", user);
 				
 				if(user.isTeacher()){
 					request.getSession().setAttribute("isTeacher", true);
-
+					
 					ArrayList<Student> allStudents = UserDAO.getInstance().getAllStudents();
 					request.getServletContext().setAttribute("allStudents", allStudents);
 					response.sendRedirect("mainPageTeacher.jsp");
@@ -70,7 +73,9 @@ public class LoginServlet extends HttpServlet {
 					response.sendRedirect("mainPageStudent.jsp");
 				}
 			}else{
-				request.getSession().setAttribute("invalidField", "true");
+				request.getSession().setAttribute("invalidField", true);
+				request.getSession().setAttribute("usernameTry", username);
+				request.getSession().setAttribute("passwordTry", password);
 				response.sendRedirect("homePage.jsp");
 			}
 		} catch (UserException e) {
@@ -81,5 +86,20 @@ public class LoginServlet extends HttpServlet {
 			e.printStackTrace();
 		}
 	}
-
+	}
+	private boolean doesUserExist(String username, String password){
+		try {
+			return UserDAO.getInstance().doesUserExistInDB(username, password);
+		} catch (UserException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return false;
+	}
+	private boolean isThereEmptyField(String username, String password){
+		if(username == null || username == "" ||password == null || password == ""){
+			return true;
+		}
+		return false;
+	}
 }

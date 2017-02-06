@@ -2,24 +2,28 @@
 	pageEncoding="UTF-8"%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE html>
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet"
+<!--  <link rel="stylesheet"
 	href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.1/css/bootstrap-select.min.css">
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 
-<!-- Latest compiled and minified JavaScript -->
 <script
-	src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.1/js/bootstrap-select.min.js"></script>
+	src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.1/js/bootstrap-select.min.js"></script>-->
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Insert title here</title>
 </head>
 <style>
 .ui-helper-hidden-accessible {
 	display: none;
+}
+.alert {
+	position: absolute;
+	top: 81px;
+	width: 100%;
 }
 .input-invalid{
 	color:red;
@@ -36,18 +40,28 @@ ul.ui-autocomplete {
 
 #pageContent {
 	position: absolute;
-	top: 120px;
+	top: 150px;
 	left: 30px;
 	width: 60%;
 }
 
+#addStudentButton{
+position: relative;
+	top: 10px;
+}
 .form-group {
 	width: 30%
 }
 </style>
 <body>
 	<%@ include file="navBarTeacher.jsp"%>
-
+<c:if test="${not empty invalidFields}">
+		<c:if test="${not invalidFields}">
+			<div class="alert alert-success"  id = "alert">
+				<strong>Success!</strong> Indicates a successful or positive action.
+			</div>
+		</c:if>
+	</c:if>
 	<div id="image">
 		<img src="logo-black.png" class="img-rounded" width="380" height="236">
 	</div>
@@ -57,8 +71,34 @@ ul.ui-autocomplete {
 		<div class="ui-widget">
 			<form action="./AddStudentToGroupServlet" method="POST"
 				class="form-inline" id = "addStudentToGroupForm">
+				<c:if test="${not empty invalidFields}">
+			<c:if test="${invalidFields}">
+			<p style = "text-align:left" class="input-invalid">Invalid fields</p>
+			</c:if>
+		</c:if>
+			<c:if test="${not empty emptyFields}">
+				<c:if test="${emptyFields}">
+					<p style="text-align: left" class="input-invalid">You cannot
+						have empty fields</p>
+				</c:if>
+			</c:if>
+			<c:if test="${not empty doesStudentExist}">
+						<c:if test="${not doesStudentExist}">
+							<p id="studentMsg" class="input-invalid">Student does not exist</p>
+						</c:if>
+						<c:if test="${not empty isStudentInGroup}">
+							<c:if test="${doesStudentExist}">
+								<c:if test="${isStudentInGroup}">
+									<p id="studentMsg" class="input-invalid">Student is already in group</p>
+								</c:if>
+							</c:if>
+						</c:if>
+					</c:if>
+															<p id = "groupMsg" class = "input-invalid"></p>
+																					<p id = "studentMsg" class = "input-invalid"></p>
+															
+					
 				<div class="form-group">
-										<p id = "groupMsg" class = "input-invalid"></p>
 				
 					<label class="control-label col-sm-8">Choose group:</label> <select
 						id="chosenGroup" name="chosenGroup" class="selectpicker">
@@ -68,13 +108,12 @@ ul.ui-autocomplete {
 						</c:forEach>
 					</select>
 				</div>
-				<div class="form-group">
+				<div class="form-group" id = "studentSearch">
 					<label class="control-label col-sm-8">Choose student:</label> <input
-						id="searchStudents" name="selectedStudent" class="form-control">
-						<p id = "studentMsg" class = "input-invalid"></p>
+						id="searchStudents" name="selectedStudent" class="form-control" value = "${chosenUsernameTry}" required/>
 										</div>
 						
-					<button type="submit" class="btn btn-default btn-lg">
+					<button type="submit" id = "addStudentButton" class="btn btn-default btn-md">
 						<span class="glyphicon glyphicon-plus">Add</span>
 					</button>
 			</form>
@@ -99,10 +138,17 @@ $('#addStudentToGroupForm').submit(function(e) {
 	if(chosenGroupId == 'null'){	
 		chosenGroupEmpty = true;
 	}
+
+	if (!$('#alert').is(':empty')) {
+		$("#alert").remove();
+	}
+	if (!$('#groupMsg').is(':empty')) {
+		$("#groupMsg").empty();
+	}
+	if (!$('#studentMsg').is(':empty')) {
+		$("#studentMsg").empty();
+	}
 	if(chosenGroupEmpty === true){
-		if (!$('#groupMsg').is(':empty')) {
-			$("#groupMsg").empty();
-		}
 		document.getElementById("groupMsg").append(
 				"Choose group first");
 		return false;
@@ -110,15 +156,8 @@ $('#addStudentToGroupForm').submit(function(e) {
 	if(!chosenStudentUsername){
 		chosenStudentUsernameEmpty = true;
 	}
-	if (!$('#groupMsg').is(':empty')) {
-		$("#groupMsg").empty();
-	}
+	
 	if(chosenStudentUsernameEmpty === true){
-
-		
-		if (!$('#studentMsg').is(':empty')) {
-			$("#studentMsg").empty();
-		}
 		document.getElementById("studentMsg").append(
 				"Student is empty");
 		return false;
@@ -175,9 +214,7 @@ if(chosenStudentUsernameAlreadyInGroup === false && doesUserExist === true){
 }});
 });
 function areYouSureRemove(e){		 
-	//e.preventDefault(); 
 	if(confirm("Do you really want to do this?") ){
-      // ! => don't want to do this
 		document.getElementById("removeStudent").submit();
 	}else{
 return false;

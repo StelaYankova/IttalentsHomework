@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import com.IttalentsHomeworks.DB.DBManager;
 import com.IttalentsHomeworks.Exceptions.GroupException;
 import com.IttalentsHomeworks.Exceptions.UserException;
+import com.IttalentsHomeworks.Exceptions.ValidationException;
 import com.IttalentsHomeworks.model.Group;
 import com.IttalentsHomeworks.model.Homework;
 import com.IttalentsHomeworks.model.HomeworkDetails;
@@ -35,24 +36,20 @@ public interface IUserDAO {
 	//all homeworks
 	ArrayList<Homework> getHomeworksOfStudent(int id) throws UserException;
 
-	boolean isUsernameUnique(String username) throws UserException;
-
-	boolean isPasswordValid(String pass);
-
-	void createNewUser(User u) throws UserException;
+	void createNewUser(User u) throws UserException, ValidationException;
 
 	void removeUserProfile(User u) throws UserException;
 
-	void setTeacherGrade(HomeworkDetails hd, int studentId, int teacherGrade) throws UserException;
+	void setTeacherGrade(HomeworkDetails hd, int studentId, int teacherGrade) throws UserException, ValidationException;
 
-	void setTeacherComment(HomeworkDetails hd, int studentId, String teacherComment) throws UserException;
+	void setTeacherComment(HomeworkDetails hd, int studentId, String teacherComment) throws UserException, ValidationException;
 
 	void setSolutionOfTask(HomeworkDetails hd, Student st, int taskNum, String solution, LocalDateTime timeOfUpload)
 			throws UserException;
 
 	void setTimeOfUploadOfTask(HomeworkDetails hd, Student st, int taskNum, LocalDateTime timeOfUpload) throws UserException;
 
-	void updateUser(User u) throws UserException;
+	void updateUser(User u) throws UserException, ValidationException;
 
 	Student getStudentsByUsername(String string) throws UserException;
 
@@ -70,8 +67,6 @@ public interface IUserDAO {
 
 	User getUserById(int userId) throws UserException, GroupException;
 	
-	boolean isUsernameValid(String username);
-	
-	boolean isEmailValid(String email);
+
 
 }

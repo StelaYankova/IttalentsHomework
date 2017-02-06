@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
 import com.IttalentsHomeworks.DB.DBManager;
 import com.IttalentsHomeworks.Exceptions.GroupException;
 import com.IttalentsHomeworks.Exceptions.UserException;
+import com.IttalentsHomeworks.Exceptions.ValidationException;
 import com.IttalentsHomeworks.model.Group;
 import com.IttalentsHomeworks.model.Homework;
 import com.IttalentsHomeworks.model.HomeworkDetails;
@@ -33,7 +34,6 @@ public class UserDAO implements IUserDAO {
 	private static final String SET_TEACHER_GRADE_TO_HOMEWORK = "UPDATE IttalentsHomeworks.User_has_homework SET teacher_grade = ? WHERE user_id = ? AND homework_id = ?;";
 	private static final String REMOVE_USER_PROFILE = "DELETE FROM IttalentsHomeworks.Users WHERE id = ?;";
 	private static final String CREATE_NEW_USER = "INSERT INTO IttalentsHomeworks.Users (username, pass, email) VALUES (?,?,?);";
-	private static final String IS_USERNAME_UNIQUE = "SELECT * FROM IttalentsHomeworks.Users WHERE username = ?;";
 	private static final String GET_HOMEWORKS_OF_STUDENT = "SELECT H.id, H.heading, H.num_of_tasks, H.tasks_pdf, H.opens, H.closes, UH.teacher_grade, UH.teacher_comment FROM IttalentsHomeworks.User_has_homework UH JOIN IttalentsHomeworks.Homework H ON (H.id = UH.homework_id) WHERE UH.user_id = ?;";
 	private static final String GET_USER_BY_USERNAME = "SELECT * FROM IttalentsHomeworks.Users WHERE id = ?;";
 	private static final String GET_TASKS_OF_HOMEWORK_OF_STUDENT = "SELECT homework_id,task_number,uploaded_on,solution_java FROM IttalentsHomeworks.Homework_task_solution WHERE student_id = ? AND homework_id = ?;";
@@ -274,79 +274,16 @@ WHERE UH.user_id = 3 AND UH.homework_id= 4;*/
 		return homeworksOfStudent;
 	}
 
-	/* (non-Javadoc)
-	 * @see com.IttalentsHomeworks.DAO.IUserDAO#isUsernameUnique(java.lang.String)
-	 */
-	@Override
-	public boolean isUsernameUnique(String username) throws UserException{
-		boolean isUsernameUnique = true;
-		Connection con = manager.getConnection();
-		try {
-			PreparedStatement ps = con.prepareStatement(IS_USERNAME_UNIQUE);
-			ps.setString(1, username);
-			ResultSet rs = ps.executeQuery();
-			if(rs.next()){
-				isUsernameUnique = false;
-			}
-		} catch (SQLException e) {
-			throw new UserException("Something went wrong with checking if username is unique");
-		}
-		return isUsernameUnique;
-	}
-	
-	/* (non-Javadoc)
-	 * @see com.IttalentsHomeworks.DAO.IUserDAO#isPasswordValid(java.lang.String)
-	 */
-	@Override
-	public boolean isPasswordValid(String pass){
-		boolean isPasswordValid = true;
-		if(pass.length() >= 6 && pass.length() <= 15){
-			for (int i = 0; i < pass.length(); i++) {
-				if (!(((int) pass.charAt(i) >= 48 && (int) pass.charAt(i) <= 57)
-						|| ((int) pass.charAt(i) >= 65 && (int) pass.charAt(i) <= 90)
-						|| ((int) pass.charAt(i) >= 97 && (int) pass.charAt(i) <= 122))) {
-					isPasswordValid = false;
-					break;
-				}
-			}
-		}
-		return isPasswordValid;
-	}
-	
-	@Override
-	public boolean isUsernameValid(String username){
-		boolean isUsernameValid = true;
-		if(username.length() >= 6 && username.length() <= 15){
-			for (int i = 0; i < username.length(); i++) {
-				if (!(((int) username.charAt(i) >= 48 && (int) username.charAt(i) <= 57)
-						|| ((int) username.charAt(i) >= 65 && (int) username.charAt(i) <= 90)
-						|| ((int) username.charAt(i) >= 97 && (int) username.charAt(i) <= 122))) {
-					isUsernameValid = false;
-					break;
-				}
-			}
-		}
-		
-		return isUsernameValid;
-	}
-	
-	@Override
-	public boolean isEmailValid(String email) {
-		
-		String regex = "^(.+)@(.+)$";
-		Pattern pattern = Pattern.compile(regex);
-		Matcher matcher = pattern.matcher((CharSequence) email);
-		return matcher.matches();
-	}
 	
 	/* (non-Javadoc)
 	 * @see com.IttalentsHomeworks.DAO.IUserDAO#createNewUser(com.IttalentsHomeworks.model.User)
 	 */
 	@Override
-	public void createNewUser(User user) throws UserException{
+	public void createNewUser(User user) throws UserException, ValidationException{
 		Connection con = manager.getConnection();
-		if (UserDAO.getInstance().isUsernameUnique(user.getUsername()) && UserDAO.getInstance().isEmailValid(user.getEmail())
-				&& UserDAO.getInstance().isPasswordValid(user.getPassword()) && UserDAO.getInstance().isUsernameValid(user.getUsername())) {
+		if(!(ValidationsDAO.getInstance().createUserAreThereEmptyFields(user.getUsername(), user.getPassword(), user.getRepeatedPassword(), user.getEmail()))){
+		if (ValidationsDAO.getInstance().isUsernameUnique(user.getUsername()) && ValidationsDAO.getInstance().isEmailValid(user.getEmail())
+				&& ValidationsDAO.getInstance().isPasswordValid(user.getPassword()) && ValidationsDAO.getInstance().isUsernameValid(user.getUsername())) {
 			try {
 				PreparedStatement ps = con.prepareStatement(
 						CREATE_NEW_USER);
@@ -359,6 +296,12 @@ WHERE UH.user_id = 3 AND UH.homework_id= 4;*/
 				System.out.println(e.getMessage());
 				throw new UserException("Something went wrong with adding new user to DB..");
 			}
+		}else{
+			throw new ValidationException("Create new user -- > invalid fields");
+		}
+		}else{
+			throw new ValidationException("Create new user -- > empty fields");
+
 		}
 	}
 
@@ -382,8 +325,12 @@ WHERE UH.user_id = 3 AND UH.homework_id= 4;*/
 	 * @see com.IttalentsHomeworks.DAO.IUserDAO#setTeacherGrade(com.IttalentsHomeworks.model.HomeworkDetails, com.IttalentsHomeworks.model.Student, int)
 	 */
 	@Override
-	public void setTeacherGrade(HomeworkDetails homeworkDetails, int studentId, int teacherGrade) throws UserException{
+	public void setTeacherGrade(HomeworkDetails homeworkDetails, int studentId, int teacherGrade) throws UserException, ValidationException{
 		Connection con = manager.getConnection();
+		System.out.println("isGradeTooLong: " + ValidationsDAO.getInstance().isGradeTooLog(teacherGrade));
+		System.out.println("isGradeValid: " + ValidationsDAO.getInstance().isGradeValueValid(teacherGrade));
+		System.out.println("grade " + teacherGrade);
+		if((!ValidationsDAO.getInstance().isGradeTooLog(teacherGrade)) && ValidationsDAO.getInstance().isGradeValueValid(teacherGrade)){
 		try {
 			PreparedStatement ps = con.prepareStatement(SET_TEACHER_GRADE_TO_HOMEWORK);
 			ps.setInt(1, teacherGrade);
@@ -393,14 +340,18 @@ WHERE UH.user_id = 3 AND UH.homework_id= 4;*/
 		} catch (SQLException e) {
 			throw new UserException("Something went wrong with setting the teacher's grade of homework..");
 		}
+		}else{
+			throw new ValidationException("Teacher grade --> invalid");
+		}
 	}
 	
 	/* (non-Javadoc)
 	 * @see com.IttalentsHomeworks.DAO.IUserDAO#setTeacherComment(com.IttalentsHomeworks.model.HomeworkDetails, com.IttalentsHomeworks.model.Student, java.lang.String)
 	 */
 	@Override
-	public void setTeacherComment(HomeworkDetails homeworkDetails, int studentId, String teacherComment) throws UserException{
+	public void setTeacherComment(HomeworkDetails homeworkDetails, int studentId, String teacherComment) throws UserException, ValidationException{
 		Connection con = manager.getConnection();
+		if(ValidationsDAO.getInstance().isCommentLengthValid(teacherComment)){
 		try {
 			PreparedStatement ps = con.prepareStatement(SET_TEACHER_COMMENT_TO_HOMEWORK);
 			ps.setString(1, teacherComment);
@@ -409,6 +360,9 @@ WHERE UH.user_id = 3 AND UH.homework_id= 4;*/
 			ps.executeUpdate();
 		} catch (SQLException e) {
 			throw new UserException("Something went wrong with setting the teacher's comment of homework..");
+		}
+		}else{
+			throw new ValidationException("Teacher comment --> invalid");
 		}
 	}
 	
@@ -424,7 +378,8 @@ WHERE UH.user_id = 3 AND UH.homework_id= 4;*/
 	public void setSolutionOfTask(HomeworkDetails homeworkDetails, Student student, int taskNumber, String solution,
 			LocalDateTime timeOfUpload) throws UserException {
 		Connection con = manager.getConnection();
-		if (UserDAO.getInstance().isTaskNumberValid(student.getId(),homeworkDetails.getId(),taskNumber)) {
+		
+		if (solution != null && UserDAO.getInstance().isTaskNumberValid(student.getId(),homeworkDetails.getId(),taskNumber)) {
 			try {
 				con.setAutoCommit(false);
 				try {
@@ -500,21 +455,30 @@ WHERE UH.user_id = 3 AND UH.homework_id= 4;*/
 	 * @see com.IttalentsHomeworks.DAO.IUserDAO#updateUser(com.IttalentsHomeworks.model.User)
 	 */
 	@Override
-	public void updateUser(User user) throws UserException{
+	public void updateUser(User user) throws UserException, ValidationException {
 		int id = UserDAO.getInstance().getUserIdByUsername(user.getUsername());
 		Connection con = manager.getConnection();
-		if(UserDAO.getInstance().isEmailValid(user.getEmail())
-		&& UserDAO.getInstance().isPasswordValid(user.getPassword())){
-		try {
-			PreparedStatement ps = con.prepareStatement(UPDATE_USER_PROFILE);
-			ps.setString(1, user.getPassword());
-			ps.setString(2, user.getEmail());
-			ps.setInt(3, id);
-			ps.executeUpdate();
-		} catch (SQLException e) {
-			throw new UserException("Something went wrong with updating user..");
+		if (!(ValidationsDAO.getInstance().updateUserAreThereEmptyFields(user.getPassword(), user.getRepeatedPassword(), user.getEmail())) && ValidationsDAO.getInstance().isEmailValid(user.getEmail())
+				&& ValidationsDAO.getInstance().isPasswordValid(user.getPassword()) && ValidationsDAO.getInstance()
+						.isRepeatedPasswordValid(user.getPassword(), user.getRepeatedPassword())) {
+			try {
+				PreparedStatement ps = con.prepareStatement(UPDATE_USER_PROFILE);
+				ps.setString(1, user.getPassword());
+				ps.setString(2, user.getEmail());
+				ps.setInt(3, id);
+				System.out.println("NOT THREW EXCEPTION");
+
+				ps.executeUpdate();
+
+			} catch (SQLException e) {
+				System.out.println("W EXCEPTION");
+
+				throw new UserException("Something went wrong with updating user..");
+			}
+		}else{
+			System.out.println("THREW EXCEPTION");
+			throw new ValidationException("update user --> invalid fields");
 		}
-	}
 	}
 //we dont have to know his groups
 	@Override

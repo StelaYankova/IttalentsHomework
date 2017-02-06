@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.IttalentsHomeworks.DAO.UserDAO;
+import com.IttalentsHomeworks.DAO.ValidationsDAO;
 import com.IttalentsHomeworks.Exceptions.UserException;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -22,17 +23,18 @@ public class IsUsernameUniqueServlet extends HttpServlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		String username = request.getParameter("username");
+		String username = request.getParameter("username").trim();
+		boolean isUnique = false;
 		try {
-			boolean isUnique = UserDAO.getInstance().isUsernameUnique(username);
-			if (isUnique) {
-				response.setStatus(200);
-			} else {
-				response.setStatus(400);
-			}
+			isUnique = ValidationsDAO.getInstance().isUsernameUnique(username);
 		} catch (UserException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}
+		if (isUnique) {
+			response.setStatus(200);
+		} else {
+			response.setStatus(400);
 		}
 	}
 

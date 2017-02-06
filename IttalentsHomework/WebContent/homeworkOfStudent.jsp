@@ -1,8 +1,8 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
+	pageEncoding="UTF-8"%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-    
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
+<!DOCTYPE html>
 <html>
 <head>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
@@ -11,32 +11,40 @@
 <title>Insert title here</title>
 </head>
 <style>
+.input-invalid {
+	color: red;
+}
+
 #textareaComment {
-    max-width: 40%;
+	max-width: 40%;
 }
+
 #currTaskSolution {
-    max-width: 50%;
+	max-width: 50%;
 }
+
 #image {
 	position: absolute;
 	left: 850px;
 }
-#pageContent{
-position: absolute;
-	left: 50px;
-	padding:10px;
-   padding-bottom:75px; 
 
+#pageContent {
+	position: absolute;
+	left: 50px;
+	padding: 10px;
+	padding-bottom: 75px;
 }
+
 label {
-  display:inline-block;
-    *display: inline;     /* for IE7*/
-    zoom:1;              /* for IE7*/
-    float: left;
-    padding-top: 5px;
-    text-align: left;
-    width: 140px;
-}​
+	display: inline-block;
+	*display: inline; /* for IE7*/
+	zoom: 1; /* for IE7*/
+	float: left;
+	padding-top: 5px;
+	text-align: left;
+	width: 140px;
+}
+​
 </style>
 <body>
 	<%@ include file="navBarTeacher.jsp"%>
@@ -61,71 +69,131 @@ label {
 					value="${sessionScope.currHomework.homeworkDetails.closingTime }" /></u></b>
 
 
-		<br><br><br>
-		<form action="./UpdateTeacherGradeAndCommentServlet" method="POST">
+		<br> <br>
+		<c:if test="${not empty invalidFields}">
+
+			<c:if test="${invalidFields}">
+				<p style="text-align: left" class="input-invalid">Invalid fields</p>
+			</c:if>
+		</c:if>
+
+
+		<c:if test="${emptyFields}">
+			<p class="input-invalid" style="width: 250px">You cannot have
+				empty fields and max value for grade is 100</p>
+		</c:if>
+		<br>
+		<form action="./UpdateTeacherGradeAndCommentServlet" method="POST"
+			id="UpdateTeacherGradeAndCommentForm">
 			<div class="block">
 				<label><b>Teacher grade:</b></label>
 				<div class="col-xs-2">
-					<input type="number" class="form-control" min=0
+					<input type="number" class="form-control" min=0 max=100 id="grade"
 						value="${sessionScope.currHomework.teacherGrade }" name="grade" />
 				</div>
 			</div>
 			<br> <br>
+			<c:if test="${not empty GradeTooLong}">
+
+				<c:if test="${GradeTooLong}">
+					<p id="gradeMsg" class="input-invalid">Max length of grade - 3</p>
+				</c:if>
+			</c:if>
+			<c:if test="${not empty validGrade}">
+
+				<c:if test="${not validGrade}">
+					<p id="gradeMsg" class="input-invalid">Grade [0;100]</p>
+				</c:if>
+			</c:if>
+			<p id="gradeMsg" class="input-invalid"></p>
 			<div class="block">
-				<br><label><b>Teacher comment:</b></label>&nbsp;
+				<br> <label><b>Teacher comment:</b></label>&nbsp;
 				<textarea class="form-control" id="textareaComment" rows="3"
-					name="comment" value="${sessionScope.currHomework.teacherComment}"><c:out
+					maxlength="150" name="comment"><c:out
 						value="${sessionScope.currHomework.teacherComment}"></c:out></textarea>
+				<c:if test="${not empty validComment}">
+
+					<c:if test="${not validComment}">
+						<p id="textareaCommentMsg" class="input-invalid">Invalid
+							comment</p>
+					</c:if>
+				</c:if>
+				<p id="textareaCommentMsg" class="input-invalid"></p>
 			</div>
 
-			<div class="col-sm-offset-3 col-sm-2" style="left: 200px">
-				<button style="align: right" type="submit" class="btn btn-default">Save</button>
-			</div> 
+
+			<br>
+			<div class="col-sm-offset-3 col-sm-2" style="left: 230px">
+				<input style="align: right" type="submit" class="btn btn-default"
+					value="Save">
+			</div>
 		</form>
-		<br><br><br>
-			<c:forEach var="i" begin="1"
-				end="${sessionScope.currHomework.homeworkDetails.numberOfTasks}">
-				<c:if test="${i == 5}">
-					<br>
-					<br>
-					
-				</c:if>
-				<div style='float: left'>
-					&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-					
-					<button type="submit" onclick="seeTaskSolution('${i}')"
-						class="btn btn-primary btn-sm"
-						style="color: #fff; background-color: #0086b3">
-						<c:out value="Task ${i}" ></c:out>
-					</button>
-				</div>
-			</c:forEach>
-	<br>
-			<br>
-			<br>
-			<div id="taskUpload" style = "visibility:hidden"></div>
-			<br>
-			<textarea id="currTaskSolution" disabled="disabled" style = "visibility:hidden"  class="form-control" cols="150" rows="25">
+		<br> <br> <br>
+		<c:forEach var="i" begin="1"
+			end="${sessionScope.currHomework.homeworkDetails.numberOfTasks}">
+			<c:if test="${i == 5}">
+				<br>
+				<br>
+
+			</c:if>
+			<div style='float: left'>
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+				<button type="submit" onclick="seeTaskSolution('${i}')"
+					class="btn btn-primary btn-sm"
+					style="color: #fff; background-color: #0086b3">
+					<c:out value="Task ${i}"></c:out>
+				</button>
+			</div>
+		</c:forEach>
+		<br> <br> <br>
+		<div id="taskUpload" style="visibility: hidden"></div>
+		<br>
+		<textarea id="currTaskSolution" disabled="disabled"
+			style="visibility: hidden" class="form-control" cols="150" rows="25">
 	</textarea>
-		</div>
-	<!--  <form action="./ReadHomeworkServlet" method="GET">
-		<input type='hidden'
-			value='${sessionScope.currHomework.homeworkDetails.tasksFile}'
-			name='fileName'>
-		<button type='submit'>download homework here</button>
-	</form>
-	<c:out value="${sessionScope.currHomework.homeworkDetails.heading }" />
-	- until
-	<c:out
-		value="${sessionScope.currHomework.homeworkDetails.closingTime }" />-->
-		
-		
-		<!--  <br>Teacher grade:
-	<c:out value="${sessionScope.currHomework.teacherGrade }" />
-	<br>Teacher comment:
-	<c:out value="${sessionScope.currHomework.teacherComment }" />-->
+	</div>
 	<script>
-	
+	$('#UpdateTeacherGradeAndCommentForm').submit(function(e) {
+		e.preventDefault();
+
+		var grade = document.forms["UpdateTeacherGradeAndCommentForm"]["grade"].value;
+		var textareaComment = document.forms["UpdateTeacherGradeAndCommentForm"]["textareaComment"].value;
+		
+		var isGradeValid = true;
+		var isCommentValid = true;
+		if (!$('#gradeMsg').is(':empty')) {
+			$("#gradeMsg").empty();
+		}
+		if (!$('#textareaCommentMsg').is(':empty')) {
+			$("#textareaCommentMsg").empty();
+		}
+		if(grade == ""){
+			document.getElementById("grade").value = 0;
+		}else{
+			if((grade < 0) || (grade > 100)){
+				document.getElementById("gradeMsg").append(
+						"grade - between 0 and 100");
+				isGradeValid = false;
+			}
+		}
+		
+		if(textareaComment.length > 150){
+			
+			document.getElementById("textareaCommentMsg").append(
+					"comment size - max 150 symbols");
+			isCommentValid = false;
+		}
+		
+		if(isGradeValid === true && isCommentValid === true){
+			document.getElementById("UpdateTeacherGradeAndCommentForm").submit();
+		}else{
+			return false;
+		}
+		
+		
+
+	});
 	function seeTaskSolution(taskNum){
 		$.ajax({
 			url : './ReadJavaFileServlet',

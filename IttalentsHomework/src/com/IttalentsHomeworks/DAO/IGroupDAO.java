@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import com.IttalentsHomeworks.DB.DBManager;
 import com.IttalentsHomeworks.Exceptions.GroupException;
 import com.IttalentsHomeworks.Exceptions.UserException;
+import com.IttalentsHomeworks.Exceptions.ValidationException;
 import com.IttalentsHomeworks.model.Group;
 import com.IttalentsHomeworks.model.HomeworkDetails;
 import com.IttalentsHomeworks.model.Student;
@@ -25,12 +26,10 @@ public interface IGroupDAO {
 
 	boolean isUserAlreadyInGroup(Group g, User u) throws GroupException, UserException;
 
-	void addUserToGroup(Group g, User u) throws GroupException, UserException;
+	void addUserToGroup(Group g, User u) throws GroupException, UserException, ValidationException;
 
 	// constructor with teachers
-	void createNewGroup(Group g) throws GroupException;
-
-	boolean isGroupNameUnique(String groupName) throws GroupException;
+	void createNewGroup(Group g) throws GroupException, ValidationException;
 
 	ArrayList<HomeworkDetails> getAllHomeworksDetails() throws GroupException;
 
@@ -40,11 +39,11 @@ public interface IGroupDAO {
 
 	void removeGroup(Group g) throws GroupException;
 
-	void createHomeworkDetails(HomeworkDetails hd, ArrayList<Group> groupsForHw) throws GroupException, UserException;
+	void createHomeworkDetails(HomeworkDetails hd, ArrayList<Group> groupsForHw) throws GroupException, UserException, ValidationException;
 
 	int getHomeworkDetailsId(HomeworkDetails hd) throws GroupException;
 
-	void updateHomeworkDetails(HomeworkDetails hd, ArrayList<Group> groupsforHw) throws GroupException, UserException;
+	void updateHomeworkDetails(HomeworkDetails hd, ArrayList<Group> groupsforHw) throws GroupException, UserException, ValidationException;
 
 	void removeHomeworkFromGroup(HomeworkDetails hd, Group g) throws GroupException, UserException;
 
@@ -56,7 +55,7 @@ public interface IGroupDAO {
 
 	void removeHomeworkDetails(HomeworkDetails hd) throws GroupException, UserException;
 
-	void updateGroup(Group group, ArrayList<Integer> wishedTeacherIds) throws GroupException;
+	void updateGroup(Group group, ArrayList<Integer> wishedTeacherIds) throws GroupException, ValidationException;
 
 	ArrayList<Integer> getIdsOfGroupsForWhichIsHomework(HomeworkDetails homeworkDetails) throws GroupException;
 

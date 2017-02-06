@@ -24,13 +24,24 @@
 	background-color: #ffffff;
 	width: 500px;
 }
+.alert {
+	position: absolute;
+	top: 81px;
+	width: 100%;
+}
 </style>
 <body>
 	<c:if test="${sessionScope.isTeacher == false}"><%@ include
 			file="navBarStudent.jsp"%></c:if>
 	<c:if test="${sessionScope.isTeacher == true}"><%@ include
 			file="navBarTeacher.jsp"%></c:if>
+<c:if test="${not empty invalidFields}">
 
+	<c:if test="${not invalidFields}">
+		<div class="alert alert-success">
+			<strong>Success!</strong> Indicates a successful or positive action.
+		</div>
+	</c:if></c:if>
 
 	<div id="image">
 		<img src="logo-black.png" class="img-rounded" width="380" height="236">
@@ -39,6 +50,18 @@
 		<label
 			style="position: absolute; left: 290px; text-decoration: underline;">Update
 			profile</label> <br> <br> <br>
+			<c:if test="${not empty invalidFields}">
+		
+		<c:if test="${invalidFields}">
+			<p style="text-align: center" class="input-invalid">Invalid
+				fields</p>
+		</c:if></c:if>
+
+
+		<c:if test="${emptyFields}">
+			<p class="input-invalid" style="width: 250px">You cannot have
+				empty fields</p>
+		</c:if>
 		<form action="./UpdateYourProfileServlet" method="POST"
 			id="updateForm" name="updateForm" class="form-horizontal">
 			<div class="form-group">
@@ -50,12 +73,19 @@
 			<div class="form-group">
 				<label class="control-label col-sm-6">Password</label>
 				<div class="col-sm-6">
+				
 					<input type="password" class="form-control"
 						value="${sessionScope.user.password}" name="password"
 						placeholder="Enter password" value data-toggle="popover"
 						data-placement="bottom" data-trigger="focus"
 						data-content="Size of password - 6 to 15 symbols. Valid inputs are numbers and letters (large and small)"
-						required>
+						required/>
+						<c:if test="${not empty validPass}">
+
+						<c:if test="${not validPass}">
+							<p id="passwordMsg" class="input-invalid">Invalid password</p>
+						</c:if>
+					</c:if>
 					<p id="passwordMsg" class="input-invalid"></p>
 				</div>
 			</div>
@@ -64,7 +94,14 @@
 				<div class="col-sm-6">
 					<input type="password" class="form-control"
 						value="${sessionScope.user.password}" name="repeatedPassword"
-						required>
+						required/>
+							<c:if test="${not empty validRepeatedPass}">
+
+						<c:if test="${not validRepeatedPass}">
+							<p id="repeatedPasswordMsg" class="input-invalid">Passwords
+								are different</p>
+						</c:if>
+					</c:if>
 					<p id="repeatedPasswordMsg" class="input-invalid"></p>
 				</div>
 			</div>
@@ -73,7 +110,13 @@
 				<label class="control-label col-sm-6">Email</label>
 				<div class="col-sm-6">
 					<input type="email" class="form-control"
-						value="${sessionScope.user.email}" name="email" required>
+						value="${sessionScope.user.email}" name="email" required/>
+						<c:if test="${not empty validEmail}">
+
+						<c:if test="${not validEmail}">
+							<p id="emailMsg" class="input-invalid">Invalid email</p>
+						</c:if>
+					</c:if>
 					<p id="emailMsg" class="input-invalid"></p>
 				</div>
 			</div>
@@ -103,7 +146,6 @@
 			.submit(
 					function(e) {
 						e.preventDefault();
-						console.log(23)
 						var password = document.forms["updateForm"]["password"].value;
 						var repeatedPassword = document.forms["updateForm"]["repeatedPassword"].value;
 						var email = document.forms["updateForm"]["email"].value;
@@ -124,11 +166,16 @@
 
 						if (password == "") {
 
-							//	document.getElementById("passwordMsg").append("Fill password");
-							isPasswordValid = false;
-						}
+							document.getElementById("passwordMsg").append("Fill password");
+						isPasswordValid = false;
+					}
+						if (repeatedPassword == "") {
+
+							document.getElementById("repeatedPasswordMsg").append("Fill password");
+							isRepeatedPasswordValid = false;
+					}
 						if (email == "") {
-							//	document.getElementById("emailMsg").append("Fill email");
+								document.getElementById("emailMsg").append("Fill email");
 							isEmailValid = false;
 						}
 

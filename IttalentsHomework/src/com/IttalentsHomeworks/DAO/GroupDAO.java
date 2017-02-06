@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import com.IttalentsHomeworks.DB.DBManager;
 import com.IttalentsHomeworks.Exceptions.GroupException;
 import com.IttalentsHomeworks.Exceptions.UserException;
+import com.IttalentsHomeworks.Exceptions.ValidationException;
 import com.IttalentsHomeworks.model.Group;
 import com.IttalentsHomeworks.model.Homework;
 import com.IttalentsHomeworks.model.HomeworkDetails;
@@ -40,7 +41,6 @@ public class GroupDAO implements IGroupDAO {
 	private static final String REMOVE_USER_FROM_GROUP = "DELETE FROM IttalentsHomeworks.User_has_Group WHERE user_id = ? AND group_id = ?;";
 	private static final String GET_ALL_GROUPS = "SELECT CONCAT(G.id) AS 'group_id', G.group_name FROM IttalentsHomeworks.Groups G;";
 	private static final String GET_ALL_HOMEWORKS_DETAILS = "SELECT H.id, H.heading, H.opens, H.closes, H.num_of_tasks, H.tasks_pdf FROM IttalentsHomeworks.Homework H;";
-	private static final String IS_GROUP_NAME_UNIQUE = "SELECT id FROM IttalentsHomeworks.Groups WHERE group_name = ?";
 	private static final String CREATE_NEW_GROUP = "INSERT INTO IttalentsHomeworks.Groups (group_name) VALUE (?);";
 	private static final String ADD_USER_TO_GROUP = "INSERT INTO IttalentsHomeworks.User_has_Group VALUES (?,?);";
 	private static final String IS_USER_ALREADY_IN_GROUP = "SELECT * FROM IttalentsHomeworks.User_has_Group WHERE user_id = ? AND group_id = ?;";
@@ -182,27 +182,34 @@ public class GroupDAO implements IGroupDAO {
 	 * @see com.IttalentsHomeworks.DAO.IGroupDAO#addUserToGroup(com.IttalentsHomeworks.model.Group, com.IttalentsHomeworks.model.User)
 	 */
 	@Override
-	public void addUserToGroup(Group group, User user) throws GroupException, UserException {
-		Connection con = manager.getConnection();
-		if (!GroupDAO.getInstance().isUserAlreadyInGroup(group, user)) {
-			try {
-				PreparedStatement ps = con
-						.prepareStatement(ADD_USER_TO_GROUP);
-				ps.setInt(1, user.getId());
-				ps.setInt(2, group.getId());
-				ps.execute();
-				if(!user.isTeacher()){
-					//for za vsi4ki doma6ni na grupata
-					//da go nqma
-					for(HomeworkDetails hd: GroupDAO.getInstance().getHomeworkDetailsOfGroup(group)){
-						if(!((GroupDAO) GroupDAO.getInstance()).doesStudentAlreadyHaveHomework(user,hd)){
-							UserDAO.getInstance().addHomeworkToStudent(user,hd);
+	public void addUserToGroup(Group group, User user) throws GroupException, UserException, ValidationException {
+		Connection con = manager.getConnection();		
+		if ((group != null && user != null)
+				&& ValidationsDAO.getInstance().doesStudentExist(user.getUsername())) {
+			if (!ValidationsDAO.getInstance().isStudentAlreadyInGroupAddStudent(group.getId(), user.getUsername())) {
+
+				try {
+					PreparedStatement ps = con.prepareStatement(ADD_USER_TO_GROUP);
+					ps.setInt(1, user.getId());
+					ps.setInt(2, group.getId());
+					ps.execute();
+					if (!user.isTeacher()) {
+						// for za vsi4ki doma6ni na grupata
+						// da go nqma
+						for (HomeworkDetails hd : GroupDAO.getInstance().getHomeworkDetailsOfGroup(group)) {
+							if (!((GroupDAO) GroupDAO.getInstance()).doesStudentAlreadyHaveHomework(user, hd)) {
+								UserDAO.getInstance().addHomeworkToStudent(user, hd);
+							}
 						}
 					}
+				} catch (SQLException e) {
+					throw new GroupException("Something went wrong with adding a user to a group..");
 				}
-			} catch (SQLException e) {
-				throw new GroupException("Something went wrong with adding a user to a group..");
+			}else{
+				throw new ValidationException("Add user to group --> user is already in group");
 			}
+		}else{
+			throw new ValidationException("Add user to group --> invalid fields");
 		}
 	}
 
@@ -227,11 +234,14 @@ public class GroupDAO implements IGroupDAO {
 	 * @see com.IttalentsHomeworks.DAO.IGroupDAO#createNewGroup(com.IttalentsHomeworks.model.Group)
 	 */
 	@Override
-	public void createNewGroup(Group group) throws GroupException {
+	public void createNewGroup(Group group) throws GroupException, ValidationException {
 		Connection con = manager.getConnection();
+		if(!ValidationsDAO.getInstance().addGroupAreThereEmptyFields(group.getName())){
+		if(ValidationsDAO.getInstance().isGroupNameValid(group.getName())){
+		if (ValidationsDAO.getInstance().isGroupNameUnique(group.getName())) {
+
 		try {
 			con.setAutoCommit(false);
-			if (GroupDAO.getInstance().isGroupNameUnique(group.getName())) {
 				PreparedStatement ps = con
 						.prepareStatement(CREATE_NEW_GROUP);
 				ps.setString(1, group.getName());
@@ -245,7 +255,7 @@ public class GroupDAO implements IGroupDAO {
 				}
 				con.commit();	
 
-			}
+			
 		} catch (SQLException e1) {
 			if (con != null) {
 	            try {
@@ -261,29 +271,13 @@ public class GroupDAO implements IGroupDAO {
 				throw new GroupException("Something went wrong with creating new group..");
 			}
 		}
-
-	}
-
-	/* (non-Javadoc)
-	 * @see com.IttalentsHomeworks.DAO.IGroupDAO#isGroupNameUnique(java.lang.String)
-	 */
-	@Override
-	public boolean isGroupNameUnique(String groupName) throws GroupException {
-		Connection con = manager.getConnection();
-		boolean isGroupNameUnique = true;
-		try {
-			PreparedStatement ps = con
-					.prepareStatement(IS_GROUP_NAME_UNIQUE);
-			ps.setString(1, groupName);
-			ResultSet rs = ps.executeQuery();
-			if (rs.next()) {
-				System.out.println("IMETO NA GRUPATA NE E UNIKALNO");
-				isGroupNameUnique = false;
-			}
-		} catch (SQLException e) {
-			throw new GroupException("Something went wrong with checking if group's name is unique..");
+		}else{
+			throw new ValidationException("Add group --> name is not unique");
+		}}else{
+			throw new ValidationException("Add group --> name is invalid");
+		}}	else{		throw new ValidationException("Add group --> empty fields");
 		}
-		return isGroupNameUnique;
+
 	}
 
 	/* (non-Javadoc)
@@ -389,7 +383,7 @@ public class GroupDAO implements IGroupDAO {
 
 	@Override
 	public boolean isHomeworkHeadingUnique(String heading){
-		Connection con = null;
+		Connection con = manager.getConnection();
 		try {
 			PreparedStatement ps = con.prepareStatement("SELECT * FROM IttalentsHomeworks.Homework WHERE heading = ?");
 			ps.setString(1, heading);
@@ -410,40 +404,57 @@ public class GroupDAO implements IGroupDAO {
 	 */
 	@Override
 	public void createHomeworkDetails(HomeworkDetails homeworkDetails, ArrayList<Group> groupsForHomework)
-			throws GroupException, UserException {
+			throws GroupException, UserException, ValidationException {
 		Connection con = manager.getConnection();
-		//con.setAutoCommit(false);
-		if(GroupDAO.getInstance().isHomeworkHeadingUnique(homeworkDetails.getHeading())){
+		// con.setAutoCommit(false);
+		if (homeworkDetails.getTasksFile() != null && !(homeworkDetails.getTasksFile().trim().equals(""))
+				&& groupsForHomework != null && groupsForHomework.size() > 0) {
+			if (!ValidationsDAO.getInstance().isThereEmptyFieldAddHomework(homeworkDetails.getHeading(),
+					homeworkDetails.getOpeningTime().toString(), homeworkDetails.getClosingTime().toString(),
+					homeworkDetails.getNumberOfTasks())) {
 
-		try {
-			//con.setAutoCommit(false);
-			PreparedStatement ps = con
-					.prepareStatement(CREATE_HOMEWORK_DETAILS);
-			ps.setString(1, homeworkDetails.getHeading());
-			ps.setString(2, homeworkDetails.getOpeningTime().toString());
-			ps.setString(3, homeworkDetails.getClosingTime().toString());
-			ps.setInt(4, homeworkDetails.getNumberOfTasks());
-			ps.setString(5, homeworkDetails.getTasksFile());
-			ps.execute();
-			homeworkDetails.setId(GroupDAO.getInstance().getHomeworkDetailsId(homeworkDetails));
-			//con.setAutoCommit(false);
+				if(ValidationsDAO.getInstance().isLengthHeadingValidAddHomework(homeworkDetails.getHeading()) && ValidationsDAO.getInstance().isHomeworkHeadingUniqueAddHomework(homeworkDetails.getHeading()) && ValidationsDAO.getInstance().isHomeworkOpeningTimeValidAddHomework(homeworkDetails.getOpeningTime().toString()) && ValidationsDAO.getInstance().isHomeworkClosingTimeValidAddHomework(homeworkDetails.getOpeningTime().toString(), homeworkDetails.getClosingTime().toString()) && ValidationsDAO.getInstance().isHomeworkNumberOfTasksValidAddHomework(homeworkDetails.getNumberOfTasks())){
+				try {
+					// con.setAutoCommit(false);
+					PreparedStatement ps = con.prepareStatement(CREATE_HOMEWORK_DETAILS);
+					ps.setString(1, homeworkDetails.getHeading());
+					ps.setString(2, homeworkDetails.getOpeningTime().toString());
+					ps.setString(3, homeworkDetails.getClosingTime().toString());
+					ps.setInt(4, homeworkDetails.getNumberOfTasks());
+					ps.setString(5, homeworkDetails.getTasksFile());
+					ps.execute();
+					homeworkDetails.setId(GroupDAO.getInstance().getHomeworkDetailsId(homeworkDetails));
+					// con.setAutoCommit(false);
 
-			for (Group group : groupsForHomework) {
-				//con.setAutoCommit(false);
-				GroupDAO.getInstance().addHomeworkToGroup(homeworkDetails, group);
-				
+					for (Group group : groupsForHomework) {
+						// con.setAutoCommit(false);
+						GroupDAO.getInstance().addHomeworkToGroup(homeworkDetails, group);
+
+					}
+
+					// con.commit();
+				} catch (SQLException e) {
+					// con.setAutoCommit(false);
+					// con.rollback();
+					System.out.println(e.getMessage());
+					throw new GroupException("Something went wrong with creating a homework..");
+				} finally {
+					// con.setAutoCommit(true);
+				}
+				}else{
+					System.out.println("1111111111111");
+					throw new ValidationException("Add homework --> invalid field");
+
+				}
+			}else{
+				System.out.println("22222222222222");
+
+				throw new ValidationException("Add homework --> empty field");
 			}
+		}else{
+			System.out.println("3333333333333");
 
-
-			//con.commit();
-		} catch (SQLException e) {
-			//con.setAutoCommit(false);
-		    // con.rollback();
-		     System.out.println(e.getMessage());
-			throw new GroupException("Something went wrong with creating a homework..");
-		} finally {
-			//con.setAutoCommit(true);
-		}
+			throw new ValidationException("Add homework --> empty field");
 		}
 	}
 
@@ -473,11 +484,16 @@ public class GroupDAO implements IGroupDAO {
 	 * @see com.IttalentsHomeworks.DAO.IGroupDAO#updateHomeworkDetails(com.IttalentsHomeworks.model.HomeworkDetails, java.util.ArrayList)
 	 */
 	@Override
-	public void updateHomeworkDetails(HomeworkDetails homeworkDetails, ArrayList<Group> groupsforHomework)
-			throws GroupException, UserException {
+	public void updateHomeworkDetails(HomeworkDetails homeworkDetails, ArrayList<Group> groupsForHomework)
+			throws GroupException, UserException, ValidationException {
 		Connection con = manager.getConnection();// get id
 		//con.setAutoCommit(false);
-		try {
+		HomeworkDetails currHd = GroupDAO.getInstance().getHomeworkDetailsById(homeworkDetails.getId());
+		if (homeworkDetails.getTasksFile() != null && !(homeworkDetails.getTasksFile().trim().equals(""))
+				&& groupsForHomework != null && groupsForHomework.size() > 0) {
+		if(!ValidationsDAO.getInstance().updateGroupAreThereEmptyFields(homeworkDetails.getHeading(), homeworkDetails.getOpeningTime().toString(), homeworkDetails.getClosingTime().toString(), homeworkDetails.getTasksFile().trim())){
+			if(ValidationsDAO.getInstance().areHomeworkUpdateCharactersValid(homeworkDetails.getHeading()) && ValidationsDAO.getInstance().isHomeworkUpdateLengthValid(homeworkDetails.getHeading()) && ValidationsDAO.getInstance().isHomeworkUpdateHeadingUnique(homeworkDetails.getHeading(), currHd) && ValidationsDAO.getInstance().isHomeworkUpdateOpeningTimeValid(homeworkDetails.getOpeningTime().toString(), currHd) && ValidationsDAO.getInstance().isHomeworkUpdateClosingTimeValid(homeworkDetails.getOpeningTime().toString(), homeworkDetails.getClosingTime().toString(), currHd) && ValidationsDAO.getInstance().isHomeworkUpdateNumberOfTasksValid(homeworkDetails.getNumberOfTasks())){
+			try {
 			PreparedStatement ps = con.prepareStatement(
 					UPDATE_HOMEWORK_DETAILS);
 			ps.setString(1, homeworkDetails.getHeading());
@@ -489,7 +505,7 @@ public class GroupDAO implements IGroupDAO {
 			ps.executeUpdate();
 			ArrayList<Integer> currGroupIds = GroupDAO.getInstance().getIdsOfGroupsForWhichIsHomework(homeworkDetails);
 			ArrayList<Integer> wishedGroupIds = new ArrayList<>();
-			for (Group g : groupsforHomework) {
+			for (Group g : groupsForHomework) {
 				wishedGroupIds.add(g.getId());
 			}
 			for (Integer id : currGroupIds) {
@@ -510,8 +526,19 @@ public class GroupDAO implements IGroupDAO {
 			//con.rollback();
 			throw new GroupException("Something went wrong with updating homework details..");
 		} finally {
-			//con.setAutoCommit(true);
+					// con.setAutoCommit(true);
+				}
+			} else {
+					throw new ValidationException("Update homework --> invalid field");
+				}
+			} else {
+				throw new ValidationException("Update homework --> empty field");
+			}
+		} else {
+			throw new ValidationException("Update homework --> empty field");
+
 		}
+
 	}
 
 	/* (non-Javadoc)
@@ -708,8 +735,9 @@ public class GroupDAO implements IGroupDAO {
 	}
 	
 	@Override
-	public void updateGroup(Group group, ArrayList<Integer> wishedTeacherIds) throws GroupException{
+	public void updateGroup(Group group, ArrayList<Integer> wishedTeacherIds) throws GroupException, ValidationException{
 		Connection con = manager.getConnection();
+		if(!(ValidationsDAO.getInstance().isThereGroupEmptyFieldUpdate(group.getName())) && ValidationsDAO.getInstance().isGroupNameUniqueUpdate(group.getId(), group.getName()) && ValidationsDAO.getInstance().isGroupNameValid(group.getName())){
 		try {
 			PreparedStatement ps = con.prepareStatement(CHANGE_GROUP_NAME);
 			ps.setString(1, group.getName());
@@ -748,6 +776,9 @@ public class GroupDAO implements IGroupDAO {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		}else{
+			throw new ValidationException("Update group --> invalid fields");
+		}
 	}
 
 	@Override
@@ -762,8 +793,18 @@ public class GroupDAO implements IGroupDAO {
 				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 				String openingTimeString = rs.getString(3);
 				String closingTimeString = rs.getString(4);
+				System.out.println("FROM DAO " + openingTimeString);
+
 				LocalDateTime openingTime = LocalDateTime.parse(openingTimeString, formatter);
+				System.out.println(openingTime);
 				LocalDateTime closingTime = LocalDateTime.parse(closingTimeString, formatter);
+				//String removeTOpens = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(openingTime);
+			//	String removeTCloses = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(closingTime);
+				
+				//DateTimeFormatter formatterRemoveT = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
+				//LocalDateTime openingTimeRemoveT = LocalDateTime.parse(openingTime.toString().replace("T", " "), formatter);
+				//System.out.println("ETO " + openingTimeRemoveT);
+			//	LocalDateTime closingTimeRemoveT = LocalDateTime.parse(closingTime.toString(), formatterRemoveT);
 				homeworkDetails = new HomeworkDetails(rs.getInt(1), rs.getString(2), openingTime, closingTime, rs.getInt(5), rs.getString(6));
 			}
 		} catch (SQLException e) {

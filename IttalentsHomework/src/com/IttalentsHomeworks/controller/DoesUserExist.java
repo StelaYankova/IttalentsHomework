@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.IttalentsHomeworks.DAO.UserDAO;
+import com.IttalentsHomeworks.DAO.ValidationsDAO;
 import com.IttalentsHomeworks.Exceptions.UserException;
 
 /**
@@ -21,7 +22,7 @@ public class DoesUserExist extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String chosenStudentUsername = request.getParameter("chosenStudentUsername");
 		try {
-			if(UserDAO.getInstance().isUsernameUnique(chosenStudentUsername)){//if its unique id is not in DB
+			if(ValidationsDAO.getInstance().isUsernameUnique(chosenStudentUsername)){//if its unique id is not in DB
 				response.setStatus(400);
 			}else{
 				response.setStatus(200);

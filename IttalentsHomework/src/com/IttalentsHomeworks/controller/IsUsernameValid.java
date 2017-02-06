@@ -16,7 +16,7 @@ public class IsUsernameValid extends HttpServlet {
        
     
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		String username = request.getParameter("username");
+		String username = request.getParameter("username").trim();
 		if(isLengthValid(username) && areCharactersValid(username)){
 			response.setStatus(200);
 		}else{
