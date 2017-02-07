@@ -393,7 +393,8 @@ WHERE UH.user_id = 3 AND UH.homework_id= 4;*/
 
 					UserDAO.getInstance().setTimeOfUploadOfTask(homeworkDetails, student, taskNumber, timeOfUpload);
 
-					con.commit();
+					con.commit();				
+
 				} catch (SQLException e) {
 					con.rollback();
 					throw new UserException("Something went wrong with setting student's solution of task..");

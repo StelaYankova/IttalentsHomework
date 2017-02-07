@@ -52,6 +52,13 @@
 <div id="image">
 		<img src="logo-black.png" class="img-rounded" width="380" height="236">
 	</div>
+	<c:if test="${not empty invalidFields}">
+		<c:if test="${not invalidFields}">
+			<script>
+				alert('Homework has been removed successfully!');
+			</script>
+		</c:if>
+	</c:if>
 Choose group: <select id =  "chosenGroup" class="selectpicker">
  <option value="null">-</option>
    <option value="allGroups">All Groups</option>

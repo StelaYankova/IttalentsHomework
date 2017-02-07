@@ -88,57 +88,72 @@
 		<img src="logo-black.png" class="img-rounded" width="380" height="236">
 	</div>
 	<div id="formUpdate" align="right">
-
+		<form action="./RemoveHomeworkDetails" method="POST">
+			<div class="form-group">
+				<div class="col-sm-offset-3 col-sm-2" style="left: 290px">
+					<button type="submit"
+										class="glyphicon glyphicon-remove btn btn-default btn-xs" onclick="javascript:return confirm('Are you sure you want to remove this homework permanently?')"></button>
+				</div>
+			</div>
+		</form>
 		<form action="./UpdateHomeworkServlet" method="POST"
-			enctype="multipart/form-data" id = "updateHomeworkForm">
+			enctype="multipart/form-data" id="updateHomeworkForm">
 			<label
 				style="position: absolute; left: 290px; text-decoration: underline;">Update
 				homework</label> <br> <br> <br>
-				<c:if test="${not empty invalidFields}">
-			<c:if test="${invalidFields}">
-			<p style = "text-align:center" class="input-invalid">Invalid fields</p>
+			<c:if test="${not empty invalidFields}">
+				<c:if test="${invalidFields}">
+					<p style="text-align: center" class="input-invalid">Invalid
+						fields</p>
+				</c:if>
+
 			</c:if>
-				
-		</c:if>
-		<c:if test="${emptyFields}">
+			<c:if test="${emptyFields}">
 				<p class="input-invalid" style="width: 250px; text-align: left">You
 					cannot have empty fields</p>
 			</c:if>
 			<div class="form-group">
-				 <label class="control-label col-sm-6">Heading</label>
+				<label class="control-label col-sm-6">Heading</label>
 				<div class="col-sm-6">
 					<input type="text" class="form-control" name="name"
-						value='${sessionScope.currHomework.heading}' maxlength = "40" data-toggle="popover" data-placement="bottom" data-trigger="focus"
-						data-content="Size of heading - 5 to 40 symbols. Valid inputs are numbers and letters (large and small)" required/>
-						<c:if test="${not empty validHeading}">
+						value='${sessionScope.currHomework.heading}' maxlength="40"
+						data-toggle="popover" data-placement="bottom" data-trigger="focus"
+						data-content="Size of heading - 5 to 40 symbols. Valid inputs are numbers and letters (large and small)"
+						required />
+					<c:if test="${not empty validHeading}">
 						<c:if test="${not validHeading}">
 							<p id="nameMsg" class="input-invalid">Invalid heading</p>
 						</c:if>
 						<c:if test="${not empty uniqueHeading}">
 							<c:if test="${validHeading}">
 								<c:if test="${not uniqueHeading}">
-									<p id="nameMsg" class="input-invalid">Heading already exists</p>
+									<p id="nameMsg" class="input-invalid">Heading already
+										exists</p>
 								</c:if>
 							</c:if>
 						</c:if>
 					</c:if>
-											<p id = "nameMsg" class = "input-invalid"></p>
-						
+					<p id="nameMsg" class="input-invalid"></p>
+
 				</div>
 			</div>
 			<div class="form-group">
 				<br> <label class="control-label col-sm-6">Opening time</label>
 				<!--  <input type='date' class="form-control" name="opensDate"
 						data-val="true" id="opens" />-->
-					<div class='col-sm-6'>
-							<div class='input-group date' id='datetimepicker6'>
-								<input type='text' value="${sessionScope.currHomework.openingTime}"  class="form-control" id = "opens" name = "opens" placeholder = "Enter opening time" data-toggle="popover" data-placement="bottom" data-trigger="focus"
-						data-content="From today max 6 months from now" required/> <span
-									class="input-group-addon"> <span
-									class="glyphicon glyphicon-calendar"></span>
-								</span>
-								
-						</div>
+				<div class='col-sm-6'>
+					<div class='input-group date' id='datetimepicker6'>
+						<input type='text'
+							value="${sessionScope.currHomework.openingTime}"
+							class="form-control" id="opens" name="opens"
+							placeholder="Enter opening time" data-toggle="popover"
+							data-placement="bottom" data-trigger="focus"
+							data-content="From today max 6 months from now" required /> <span
+							class="input-group-addon"> <span
+							class="glyphicon glyphicon-calendar"></span>
+						</span>
+
+					</div>
 					<c:if test="${not empty validOpeningTime}">
 
 						<c:if test="${not validOpeningTime}">
@@ -146,7 +161,7 @@
 						</c:if>
 					</c:if>
 					<p id="opensMsg" class="input-invalid"></p>
-						
+
 
 				</div>
 
@@ -154,107 +169,113 @@
 			</div>
 			<div class="form-group">
 				<br> <label class="control-label col-sm-6">Closing time</label>
-					<div class='col-sm-6'>
-							<div class='input-group date' id='datetimepicker7'>
-								<input type='text' value="${sessionScope.currHomework.closingTime}"  class="form-control" id = "closes" name = "closes" placeholder = "Enter closing time"  data-toggle="popover" data-placement="bottom" data-trigger="focus"
-						data-content="Max 6 months after opening time" required/> <span
-									class="input-group-addon"> <span
-									class="glyphicon glyphicon-calendar"></span>
-								</span>
-								
-								
-						</div>
-						<c:if test="${not empty validClosingTime}">
+				<div class='col-sm-6'>
+					<div class='input-group date' id='datetimepicker7'>
+						<input type='text'
+							value="${sessionScope.currHomework.closingTime}"
+							class="form-control" id="closes" name="closes"
+							placeholder="Enter closing time" data-toggle="popover"
+							data-placement="bottom" data-trigger="focus"
+							data-content="Max 6 months after opening time" required /> <span
+							class="input-group-addon"> <span
+							class="glyphicon glyphicon-calendar"></span>
+						</span>
+
+
+					</div>
+					<c:if test="${not empty validClosingTime}">
 
 						<c:if test="${not validClosingTime}">
 							<p id="closesMsg" class="input-invalid">Invalid closing time</p>
 						</c:if>
 					</c:if>
-														<p id="closesMsg"  class="input-invalid"></p>
-						
-						</div>														
-						
-			</div>				
+					<p id="closesMsg" class="input-invalid"></p>
+
+				</div>
+
+			</div>
 			<br>
 			<div class="form-group">
 				<label class="control-label col-sm-6">Number of tasks</label>
 				<div class="col-sm-6">
 					<input type="number" min="0" class="form-control"
 						name="numberOfTasks"
-						value='${sessionScope.currHomework.numberOfTasks}' maxlength = "2" data-toggle="popover" data-placement="bottom" data-trigger="focus"
-						data-content="From 1 to 40"  required/>
-						<c:if test="${not empty validTasks}">
+						value='${sessionScope.currHomework.numberOfTasks}' maxlength="2"
+						data-toggle="popover" data-placement="bottom" data-trigger="focus"
+						data-content="From 1 to 40" required />
+					<c:if test="${not empty validTasks}">
 
 						<c:if test="${not validTasks}">
 							<p id="numberOfTasksMsg" class="input-invalid">Invalid tasks</p>
 						</c:if>
 					</c:if>
-											<p id = "numberOfTasksMsg" class = "input-invalid"></p>
-						
+					<p id="numberOfTasksMsg" class="input-invalid"></p>
+
 				</div>
 			</div>
 			<br>
 			<div class="form-group">
 				<label class="control-label col-sm-6">Tasks</label>
 				<div class="col-sm-6">
-					<input type="file" accept="application/pdf" name="file" >
+					<input type="file" accept="application/pdf" name="file">
 					<c:if test="${not empty validFile}">
 
 						<c:if test="${not validFile}">
 							<p id="fileMsg" class="input-invalid">Invalid file</p>
 						</c:if>
 					</c:if>
-										<p id = "fileMsg" class = "input-invalid"></p>
-					
+					<p id="fileMsg" class="input-invalid"></p>
+
 				</div>
 			</div>
 			<br>
 
 			<div class="form-group">
-					<label class="control-label col-sm-6">Groups</label>
-					<div class="col-sm-6">
-
-						<select class="selectpicker" multiple name="groups" id = "groups" required>
-							<c:forEach items="${applicationScope.allGroups}" var="group">
-								<c:set var="isHwInGroup" value="false"></c:set>
-								<c:forEach items="${group.homeworks}" var="homework">
-									<c:if test="${homework.id==sessionScope.currHomework.id}">
-										<c:set var="isHwInGroup" value="true"></c:set>
-									</c:if>
-								</c:forEach>
-								<c:if test="${isHwInGroup}">
-									<option value="${group.id}" selected>
-										<c:out value="${group.name}"></c:out></option>
-								</c:if>
-								<c:if test="${not isHwInGroup}">
-									<option value="${group.id}">
-										<c:out value="${group.name}"></c:out></option>
+				<label class="control-label col-sm-6">Groups</label>
+				<div class="col-sm-6">
+					<select class="selectpicker" multiple name="groups" id="groups"
+						required>
+						<c:forEach items="${applicationScope.allGroups}" var="group">
+							<c:set var="isHwInGroup" value="false"></c:set>
+							<c:forEach items="${group.homeworks}" var="homework">
+								<c:if test="${homework.id==sessionScope.currHomework.id}">
+									<c:set var="isHwInGroup" value="true"></c:set>
 								</c:if>
 							</c:forEach>
-						</select>
-						<c:if test="${not empty validGroups}">
+							<c:if test="${isHwInGroup}">
+								<option value="${group.id}" selected>
+									<c:out value="${group.name}"></c:out></option>
+							</c:if>
+							<c:if test="${not isHwInGroup}">
+								<option value="${group.id}">
+									<c:out value="${group.name}"></c:out></option>
+							</c:if>
+						</c:forEach>
+					</select>
+					<c:if test="${not empty validGroups}">
 
 						<c:if test="${not validGroups}">
 							<p id="groupsMsg" class="input-invalid">Invalid groups</p>
 						</c:if>
 					</c:if>
-						<p id = "groupsMsg" class = "input-invalid"></p>
-						
-					</div>
-					
+					<p id="groupsMsg" class="input-invalid"></p>
+
 				</div>
 
-			<br><br>
+			</div>
+
+			<br>
+			<br>
 			<div class="form-group">
 				<div class="col-sm-offset-3 col-sm-2" style="left: 290px">
-
-					<input  style="align: right" type="submit" class="btn btn-default" value = "Save">
-					
+					<input style="align: right" type="submit" class="btn btn-default"
+						value="Save">
 				</div>
 			</div>
+
 		</form>
 	</div>
-	
+
 	<script>
 	$
 	(document).ready(function() {

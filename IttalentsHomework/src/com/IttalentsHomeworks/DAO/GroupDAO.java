@@ -1,5 +1,6 @@
 package com.IttalentsHomeworks.DAO;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -405,6 +406,7 @@ public class GroupDAO implements IGroupDAO {
 	@Override
 	public void createHomeworkDetails(HomeworkDetails homeworkDetails, ArrayList<Group> groupsForHomework)
 			throws GroupException, UserException, ValidationException {
+		System.out.println("INNNNNN");
 		Connection con = manager.getConnection();
 		// con.setAutoCommit(false);
 		if (homeworkDetails.getTasksFile() != null && !(homeworkDetails.getTasksFile().trim().equals(""))
@@ -412,7 +414,6 @@ public class GroupDAO implements IGroupDAO {
 			if (!ValidationsDAO.getInstance().isThereEmptyFieldAddHomework(homeworkDetails.getHeading(),
 					homeworkDetails.getOpeningTime().toString(), homeworkDetails.getClosingTime().toString(),
 					homeworkDetails.getNumberOfTasks())) {
-
 				if(ValidationsDAO.getInstance().isLengthHeadingValidAddHomework(homeworkDetails.getHeading()) && ValidationsDAO.getInstance().isHomeworkHeadingUniqueAddHomework(homeworkDetails.getHeading()) && ValidationsDAO.getInstance().isHomeworkOpeningTimeValidAddHomework(homeworkDetails.getOpeningTime().toString()) && ValidationsDAO.getInstance().isHomeworkClosingTimeValidAddHomework(homeworkDetails.getOpeningTime().toString(), homeworkDetails.getClosingTime().toString()) && ValidationsDAO.getInstance().isHomeworkNumberOfTasksValidAddHomework(homeworkDetails.getNumberOfTasks())){
 				try {
 					// con.setAutoCommit(false);
@@ -711,10 +712,31 @@ public class GroupDAO implements IGroupDAO {
 			con.setAutoCommit(false);
 			PreparedStatement ps = con.prepareStatement(REMOVE_HOMEWORK_DETAILS);
 			ps.setInt(1, homeworkDetails.getId());
-			ps.execute();
 			ArrayList<Integer> currGroupIds = GroupDAO.getInstance().getIdsOfGroupsForWhichIsHomework(homeworkDetails);
+			ArrayList<Group> currGroups = new ArrayList<>();
 			for (Integer id : currGroupIds) {
-				GroupDAO.getInstance().removeHomeworkFromGroup(homeworkDetails, GroupDAO.getInstance().getGroupById(id));
+				currGroups.add(GroupDAO.getInstance().getGroupById(id));
+			}
+			ps.execute();
+
+			File fileTasks = new File("/Users/Stela/Desktop/imagesIttalentsHomework" + File.separator + homeworkDetails.getTasksFile());
+			if(fileTasks.exists()){
+				System.out.println("DELETE FILE " + fileTasks.getAbsolutePath());
+				fileTasks.delete();
+			}
+			for (Group group : currGroups) {	
+
+				for (Student s : GroupDAO.getInstance().getStudentsOfGroup(group)) {
+					for (int i = 0; i < homeworkDetails.getNumberOfTasks(); i++) {
+						String fileName = "hwId" + homeworkDetails.getId() + "userId" + s.getId() + "taskNum" + i
+								+ ".java";
+						File fileStudentTasks = new File(
+								"/Users/Stela/Desktop/imagesIttalentsHomework" + File.separator + fileName);
+						if (fileStudentTasks.exists()) {
+							fileStudentTasks.delete();
+						}
+					}
+				}
 			}
 			con.commit();
 		} catch (SQLException e) {

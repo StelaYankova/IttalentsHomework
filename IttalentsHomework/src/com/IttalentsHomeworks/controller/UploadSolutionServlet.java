@@ -73,14 +73,10 @@ public class UploadSolutionServlet extends HttpServlet {
 			//boolean isContentTypeValid = true;
 
 			if (!isSizeValid(file)) {
-				System.out.println("EMPTY");
-
 				request.setAttribute("wrongSize", true);
 			} else {
 
 				if (!isContentTypeValid(file)) {
-					//isContentTypeValid = false;
-					System.out.println("INVALID");
 					request.setAttribute("wrongContentType", true);
 				}else{
 					fileName = "hwId" + homeworkDetails.getId() + "userId" + user.getId() + "taskNum" + taskNum
@@ -93,7 +89,10 @@ public class UploadSolutionServlet extends HttpServlet {
 						homework.getTasks().get(taskNum).setUploadedOn(LocalDateTime.now());
 						request.setAttribute("invalidFields", true);
 					} catch (UserException e) {
-						// TODO Auto-generated catch block
+						File f = new File(savePath + File.separator + fileName);
+						if(f.exists()){
+							f.delete();
+						}
 						e.printStackTrace();
 					}
 				}

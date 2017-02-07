@@ -45,6 +45,8 @@ protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws Se
 		int groupId = currGroup.getId();
 		String newGroupName = request.getParameter("groupName");
 		String[] selectedTeachersUsername = request.getParameterValues("teachers");
+		//request.setAttribute("selectedTeachersUsernameTry", selectedTeachersUsername);
+
 		ArrayList<Integer> allSelectedTeachers = new ArrayList<>();
 		if (selectedTeachersUsername != null) {
 			for (int i = 0; i < selectedTeachersUsername.length; i++) {
@@ -78,16 +80,27 @@ protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws Se
 				isNameValid = true;
 			}
 			request.setAttribute("validName", isNameValid); // success
+			ArrayList<Teacher> allTeachers = (ArrayList<Teacher>) request.getServletContext().getAttribute("allTeachers");
+			ArrayList<String> allTeacherUsernames = new ArrayList<>();
+			boolean allTeachersExist = true;
 
-			if (isNameUnique == true && isNameValid == true) {
+			if (selectedTeachersUsername != null) {
+				for (Teacher teacher : allTeachers) {
+					allTeacherUsernames.add(teacher.getUsername());
+				}
+				if (!doAllTeachersExist(selectedTeachersUsername, allTeacherUsernames)) {
+					allTeachersExist = false;
+				}
+				request.setAttribute("allTeachersExist", allTeachersExist);
+			}
+			if (isNameUnique == true && isNameValid == true && allTeachersExist == true) {
 
 				try {
 					currGroup.setName(newGroupName);
 					GroupDAO.getInstance().updateGroup(currGroup, allSelectedTeachers);
 					ArrayList<Group> allGroupsUpdated = GroupDAO.getInstance().getAllGroups();
 					request.getServletContext().setAttribute("allGroups", allGroupsUpdated);
-					ArrayList<Teacher> allTeachers = UserDAO.getInstance().getAllTeachers();
-					getServletContext().setAttribute("allTeachers", allTeachers);
+					getServletContext().setAttribute("allTeachers", UserDAO.getInstance().getAllTeachers());
 					for (Teacher t : allTeachers) {
 						t.setGroups(UserDAO.getInstance().getGroupsOfUser(t.getId()));
 					}
@@ -150,5 +163,16 @@ protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws Se
 			return true;
 		}
 		return false;
+	}
+	
+	private boolean doAllTeachersExist(String[] selectedTeachersUsername, ArrayList<String> allTeachersUsernames){
+		boolean doAllExist = true;
+		for(int i = 0; i < selectedTeachersUsername.length;){
+			if(!(allTeachersUsernames.contains(selectedTeachersUsername[i++]))){
+				doAllExist = false;
+				break;
+			}
+		}
+		return doAllExist;
 	}
 }

@@ -55,7 +55,13 @@ public class AddStudentToGroupServlet extends HttpServlet {
 			}
 			request.setAttribute("isStudentInGroup", isStudentInGroup);
 
-			if (doesStudentExist == true && isStudentInGroup == false) {
+			boolean isGroupValid = false;
+			if(doesGroupExist(chosenGroupId)){
+				isGroupValid = true;
+			}
+			request.setAttribute("validGroups", isGroupValid);
+			
+			if (doesStudentExist == true && isStudentInGroup == false && isGroupValid == true) {
 
 				try {
 					Group group = GroupDAO.getInstance().getGroupById(chosenGroupId);
@@ -111,5 +117,25 @@ public class AddStudentToGroupServlet extends HttpServlet {
 			return true;
 		}
 		return false;
+	}
+	
+	private boolean doesGroupExist(int groupId){
+			try {
+				Group currGroup = GroupDAO.getInstance().getGroupById(groupId);
+				if(currGroup == null){
+					return false;
+				}
+			} catch (GroupException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (NumberFormatException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (UserException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		
+		return true;
 	}
 }

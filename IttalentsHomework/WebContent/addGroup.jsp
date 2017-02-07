@@ -101,10 +101,28 @@
 				<div class="col-sm-6">
 					<select class="selectpicker" multiple name="teachers">
 						<c:forEach items="${applicationScope.allTeachers}" var="teacher">
-							<option value="${teacher.username}">
-								<c:out value="${teacher.username}"></c:out></option>
+								<c:set var="isTeacherInGroupTry" value="false"></c:set>
+								<c:forEach items="${selectedTeachersUsernameTry}" var="teacherUsername">
+									<c:if test="${teacher.username eq teacherUsername}">
+										<c:set var="isTeacherInGroupTry" value="true"></c:set>
+									</c:if>
+								</c:forEach>
+								<c:if test="${isTeacherInGroupTry}">
+									<option value="${teacher.username}" selected>
+										<c:out value="${teacher.username}"></c:out></option>
+								</c:if>
+								<c:if test="${not isTeacherInGroupTry}">
+									<option value="${teacher.username}">
+										<c:out value="${teacher.username}"></c:out></option>
+								</c:if>
 						</c:forEach>
 					</select>
+					<c:if test="${not empty allTeachersExist}">
+								<c:if test="${not allTeachersExist}">
+									<p id="allTeachersExistMsg" class="input-invalid">Not all teachers exist</p>
+								</c:if>
+					</c:if>
+					
 				</div>
 			</div>
 			<br> <br> <br> <br>

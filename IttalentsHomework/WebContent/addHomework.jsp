@@ -192,12 +192,28 @@
 			<div class="form-group">
 				<label class="control-label col-sm-6">Groups</label>
 				<div class="col-sm-6">
-					<select class="selectpicker" multiple name="groups" id = "groups" required>
-
+					<select class="selectpicker" multiple name="groups" id="groups"
+						required>
 						<c:forEach items="${applicationScope.allGroups}" var="group">
+							<c:set var="isGroupSelected" value="false"></c:set>
+							<c:forEach items="${selectedGroupsTry}" var="selectedGroup">
+								<c:if test="${group.id == selectedGroup}">
+									<c:set var="isGroupSelected" value="true"></c:set>
+								</c:if>
+							</c:forEach>
+							<c:if test="${isGroupSelected}">
+								<option value="${group.id}" selected>
+									<c:out value="${group.name}"></c:out></option>
+							</c:if>
+							<c:if test="${not isGroupSelected}">
+								<option value="${group.id}">
+									<c:out value="${group.name}"></c:out></option>
+							</c:if>
+						</c:forEach>
+						<!--<c:forEach items="${applicationScope.allGroups}" var="group">allGroups
 							<option value="${group.id}">
 								<c:out value="${group.name}"></c:out></option>
-						</c:forEach>
+						</c:forEach>-->
 					</select>
 					<c:if test="${not empty validGroups}">
 
@@ -261,7 +277,7 @@ $
 			//console.log('This file size is: ' + (document.forms["addHomeworkForm"].files[0].size/1024/1024).toFixed(2) + " MB");
 			return true;
 		}
-		$('#addHomeworkForm')
+		/*$('#addHomeworkForm')
 				.submit(
 						function(e) {
 							e.preventDefault();
@@ -502,7 +518,7 @@ $
 															.submit();
 												}
 											});
-						});
+						});*/
 	</script>
 </body>
 </html>

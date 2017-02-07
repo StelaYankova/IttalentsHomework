@@ -35,6 +35,10 @@ public class AddGroupServlet extends HttpServlet {
 		String groupName = request.getParameter("groupName").trim();
 		// empty fields
 		request.setAttribute("nameTry", groupName);
+		String[] selectedTeachersUsername = request.getParameterValues("teachers");
+		
+		request.setAttribute("selectedTeachersUsernameTry", selectedTeachersUsername);
+	
 		boolean isNameUnique = false;
 		if (isThereEmptyField(groupName)) {
 			request.setAttribute("emptyFields", true);
@@ -50,11 +54,25 @@ public class AddGroupServlet extends HttpServlet {
 				isNameValid = true;
 			}
 			request.setAttribute("validName", isNameValid);
+			ArrayList<Teacher> allTeachers = (ArrayList<Teacher>) request.getServletContext().getAttribute("allTeachers");
+			ArrayList<String> allTeacherUsernames = new ArrayList<>();
+			boolean allTeachersExist = true;
 
-			if (isNameUnique && isNameValid) {
-				String[] selectedTeachersUsername = request.getParameterValues("teachers");
+			if (selectedTeachersUsername != null) {
+				for (Teacher teacher : allTeachers) {
+					allTeacherUsernames.add(teacher.getUsername());
+				}
+				System.out.println("DALHINAL: " + selectedTeachersUsername.length);
+				if (!doAllTeachersExist(selectedTeachersUsername, allTeacherUsernames)) {
+					allTeachersExist = false;
+				}
+				request.setAttribute("allTeachersExist", allTeachersExist);
+			}
+			if (isNameUnique == true && isNameValid == true && allTeachersExist == true) {
+				//String[] selectedTeachersUsername = request.getParameterValues("teachers");
 				ArrayList<Teacher> allSelectedTeachers = new ArrayList<>();
 				if (selectedTeachersUsername != null) {
+					
 					for (int i = 0; i < selectedTeachersUsername.length; i++) {
 						Teacher t = null;
 						try {
@@ -80,12 +98,10 @@ public class AddGroupServlet extends HttpServlet {
 					}
 					ArrayList<Group> allGroupsUpdated = GroupDAO.getInstance().getAllGroups();
 					request.getServletContext().setAttribute("allGroups", allGroupsUpdated);
-					ArrayList<Teacher> allTeachers = UserDAO.getInstance().getAllTeachers();
-					getServletContext().setAttribute("allTeachers", allTeachers);
+					getServletContext().setAttribute("allTeachers",  UserDAO.getInstance().getAllTeachers());
 					for (Teacher t : allTeachers) {
 						t.setGroups(UserDAO.getInstance().getGroupsOfUser(t.getId()));
 					}
-					System.out.println("7");
 
 				} catch (GroupException e) {
 					// TODO Auto-generated catch block
@@ -140,5 +156,16 @@ public class AddGroupServlet extends HttpServlet {
 			return true;
 		}
 		return false;
+	}
+	
+	private boolean doAllTeachersExist(String[] selectedTeachersUsername, ArrayList<String> allTeachersUsernames){
+		boolean doAllExist = true;
+		for(int i = 0; i < selectedTeachersUsername.length;){
+			if(!(allTeachersUsernames.contains(selectedTeachersUsername[i++]))){
+				doAllExist = false;
+				break;
+			}
+		}
+		return doAllExist;
 	}
 }

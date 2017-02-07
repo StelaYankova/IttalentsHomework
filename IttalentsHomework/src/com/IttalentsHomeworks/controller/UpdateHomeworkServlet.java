@@ -131,21 +131,24 @@ public class UpdateHomeworkServlet extends HttpServlet {
 				}
 			}
 			request.setAttribute("validFile", isFileValid);
-
+			
 			if (isHeadingValid == true && isHeadingUnique == true && isOpeningTimeValid == true
 					&& isClosingTimeValid == true && areTasksValid == true && areGroupsValid == true
 					&& isFileValid == true) {
+				System.out.println("ENTRE");
 				fileName = "hwName" + heading + ".pdf";
 
 				File file = new File(SAVE_DIR + File.separator + fileName);
+				File file1 = null;
 				if (!file.exists()) {
 					String oldNameOfFile;
 					try {
 						oldNameOfFile = ((HomeworkDetails) GroupDAO.getInstance()
 								.getHomeworkDetailsById(homeworkDetailsId)).getHeading();
-						File file1 = new File(SAVE_DIR + File.separator + "hwName" + oldNameOfFile + ".pdf");
-						Files.move(file1.toPath(), file.toPath());
+						 file1 = new File(SAVE_DIR + File.separator + "hwName" + oldNameOfFile + ".pdf");
+						//Files.move(file1.toPath(), file.toPath());
 						// file1.renameTo(file);
+						Files.copy(file1.toPath(), file.toPath());//we copy, if it succeeds we remove old file, else we remove new file
 					} catch (GroupException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -209,11 +212,12 @@ public class UpdateHomeworkServlet extends HttpServlet {
 					ArrayList<Group> allGroups = GroupDAO.getInstance().getAllGroups();
 					request.getServletContext().setAttribute("allGroups", allGroups);
 					request.setAttribute("invalidFields", false);
-
+					file1.delete();
 				} catch (GroupException | UserException e) {
-					// TODO Auto-generated catch block
+					file.delete();
 					e.printStackTrace();
 				} catch (ValidationException e) {
+					file.delete();
 					request.setAttribute("invalidFields", true);
 
 				}

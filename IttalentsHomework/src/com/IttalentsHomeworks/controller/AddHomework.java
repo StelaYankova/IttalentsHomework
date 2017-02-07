@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 
 import com.IttalentsHomeworks.DAO.GroupDAO;
+import com.IttalentsHomeworks.DAO.UserDAO;
 import com.IttalentsHomeworks.DAO.ValidationsDAO;
 import com.IttalentsHomeworks.Exceptions.GroupException;
 import com.IttalentsHomeworks.Exceptions.UserException;
@@ -28,6 +29,7 @@ import com.IttalentsHomeworks.Exceptions.ValidationException;
 import com.IttalentsHomeworks.model.Group;
 import com.IttalentsHomeworks.model.Homework;
 import com.IttalentsHomeworks.model.HomeworkDetails;
+import com.IttalentsHomeworks.model.Teacher;
 import com.IttalentsHomeworks.model.User;
 
 /**
@@ -61,6 +63,7 @@ public class AddHomework extends HttpServlet {
 		if(isHomeworkNumberOfTasksLengthValid(numberOfTasksString)){
 			request.setAttribute("numberOfTasksTry", Integer.parseInt(numberOfTasksString));
 		}
+		request.setAttribute("selectedGroupsTry", selectedGroups);
 		//request.setAttribute("numberOfTasksTry", numberOfTasks);
 		//empty fields
 		if(isThereEmptyField(heading, opens, closes, filePart,numberOfTasksString, selectedGroups)){
@@ -119,25 +122,22 @@ public class AddHomework extends HttpServlet {
 			}
 			request.setAttribute("validGroups", areGroupsValid);
 
-			if(isHeadingValid == true && isHeadingUnique == true && isOpeningTimeValid == true && isClosingTimeValid == true && isFileValid == true && areTasksValid ==true && areGroupsValid == true){
+			if(isHeadingValid == true && isHeadingUnique == false && isOpeningTimeValid == true && isClosingTimeValid == true && isFileValid == true && areTasksValid ==true && areGroupsValid == true){
 		String savePath = SAVE_DIR;
 		File fileSaveDir = new File(savePath);
 		if (!fileSaveDir.exists()) {
 			fileSaveDir.mkdir();
-			System.out.println("doesnt exists");
 		}
 		String fileName = " ";
-		// final String fileName = extractFileName(filePart);
 		fileName = "hwName" + heading + ".pdf";
 
 		OutputStream out = null;
 		InputStream filecontent = null;
-		final PrintWriter writer = response.getWriter();
-
+	//	final PrintWriter writer = response.getWriter();
+		File file = null;
 		try {
-			File file = new File(SAVE_DIR + File.separator + fileName);
+			file = new File(SAVE_DIR + File.separator + fileName);
 			if (!file.exists()) {
-				// file.getParentFile().mkdirs();
 				file.createNewFile();
 			}
 
@@ -166,12 +166,20 @@ public class AddHomework extends HttpServlet {
 			}
 			GroupDAO.getInstance().createHomeworkDetails(homeworkDetails, groupsForHw);
 			request.setAttribute("invalidFields", false);
-
+			//ne e v grupite v applicationa
+			ArrayList<Group> allGroupsUpdated = GroupDAO.getInstance().getAllGroups();
+			request.getServletContext().setAttribute("allGroups", allGroupsUpdated);
+			ArrayList<Teacher> allTeachers = UserDAO.getInstance().getAllTeachers();
+			getServletContext().setAttribute("allTeachers", allTeachers);
+			for (Teacher t : allTeachers) {
+				t.setGroups(UserDAO.getInstance().getGroupsOfUser(t.getId()));
+			}
 
 		} catch (GroupException | UserException e) {
-			// TODO Auto-generated catch block
+			file.delete();
 			e.printStackTrace();
 		} catch (ValidationException e) {
+			file.delete();
 			request.setAttribute("invalidFields", true);
 		}
 		}}

@@ -97,7 +97,12 @@ position: relative;
 															<p id = "groupMsg" class = "input-invalid"></p>
 																					<p id = "studentMsg" class = "input-invalid"></p>
 															
-					
+					<c:if test="${not empty validGroups}">
+
+						<c:if test="${not validGroups}">
+							<p id="groupsMsg" class="input-invalid">Invalid group</p>
+						</c:if>
+					</c:if>
 				<div class="form-group">
 				
 					<label class="control-label col-sm-8">Choose group:</label> <select
@@ -107,6 +112,7 @@ position: relative;
 							<option value="${group.id}"><c:out value="${group.name}"></c:out></option>
 						</c:forEach>
 					</select>
+					
 				</div>
 				<div class="form-group" id = "studentSearch">
 					<label class="control-label col-sm-8">Choose student:</label> <input
