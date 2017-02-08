@@ -17,7 +17,7 @@ public class IsHomeworkUpdateHeadingValid extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		String heading = request.getParameter("heading");
+		String heading = request.getParameter("heading").trim();
 		if(isLengthValid(heading) && areCharactersValid(heading)){
 			response.setStatus(200);
 		}else{

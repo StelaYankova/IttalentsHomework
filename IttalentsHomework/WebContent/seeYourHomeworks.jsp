@@ -47,16 +47,27 @@
 				<td>Days left</td>
 			</tr>
 		</thead>
-		<tbody class="wrapword">
-			<c:forEach var="homework" items = "${sessionScope.currHomeworksOfGroup}">
-  				<tr>
-  				<td><form action = "./GetHomeworkServlet" method = "GET"><input type = "hidden" name = "id" value = '${homework.id}'><button type = "submit" class = "btn btn-link"><c:out value="${homework.heading}"/></button></form>
-  					</td>
-  					<td><c:out value="${homework.daysLeft}"/></td>
-  				</tr>
-			</c:forEach>
-		</tbody>
-	</table>
+			<tbody class="wrapword">
+				<c:forEach var="homework"
+					items="${sessionScope.currHomeworksOfGroup}">
+					<tr>
+						<td><form action="./GetHomeworkServlet" method="GET">
+							<input type="hidden" name="id" value='${homework.id}'>
+								<button type="submit" class="btn btn-link">
+									<c:out value="${homework.heading}" />
+								</button>
+							</form></td>
+						<td>
+							<c:if test="${homework.daysLeft ge 0}">
+								<c:out value="${homework.daysLeft}" />
+							</c:if> <c:if test="${homework.daysLeft lt 0}">
+								<c:out value="upload time passed" />
+							</c:if>
+						</td>
+					</tr>
+				</c:forEach>
+			</tbody>
+		</table>
 </div>
 </body>
 <script>

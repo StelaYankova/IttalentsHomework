@@ -17,6 +17,7 @@ import com.IttalentsHomeworks.Exceptions.UserException;
 import com.IttalentsHomeworks.Exceptions.ValidationException;
 import com.IttalentsHomeworks.model.Group;
 import com.IttalentsHomeworks.model.Teacher;
+import com.IttalentsHomeworks.model.User;
 
 /**
  * Servlet implementation class UpdateGroupServlet
@@ -26,24 +27,31 @@ public class UpdateGroupServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
   @Override
-protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-	 int groupId = Integer.parseInt(req.getParameter("groupId"));
+protected void doGet(HttpServletRequest request, HttpServletResponse resp) throws ServletException, IOException {
+	//TODO throw exception
+			User user = (User) request.getSession().getAttribute("user");
+			if(user.isTeacher()){
+	  int groupId = Integer.parseInt(request.getParameter("groupId"));
 	 Group group;
 	try {
 		group = GroupDAO.getInstance().getGroupById(groupId);
-		 req.getSession().setAttribute("currGroup", group);
+		 request.getSession().setAttribute("currGroup", group);
 	} catch (GroupException | UserException e) {
 		// TODO Auto-generated catch block
 		e.printStackTrace();
 	}
-	req.getRequestDispatcher("updateGroup.jsp").forward(req, resp);
+	request.getRequestDispatcher("updateGroup.jsp").forward(request, resp);
+			}
 }
   
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		//TODO throw exception
+				User user = (User) request.getSession().getAttribute("user");
+				if(user.isTeacher()){
 		Group currGroup = (Group) request.getSession().getAttribute("currGroup");
 		int groupId = currGroup.getId();
-		String newGroupName = request.getParameter("groupName");
+		String newGroupName = request.getParameter("groupName").trim();
 		String[] selectedTeachersUsername = request.getParameterValues("teachers");
 		//request.setAttribute("selectedTeachersUsernameTry", selectedTeachersUsername);
 
@@ -52,12 +60,8 @@ protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws Se
 			for (int i = 0; i < selectedTeachersUsername.length; i++) {
 				Teacher t = null;
 				try {
-					System.out.println("Chosen teacher: " + selectedTeachersUsername[i].toString());
-					// int currTeacherId =
-					// UserDAO.getInstance().getUserIdByUsername(username)
 					t = (Teacher) UserDAO.getInstance().getUserByUsername(selectedTeachersUsername[i]);
 					allSelectedTeachers.add(t.getId());
-					System.out.println(t.getId());
 				} catch (UserException | GroupException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -98,15 +102,26 @@ protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws Se
 				try {
 					currGroup.setName(newGroupName);
 					GroupDAO.getInstance().updateGroup(currGroup, allSelectedTeachers);
-					ArrayList<Group> allGroupsUpdated = GroupDAO.getInstance().getAllGroups();
-					request.getServletContext().setAttribute("allGroups", allGroupsUpdated);
-					getServletContext().setAttribute("allTeachers", UserDAO.getInstance().getAllTeachers());
-					for (Teacher t : allTeachers) {
-						t.setGroups(UserDAO.getInstance().getGroupsOfUser(t.getId()));
+					
+					ArrayList<Group> allGroups;
+					try {
+						allGroups = GroupDAO.getInstance().getAllGroups();
+						getServletContext().setAttribute("allGroups", allGroups);
+						ArrayList<Teacher> allTeachersUpdated = UserDAO.getInstance().getAllTeachers();
+						for(Teacher t : allTeachersUpdated){
+							t.setGroups(UserDAO.getInstance().getGroupsOfUser(t.getId()));
+						}
+						getServletContext().setAttribute("allTeachers", allTeachersUpdated);
+						
+					} catch (UserException | GroupException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
 					}
+					
+					
 					request.setAttribute("invalidFields", false);
 
-				} catch (GroupException | UserException e) {
+				} catch (GroupException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (ValidationException e) {
@@ -115,6 +130,7 @@ protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws Se
 			}
 		}
 		request.getRequestDispatcher("updateGroup.jsp").forward(request, response);
+				}
 	}
 
 	private boolean isGroupNameUnique(int groupId, String groupName) {
@@ -133,8 +149,6 @@ protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws Se
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		System.out.println("JKFALSE");
-
 		return false;
 	}
 	private boolean isGroupNameValid(String groupName){
@@ -159,7 +173,7 @@ protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws Se
 		return true;
 	}
 	private boolean isThereEmptyField(String groupName) {
-		if (groupName == null || groupName == "") {
+		if (groupName == null || groupName.equals("")) {
 			return true;
 		}
 		return false;

@@ -13,6 +13,7 @@ import com.IttalentsHomeworks.DAO.GroupDAO;
 import com.IttalentsHomeworks.Exceptions.GroupException;
 import com.IttalentsHomeworks.Exceptions.UserException;
 import com.IttalentsHomeworks.model.Group;
+import com.IttalentsHomeworks.model.User;
 
 /**
  * Servlet implementation class RemoveGroupServlet
@@ -23,6 +24,9 @@ public class RemoveGroupServlet extends HttpServlet {
        
    
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		//TODO throw exception
+				User user = (User) request.getSession().getAttribute("user");
+				if(user.isTeacher()){
 		int groupId = Integer.parseInt(request.getParameter("groupId"));
 		Group selectedGroup;
 		try {
@@ -36,6 +40,7 @@ public class RemoveGroupServlet extends HttpServlet {
 			e.printStackTrace();
 		}
 		response.sendRedirect("seeGroupsToChange.jsp");
+				}
 	}
 
 }

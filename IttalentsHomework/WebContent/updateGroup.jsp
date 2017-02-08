@@ -86,13 +86,17 @@
 					<p id = "nameMsg" class = "input-invalid"></p>
 				</div>
 			</div>
-			<br><div class="form-group">
-					<label class="control-label col-sm-6">Teachers</label>
-					<div class="col-sm-6">
+			<br>
+			<div class="form-group">
+				<label class="control-label col-sm-6">Teachers</label>
+				<div class="col-sm-6">
 					<select class="selectpicker" multiple name="teachers">
+
 						<c:forEach items="${applicationScope.allTeachers}" var="teacher">
 							<c:set var="isTeacherInGroup" value="false"></c:set>
+
 							<c:forEach items="${teacher.groups}" var="group">
+
 								<c:if test="${group.id==sessionScope.currGroup.id}">
 									<c:set var="isTeacherInGroup" value="true"></c:set>
 								</c:if>
@@ -105,13 +109,14 @@
 								<option value="${teacher.username}">
 									<c:out value="${teacher.username}"></c:out></option>
 							</c:if>
-						</c:forEach>
 
+						</c:forEach>
 					</select>
 					<c:if test="${not empty allTeachersExist}">
-								<c:if test="${not allTeachersExist}">
-									<p id="allTeachersExistMsg" class="input-invalid">Not all teachers exist</p>
-								</c:if>
+						<c:if test="${not allTeachersExist}">
+							<p id="allTeachersExistMsg" class="input-invalid">Not all
+								teachers exist</p>
+						</c:if>
 					</c:if>
 				</div>
 			</div>
@@ -126,7 +131,7 @@
 		</form>
 	</div>
 	<script>
-	$('#updateGroupForm').submit(function(e) {
+	/*$('#updateGroupForm').submit(function(e) {
 		e.preventDefault();
 		var name = document.forms["updateGroupForm"]["groupName"].value;
 
@@ -205,7 +210,7 @@
 	});
 	$(document).ready(function() {
 		$('[data-toggle="popover"]').popover();
-	});
+	});*/
 </script>
 </body>
 </html>

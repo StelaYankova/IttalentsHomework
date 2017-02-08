@@ -11,6 +11,7 @@ import com.IttalentsHomeworks.DAO.GroupDAO;
 import com.IttalentsHomeworks.Exceptions.GroupException;
 import com.IttalentsHomeworks.Exceptions.UserException;
 import com.IttalentsHomeworks.model.HomeworkDetails;
+import com.IttalentsHomeworks.model.User;
 
 /**
  * Servlet implementation class RemoveHomeworkDetails
@@ -28,6 +29,9 @@ public class RemoveHomeworkDetails extends HttpServlet {
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		//TODO throw exception
+				User user = (User) request.getSession().getAttribute("user");
+				if(user.isTeacher()){
 		HomeworkDetails hd = (HomeworkDetails) request.getSession().getAttribute("currHomework");
 		try {
 			GroupDAO.getInstance().removeHomeworkDetails(hd);
@@ -37,6 +41,6 @@ public class RemoveHomeworkDetails extends HttpServlet {
 		}
 		request.setAttribute("invalidFields", false);
 		request.getRequestDispatcher("seeHomeworks.jsp").forward(request, response);
-	}
+	}}
 
 }

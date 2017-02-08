@@ -19,7 +19,7 @@ import com.google.gson.JsonObject;
 /**
  * Servlet implementation class GetAllGroupsServlet
  */
-@WebServlet("/GetAllGroupsServlet")
+/*@WebServlet("/GetAllGroupsServlet")
 public class GetAllGroupsServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
@@ -43,4 +43,4 @@ public class GetAllGroupsServlet extends HttpServlet {
 
 	
 
-}
+}*/

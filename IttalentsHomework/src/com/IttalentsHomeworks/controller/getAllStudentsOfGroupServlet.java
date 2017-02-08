@@ -17,6 +17,7 @@ import com.IttalentsHomeworks.model.Group;
 import com.IttalentsHomeworks.model.HomeworkDetails;
 import com.IttalentsHomeworks.model.Student;
 import com.IttalentsHomeworks.model.Task;
+import com.IttalentsHomeworks.model.User;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
@@ -30,6 +31,9 @@ public class getAllStudentsOfGroupServlet extends HttpServlet {
 	
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		//TODO throw exception
+				User user = (User) request.getSession().getAttribute("user");
+				if(user.isTeacher()){
 		String groupIdStr = request.getParameter("chosenGroupId");
 		
 		if (groupIdStr.equals("allGroups")) {
@@ -42,8 +46,6 @@ public class getAllStudentsOfGroupServlet extends HttpServlet {
 				JsonArray array = new JsonArray();
 				for (Student student : allStudentsOfGroup) {
 					boolean hasStudentGivenMinOneTask = false;
-					System.out.println(student.getUsername());
-					System.out.println(student.getId());
 					JsonObject obj = new JsonObject();
 					obj.addProperty("id", student.getId());
 					obj.addProperty("username", student.getUsername());
@@ -61,13 +63,10 @@ public class getAllStudentsOfGroupServlet extends HttpServlet {
 							hasStudentGivenMinOneTask = false;
 							String x = t.getSolution();
 							if (x != null) {
-								System.out.println("TRUE " + student.getUsername() );
 								hasStudentGivenMinOneTask = true;
 								obj.addProperty("hasStudentGivenMinOneTask", hasStudentGivenMinOneTask);
 								break;
 							}
-							System.out.println(
-									"Student " + student.getUsername() + " has done it: " + hasStudentGivenMinOneTask + " sol " + t.getSolution());
 							obj.addProperty("hasStudentGivenMinOneTask", hasStudentGivenMinOneTask);
 
 						}
@@ -80,6 +79,7 @@ public class getAllStudentsOfGroupServlet extends HttpServlet {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+		}
 		}
 	}
 

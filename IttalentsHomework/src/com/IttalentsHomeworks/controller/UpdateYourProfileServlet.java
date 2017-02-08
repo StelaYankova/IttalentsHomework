@@ -34,32 +34,13 @@ public class UpdateYourProfileServlet extends HttpServlet {
 		User user = (User) request.getSession().getAttribute("user");
 		int userId = user.getId();
 		String username = user.getUsername();
-		String password = request.getParameter("password");
-		String repeatedPassword = request.getParameter("repeatedPassword");
-		String email = request.getParameter("email");
+		String password = request.getParameter("password").trim();
+		String repeatedPassword = request.getParameter("repeatedPassword").trim();
+		String email = request.getParameter("email").trim();
 		User userTry = new Student(username, password, repeatedPassword, email);// by default
 		request.setAttribute("userTry", userTry);
 		User newUser = null;
 
-		//TODO add validations
-		/*if(password.equals(repeatedPassword) && isEmailValid(email) && isLengthValidPass(password) && areCharactersValidPass(password)){
-			User newUser = null;
-			if(user.isTeacher()){
-				newUser = new Teacher(username, password, repeatedPassword, email);
-			}else{
-				newUser = new Student(username, password, repeatedPassword, email);
-			}
-			newUser.setId(userId);
-			try {
-				UserDAO.getInstance().updateUser(newUser);
-			} catch (UserException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-		}else{
-			//TODO
-		}*/
 		//empty fields
 		if(isThereEmptyField(password, repeatedPassword, email)){
 			request.setAttribute("emptyFields", true);
@@ -132,13 +113,11 @@ public class UpdateYourProfileServlet extends HttpServlet {
 		private boolean isEmailValid(String email){
 			 String regex = "^(.+)@(.+)$";
 		      Pattern pattern = Pattern.compile(regex);
-		      Matcher matcher = pattern.matcher((CharSequence) email);
-		         System.out.println(email + " : " + matcher.matches());
-		         
+		      Matcher matcher = pattern.matcher((CharSequence) email);		         
 				return matcher.matches();
 		}
 		private boolean isThereEmptyField(String password, String repeatedPassword, String email){
-			if(password == null || password == "" ||repeatedPassword == null || repeatedPassword == "" ||email == null || email == ""){
+			if(password == null || password.equals("") ||repeatedPassword == null || repeatedPassword.equals("") ||email == null || email.equals("")){
 				return true;
 			}
 			return false;

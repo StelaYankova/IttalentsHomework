@@ -18,7 +18,7 @@ public class IsHomeworkHeadingUnique extends HttpServlet {
        
     
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		String heading = request.getParameter("heading");
+		String heading = request.getParameter("heading").trim();
 		if(GroupDAO.getInstance().isHomeworkHeadingUnique(heading)){
 			response.setStatus(200);
 		}else{

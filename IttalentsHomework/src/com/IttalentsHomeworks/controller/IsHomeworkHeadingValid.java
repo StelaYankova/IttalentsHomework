@@ -18,17 +18,13 @@ public class IsHomeworkHeadingValid extends HttpServlet {
        
     
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		String heading = request.getParameter("heading");
+		String heading = request.getParameter("heading").trim();
 		if(isLengthValid(heading) && areCharactersValid(heading)){
 			response.setStatus(200);
 		}else{
 			response.setStatus(400);
 		}
 	}
-
-/*	private boolean isHeadingUnique(String heading){
-		return GroupDAO.getInstance().isHomeworkHeadingUnique(heading);
-	}*/
 	private boolean isLengthValid(String heading) {
 		if (heading.length() >= 5 && heading.length() <= 40) {
 			return true;

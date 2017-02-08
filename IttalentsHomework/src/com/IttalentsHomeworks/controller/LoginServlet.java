@@ -45,11 +45,13 @@ public class LoginServlet extends HttpServlet {
 			e.printStackTrace();
 		}
 		
+		
 	}
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		User user = null;
 		String username = request.getParameter("username").trim();
-		String password = request.getParameter("password");
+		String password = request.getParameter("password").trim();
+		
 		request.getSession().setMaxInactiveInterval(100000);
 		if(isThereEmptyField(username, password)){
 			request.getSession().setAttribute("invalidField", true);

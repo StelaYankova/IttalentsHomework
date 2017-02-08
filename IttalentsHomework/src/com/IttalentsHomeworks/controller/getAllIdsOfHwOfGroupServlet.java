@@ -20,12 +20,11 @@ import com.google.gson.JsonArray;
  * Servlet implementation class getAllIdsOfHwOfGroupServlet
  */
 //@WebServlet("/getAllIdsOfHwOfGroupServlet")
-public class getAllIdsOfHwOfGroupServlet extends HttpServlet {
+/*public class getAllIdsOfHwOfGroupServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
     
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		int groupId = Integer.parseInt(request.getParameter("groupId"));
-		//System.out.println("QQQQQQ "+groupId);
 		JsonArray array = new JsonArray();
 		ArrayList<HomeworkDetails> allHwDetailsByGroup;
 		try {
@@ -33,7 +32,6 @@ public class getAllIdsOfHwOfGroupServlet extends HttpServlet {
 			allHwDetailsByGroup = GroupDAO.getInstance().getHomeworkDetailsOfGroup(chosenGroup);
 			for(HomeworkDetails hd: allHwDetailsByGroup){
 				array.add(hd.getId());
-				System.out.println(hd.getId());
 			}
 		} catch (GroupException e) {
 			// TODO Auto-generated catch block
@@ -48,4 +46,4 @@ public class getAllIdsOfHwOfGroupServlet extends HttpServlet {
 
 	
 
-}
+}*/

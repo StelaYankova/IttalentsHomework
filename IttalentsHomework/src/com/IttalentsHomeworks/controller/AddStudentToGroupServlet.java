@@ -15,6 +15,7 @@ import com.IttalentsHomeworks.Exceptions.UserException;
 import com.IttalentsHomeworks.Exceptions.ValidationException;
 import com.IttalentsHomeworks.model.Group;
 import com.IttalentsHomeworks.model.Student;
+import com.IttalentsHomeworks.model.User;
 
 /**
  * Servlet implementation class AddStudentToGroupServlet
@@ -25,12 +26,19 @@ public class AddStudentToGroupServlet extends HttpServlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		//TODO throw exception
+				User user = (User) request.getSession().getAttribute("user");
+				if(user.isTeacher()){
 		request.getRequestDispatcher("addStudentToGroup.jsp").forward(request, response);
+				}
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		String chosenGroupIdString = request.getParameter("chosenGroup");
+		//TODO throw exception
+				User user = (User) request.getSession().getAttribute("user");
+				if(user.isTeacher()){
+		String chosenGroupIdString = request.getParameter("chosenGroup").trim();
 		String chosenStudentUsername = request.getParameter("selectedStudent").trim();
 
 		// empty fields
@@ -81,7 +89,7 @@ public class AddStudentToGroupServlet extends HttpServlet {
 			}
 		}
 		request.getRequestDispatcher("addStudentToGroup.jsp").forward(request, response);
-
+				}
 	}
 
 	private boolean doesStudentExist(String username) {

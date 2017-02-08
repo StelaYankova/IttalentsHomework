@@ -45,6 +45,10 @@ import com.IttalentsHomeworks.model.User;
 		maxRequestSize = 1024 * 1024 * 50) // 50MB
 public class UploadSolutionServlet extends HttpServlet {
 	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	/**
 	 * Name of the directory where uploaded files will be saved, relative to the
 	 * web application directory.
 	 */
@@ -105,16 +109,6 @@ public class UploadSolutionServlet extends HttpServlet {
 	/**
 	 * Extracts file name from HTTP header content-disposition
 	 */
-	/*private String extractFileName(Part part) {
-		String contentDisp = part.getHeader("content-disposition");
-		String[] items = contentDisp.split(";");
-		for (String s : items) {
-			if (s.trim().startsWith("filename")) {
-				return s.substring((part.getName()).lastIndexOf('/') + 1);
-			}
-		}
-		return "";
-	}*/
 	private boolean isContentTypeValid(Part file) {
 		String contentType = file.getSubmittedFileName().substring(file.getSubmittedFileName().indexOf("."));
 		if (!(contentType.equals(".java"))) {
@@ -125,8 +119,6 @@ public class UploadSolutionServlet extends HttpServlet {
 
 	private boolean isFileEmpty(Part file) {
 		if (file.getSize() != 0) {
-			System.out.println("SEZE : " + file.getSize());
-
 			return false;
 		}
 		return true;

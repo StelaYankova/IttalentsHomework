@@ -12,6 +12,7 @@ import java.util.ArrayList;
 
 import com.IttalentsHomeworks.DB.DBManager;
 import com.IttalentsHomeworks.Exceptions.GroupException;
+import com.IttalentsHomeworks.Exceptions.NotUniqueUsernameException;
 import com.IttalentsHomeworks.Exceptions.UserException;
 import com.IttalentsHomeworks.Exceptions.ValidationException;
 import com.IttalentsHomeworks.model.Group;
@@ -405,16 +406,16 @@ public class GroupDAO implements IGroupDAO {
 	 */
 	@Override
 	public void createHomeworkDetails(HomeworkDetails homeworkDetails, ArrayList<Group> groupsForHomework)
-			throws GroupException, UserException, ValidationException {
-		System.out.println("INNNNNN");
+			throws GroupException, UserException, ValidationException, NotUniqueUsernameException {
 		Connection con = manager.getConnection();
 		// con.setAutoCommit(false);
+		if(ValidationsDAO.getInstance().isHomeworkHeadingUniqueAddHomework(homeworkDetails.getHeading())){
 		if (homeworkDetails.getTasksFile() != null && !(homeworkDetails.getTasksFile().trim().equals(""))
 				&& groupsForHomework != null && groupsForHomework.size() > 0) {
 			if (!ValidationsDAO.getInstance().isThereEmptyFieldAddHomework(homeworkDetails.getHeading(),
 					homeworkDetails.getOpeningTime().toString(), homeworkDetails.getClosingTime().toString(),
 					homeworkDetails.getNumberOfTasks())) {
-				if(ValidationsDAO.getInstance().isLengthHeadingValidAddHomework(homeworkDetails.getHeading()) && ValidationsDAO.getInstance().isHomeworkHeadingUniqueAddHomework(homeworkDetails.getHeading()) && ValidationsDAO.getInstance().isHomeworkOpeningTimeValidAddHomework(homeworkDetails.getOpeningTime().toString()) && ValidationsDAO.getInstance().isHomeworkClosingTimeValidAddHomework(homeworkDetails.getOpeningTime().toString(), homeworkDetails.getClosingTime().toString()) && ValidationsDAO.getInstance().isHomeworkNumberOfTasksValidAddHomework(homeworkDetails.getNumberOfTasks())){
+				if(ValidationsDAO.getInstance().isLengthHeadingValidAddHomework(homeworkDetails.getHeading()) && ValidationsDAO.getInstance().isHomeworkOpeningTimeValidAddHomework(homeworkDetails.getOpeningTime().toString()) && ValidationsDAO.getInstance().isHomeworkClosingTimeValidAddHomework(homeworkDetails.getOpeningTime().toString(), homeworkDetails.getClosingTime().toString()) && ValidationsDAO.getInstance().isHomeworkNumberOfTasksValidAddHomework(homeworkDetails.getNumberOfTasks())){
 				try {
 					// con.setAutoCommit(false);
 					PreparedStatement ps = con.prepareStatement(CREATE_HOMEWORK_DETAILS);
@@ -443,20 +444,19 @@ public class GroupDAO implements IGroupDAO {
 					// con.setAutoCommit(true);
 				}
 				}else{
-					System.out.println("1111111111111");
 					throw new ValidationException("Add homework --> invalid field");
 
 				}
 			}else{
-				System.out.println("22222222222222");
-
 				throw new ValidationException("Add homework --> empty field");
 			}
 		}else{
-			System.out.println("3333333333333");
-
 			throw new ValidationException("Add homework --> empty field");
 		}
+		}else{
+			throw new NotUniqueUsernameException("Add homework --> not unique username");
+		}
+		
 	}
 
 	/* (non-Javadoc)
@@ -486,14 +486,22 @@ public class GroupDAO implements IGroupDAO {
 	 */
 	@Override
 	public void updateHomeworkDetails(HomeworkDetails homeworkDetails, ArrayList<Group> groupsForHomework)
-			throws GroupException, UserException, ValidationException {
+			throws GroupException, UserException, ValidationException, NotUniqueUsernameException {
 		Connection con = manager.getConnection();// get id
 		//con.setAutoCommit(false);
 		HomeworkDetails currHd = GroupDAO.getInstance().getHomeworkDetailsById(homeworkDetails.getId());
+		System.out.println("WWWWW12");
+
+		if(ValidationsDAO.getInstance().isHomeworkUpdateHeadingUnique(homeworkDetails.getHeading(), currHd)){
+			System.out.println("WWWWW");
+			System.out.println(homeworkDetails.getTasksFile() != null);
+			System.out.println(homeworkDetails.getTasksFile().trim().equals(""));
+			System.out.println(groupsForHomework);
+			System.out.println(groupsForHomework.size());
 		if (homeworkDetails.getTasksFile() != null && !(homeworkDetails.getTasksFile().trim().equals(""))
 				&& groupsForHomework != null && groupsForHomework.size() > 0) {
 		if(!ValidationsDAO.getInstance().updateGroupAreThereEmptyFields(homeworkDetails.getHeading(), homeworkDetails.getOpeningTime().toString(), homeworkDetails.getClosingTime().toString(), homeworkDetails.getTasksFile().trim())){
-			if(ValidationsDAO.getInstance().areHomeworkUpdateCharactersValid(homeworkDetails.getHeading()) && ValidationsDAO.getInstance().isHomeworkUpdateLengthValid(homeworkDetails.getHeading()) && ValidationsDAO.getInstance().isHomeworkUpdateHeadingUnique(homeworkDetails.getHeading(), currHd) && ValidationsDAO.getInstance().isHomeworkUpdateOpeningTimeValid(homeworkDetails.getOpeningTime().toString(), currHd) && ValidationsDAO.getInstance().isHomeworkUpdateClosingTimeValid(homeworkDetails.getOpeningTime().toString(), homeworkDetails.getClosingTime().toString(), currHd) && ValidationsDAO.getInstance().isHomeworkUpdateNumberOfTasksValid(homeworkDetails.getNumberOfTasks())){
+			if(ValidationsDAO.getInstance().areHomeworkUpdateCharactersValid(homeworkDetails.getHeading()) && ValidationsDAO.getInstance().isHomeworkUpdateLengthValid(homeworkDetails.getHeading()) && ValidationsDAO.getInstance().isHomeworkUpdateOpeningTimeValid(homeworkDetails.getOpeningTime().toString(), currHd) && ValidationsDAO.getInstance().isHomeworkUpdateClosingTimeValid(homeworkDetails.getOpeningTime().toString(), homeworkDetails.getClosingTime().toString(), currHd) && ValidationsDAO.getInstance().isHomeworkUpdateNumberOfTasksValid(homeworkDetails.getNumberOfTasks())){
 			try {
 			PreparedStatement ps = con.prepareStatement(
 					UPDATE_HOMEWORK_DETAILS);
@@ -525,19 +533,29 @@ public class GroupDAO implements IGroupDAO {
 			//con.commit();
 		} catch (SQLException e) {
 			//con.rollback();
+			System.out.println("00000");
 			throw new GroupException("Something went wrong with updating homework details..");
 		} finally {
 					// con.setAutoCommit(true);
 				}
 			} else {
+				System.out.println("11111");
+
 					throw new ValidationException("Update homework --> invalid field");
 				}
 			} else {
+				System.out.println("2222222");
+
 				throw new ValidationException("Update homework --> empty field");
 			}
+		
 		} else {
+			System.out.println("003333333000");
+
 			throw new ValidationException("Update homework --> empty field");
 
+		}}else{
+			throw new NotUniqueUsernameException("Add homework --> not unique username");
 		}
 
 	}

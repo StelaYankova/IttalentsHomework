@@ -24,14 +24,13 @@ public class GetHomeworkServlet extends HttpServlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		User userTry = (User) request.getSession().getAttribute("user");
+		if(!userTry.isTeacher()){
 		Student user = (Student) request.getSession().getAttribute("user");
 		int homeworkId = Integer.parseInt(request.getParameter("id"));
-		System.out.println("GVHBJNKML " + homeworkId);
 		Homework homework = null;
-		// System.out.println(user.get);
 		for (Homework h : user.getHomeworks()) {
 			if (h.getHomeworkDetails().getId() == homeworkId) {
-				System.out.println("VATRE SME");
 				homework = new Homework(h.getTeacherGrade(), h.getTeacherComment(), h.getTasks(),
 						h.getHomeworkDetails());
 				break;
@@ -49,9 +48,8 @@ public class GetHomeworkServlet extends HttpServlet {
 		request.getSession().setAttribute("hasUploadTimePassed", hasUploadTimePassed);
 		request.getSession().setAttribute("hasUploadTimeCome", hasUploadTimeCome);
 
-		System.out.println(hasUploadTimePassed);
-		System.out.println(hasUploadTimeCome);
 		response.sendRedirect("currHomeworkPageStudent.jsp");
+	}
 	}
 
 }

@@ -13,6 +13,7 @@ import com.IttalentsHomeworks.DAO.UserDAO;
 import com.IttalentsHomeworks.Exceptions.UserException;
 import com.IttalentsHomeworks.model.Homework;
 import com.IttalentsHomeworks.model.Student;
+import com.IttalentsHomeworks.model.User;
 
 /**
  * Servlet implementation class GetHomeworkOfStudentServlet
@@ -22,18 +23,17 @@ public class GetHomeworkOfStudentServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
     
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		//Student user = (Student) request.getSession().getAttribute("user");
+		User user = (User) request.getSession().getAttribute("user");
+		if(user.isTeacher()){
 		int studentId = Integer.parseInt(request.getParameter("studentId"));
 		int homeworkId = Integer.parseInt(request.getParameter("id"));
 		request.getSession().setAttribute("studentId", studentId);
 		Homework homework = null;
-		//System.out.println(user.get);
 		ArrayList<Homework> homeworks;
 		try {
 			homeworks = UserDAO.getInstance().getHomeworksOfStudent(studentId);
 			for(Homework h: homeworks){
 				if(h.getHomeworkDetails().getId() == homeworkId){
-					System.out.println("VATRE SME");
 					homework = new Homework(h.getTeacherGrade(), h.getTeacherComment(), h.getTasks(), h.getHomeworkDetails());
 					break;
 				}
@@ -44,5 +44,6 @@ public class GetHomeworkOfStudentServlet extends HttpServlet {
 			e.printStackTrace();
 		}
 		response.sendRedirect("homeworkOfStudent.jsp");
+	}
 	}
 }

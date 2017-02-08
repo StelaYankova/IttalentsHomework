@@ -14,6 +14,7 @@ import com.IttalentsHomeworks.Exceptions.UserException;
 import com.IttalentsHomeworks.Exceptions.ValidationException;
 import com.IttalentsHomeworks.model.Homework;
 import com.IttalentsHomeworks.model.HomeworkDetails;
+import com.IttalentsHomeworks.model.User;
 
 /**
  * Servlet implementation class UpdateTeacherGradeAndCommentServlet
@@ -24,10 +25,13 @@ public class UpdateTeacherGradeAndCommentServlet extends HttpServlet {
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		//TODO throw exception
+				User user = (User) request.getSession().getAttribute("user");
+				if(user.isTeacher()){
 		Homework homework = (Homework) request.getSession().getAttribute("currHomework");
 		HomeworkDetails hdOfhomework = null;
-		String teacherComment = request.getParameter("comment");
-		String teacherGradeString = request.getParameter("grade");
+		String teacherComment = request.getParameter("comment").trim();
+		String teacherGradeString = request.getParameter("grade").trim();
 		int studentId = (int) request.getSession().getAttribute("studentId");
 		int teacherGrade = 0;
 		// grade not empty
@@ -75,10 +79,11 @@ public class UpdateTeacherGradeAndCommentServlet extends HttpServlet {
 			}
 		}
 		request.getRequestDispatcher("homeworkOfStudent.jsp").forward(request, response);
+				}
 	}
 
 	private boolean isGradeEmpty(String grade) {
-		if (grade == null || grade == "") {
+		if (grade == null || grade.equals("")) {
 			return true;
 		}
 		return false;

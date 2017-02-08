@@ -25,16 +25,13 @@ public class IsChosenStudentAlreadyInGroup extends HttpServlet {
    
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		int chosenGroupId = Integer.parseInt(request.getParameter("chosenGroupId"));
-		String chosenStudentUsername = request.getParameter("chosenStudentUsername");
+		String chosenStudentUsername = request.getParameter("chosenStudentUsername").trim();
 		try {
 			Group chosenGroup = GroupDAO.getInstance().getGroupById(chosenGroupId);
 			com.IttalentsHomeworks.model.User chosenStudent = UserDAO.getInstance().getUserByUsername(chosenStudentUsername);
 			if(GroupDAO.getInstance().isUserAlreadyInGroup(chosenGroup, chosenStudent)){
-				System.out.println("USER IS IN");
 				response.setStatus(400);
 			}else{
-				System.out.println("USER IS NOT");
-
 				response.setStatus(200);
 			}
 		} catch (GroupException e) {

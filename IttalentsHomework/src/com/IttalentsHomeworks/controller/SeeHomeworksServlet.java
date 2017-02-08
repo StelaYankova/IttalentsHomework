@@ -30,7 +30,11 @@ public class SeeHomeworksServlet extends HttpServlet {
        
     
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		//TODO throw exception
+				User user = (User) request.getSession().getAttribute("user");
+				if(user.isTeacher()){
 		request.getRequestDispatcher("seeHomeworks.jsp").forward(request, response);
+				}
 	}
 
 }

@@ -17,6 +17,7 @@ import com.IttalentsHomeworks.model.Group;
 import com.IttalentsHomeworks.model.Homework;
 import com.IttalentsHomeworks.model.HomeworkDetails;
 import com.IttalentsHomeworks.model.Student;
+import com.IttalentsHomeworks.model.User;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
@@ -29,6 +30,9 @@ public class SeeYourHomeworksByGroup extends HttpServlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		//TODO throw exception
+				User userTest = (User) request.getSession().getAttribute("user");
+				if(!userTest.isTeacher()){
 		ArrayList<HomeworkDetails> homeworkDetailsByGroup = new ArrayList<>();
 		Student user = (Student) request.getSession().getAttribute("user");
 		Group selectedGroup = null;
@@ -110,5 +114,5 @@ public class SeeYourHomeworksByGroup extends HttpServlet {
 
 		}
 	}
-
+	}
 }

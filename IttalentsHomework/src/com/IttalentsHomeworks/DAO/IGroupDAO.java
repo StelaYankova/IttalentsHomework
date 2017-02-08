@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import com.IttalentsHomeworks.DB.DBManager;
 import com.IttalentsHomeworks.Exceptions.GroupException;
+import com.IttalentsHomeworks.Exceptions.NotUniqueUsernameException;
 import com.IttalentsHomeworks.Exceptions.UserException;
 import com.IttalentsHomeworks.Exceptions.ValidationException;
 import com.IttalentsHomeworks.model.Group;
@@ -39,11 +40,11 @@ public interface IGroupDAO {
 
 	void removeGroup(Group g) throws GroupException;
 
-	void createHomeworkDetails(HomeworkDetails hd, ArrayList<Group> groupsForHw) throws GroupException, UserException, ValidationException;
+	void createHomeworkDetails(HomeworkDetails hd, ArrayList<Group> groupsForHw) throws GroupException, UserException, ValidationException, NotUniqueUsernameException;
 
 	int getHomeworkDetailsId(HomeworkDetails hd) throws GroupException;
 
-	void updateHomeworkDetails(HomeworkDetails hd, ArrayList<Group> groupsforHw) throws GroupException, UserException, ValidationException;
+	void updateHomeworkDetails(HomeworkDetails hd, ArrayList<Group> groupsforHw) throws GroupException, UserException, ValidationException, NotUniqueUsernameException;
 
 	void removeHomeworkFromGroup(HomeworkDetails hd, Group g) throws GroupException, UserException;
 

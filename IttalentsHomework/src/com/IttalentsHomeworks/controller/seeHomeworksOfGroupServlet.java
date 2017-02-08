@@ -14,6 +14,7 @@ import com.IttalentsHomeworks.Exceptions.GroupException;
 import com.IttalentsHomeworks.Exceptions.UserException;
 import com.IttalentsHomeworks.model.Group;
 import com.IttalentsHomeworks.model.HomeworkDetails;
+import com.IttalentsHomeworks.model.User;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
@@ -25,10 +26,10 @@ public class seeHomeworksOfGroupServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
  
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		ArrayList<HomeworkDetails> homeworkDetailsByGroup = new ArrayList<>();
+		User user = (User) request.getSession().getAttribute("user");
+		if(user.isTeacher()){	
+			ArrayList<HomeworkDetails> homeworkDetailsByGroup = new ArrayList<>();
 		JsonArray array = new JsonArray();
-		String group = request.getParameter("chosenGroup");
-		System.out.println(group);
 		if (!(request.getParameter("chosenGroup").equals("null"))) {
 			if (!(request.getParameter("chosenGroup").equals("allGroups"))) {
 			int groupId = Integer.parseInt(request.getParameter("chosenGroup"));
@@ -63,7 +64,7 @@ public class seeHomeworksOfGroupServlet extends HttpServlet {
 	}
 		response.getWriter().write(array.toString());
 	}
-	
+	}
 
 
 }

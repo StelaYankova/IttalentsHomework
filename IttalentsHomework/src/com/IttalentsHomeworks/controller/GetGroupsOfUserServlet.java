@@ -28,7 +28,14 @@ import com.google.gson.JsonObject;
 @WebServlet("/GetGroupsOfUserServlet")
 public class GetGroupsOfUserServlet extends HttpServlet {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		User userTry = (User) request.getSession().getAttribute("user");
+		if(!userTry.isTeacher()){
 		User user = (User) request.getSession().getAttribute("user");
 		ArrayList<Group> groupsOfUser = user.getGroups();
 		JsonArray jsonGroups = new JsonArray();
@@ -39,14 +46,12 @@ public class GetGroupsOfUserServlet extends HttpServlet {
 					obj.add("homeworks", null);
 					JsonArray homeworks = new JsonArray();
 					for(HomeworkDetails h: g.getHomeworks()){
-						System.out.println("!! " + h.getId());
 						JsonObject obj1 = new JsonObject();
 						obj1.addProperty("heading", h.getHeading());
 						obj1.addProperty("id", h.getId());
 						
 						long days = h.getClosingTime().until( h.getOpeningTime(), ChronoUnit.DAYS);
 						obj1.addProperty("timeLeft", days);
-						System.out.println(g.getName() + " " +  h.getHeading() + "  "  + days + "homeworks: " + g.getHomeworks().size());
 						homeworks.add(obj1);
 					}
 					obj.add("homeworks", homeworks);
@@ -55,6 +60,6 @@ public class GetGroupsOfUserServlet extends HttpServlet {
 				response.setContentType("application/json");
 				response.getWriter().write(jsonGroups.toString());
 			
-		
+		}
 	}
 }

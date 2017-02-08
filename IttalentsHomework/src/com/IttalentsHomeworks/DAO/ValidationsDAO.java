@@ -301,8 +301,12 @@ public class ValidationsDAO implements IValidationsDAO{
 	}
 	
 	@Override
-	public boolean isHomeworkHeadingUniqueAddHomework(String heading){
-		if(GroupDAO.getInstance().isHomeworkHeadingUnique(heading)){
+	public boolean isHomeworkHeadingUniqueAddHomework(String heading) {
+		if (heading != null && (!heading.equals(""))) {
+			if (GroupDAO.getInstance().isHomeworkHeadingUnique(heading)) {
+				return true;
+			}
+		}else{//if its null it is unique --> it will be catched in the next try (for empty fields) and the file will be removed from the system
 			return true;
 		}
 		return false;
@@ -382,13 +386,15 @@ public class ValidationsDAO implements IValidationsDAO{
 	}
 	
 	@Override
-	public boolean isHomeworkUpdateHeadingUnique(String heading, HomeworkDetails currHd){//podavam teku6t hd
-		//HomeworkDetails currHd = (HomeworkDetails) request.getSession().getAttribute("currHomework");
-		if(currHd.getHeading().equals(heading) || GroupDAO.getInstance().isHomeworkHeadingUnique(heading)){
-			return true;
+	public boolean isHomeworkUpdateHeadingUnique(String heading, HomeworkDetails currHd) {
+		if (heading != null && (!heading.equals(""))) {
+			if (currHd.getHeading().equals(heading) || GroupDAO.getInstance().isHomeworkHeadingUnique(heading)) {
+				return true;
+			}
 		}else{
-			return false;
+			return true;
 		}
+		return false;
 	}
 	
 	@Override

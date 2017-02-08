@@ -18,6 +18,7 @@ import com.IttalentsHomeworks.model.Group;
 import com.IttalentsHomeworks.model.Homework;
 import com.IttalentsHomeworks.model.HomeworkDetails;
 import com.IttalentsHomeworks.model.Task;
+import com.IttalentsHomeworks.model.User;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
@@ -30,7 +31,10 @@ public class SeeAllHomeworksOfStudentByGroupServlet extends HttpServlet {
        
     
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		int groupId = Integer.parseInt(request.getParameter("groupId"));
+		User user = (User) request.getSession().getAttribute("user");
+		if(user.isTeacher()){	
+			int groupId = Integer.parseInt(request.getParameter("groupId"));
+		
 		int studentId = Integer.parseInt(request.getParameter("studentId"));
 		Group selectedGroup = null;
 		JsonArray array = new JsonArray();
@@ -80,7 +84,7 @@ public class SeeAllHomeworksOfStudentByGroupServlet extends HttpServlet {
 		response.getWriter().write(array.toString());
 	}
 	
-
+	}
 	
 
 }

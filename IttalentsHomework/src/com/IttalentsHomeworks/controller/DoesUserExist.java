@@ -20,7 +20,7 @@ public class DoesUserExist extends HttpServlet {
        
     
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		String chosenStudentUsername = request.getParameter("chosenStudentUsername");
+		String chosenStudentUsername = request.getParameter("chosenStudentUsername").trim();
 		try {
 			if(ValidationsDAO.getInstance().isUsernameUnique(chosenStudentUsername)){//if its unique id is not in DB
 				response.setStatus(400);

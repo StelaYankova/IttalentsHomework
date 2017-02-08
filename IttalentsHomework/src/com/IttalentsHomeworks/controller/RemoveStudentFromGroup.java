@@ -13,6 +13,7 @@ import com.IttalentsHomeworks.Exceptions.GroupException;
 import com.IttalentsHomeworks.Exceptions.UserException;
 import com.IttalentsHomeworks.model.Group;
 import com.IttalentsHomeworks.model.Student;
+import com.IttalentsHomeworks.model.User;
 
 /**
  * Servlet implementation class RemoveStudentFromGroup
@@ -24,12 +25,14 @@ public class RemoveStudentFromGroup extends HttpServlet {
     
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		System.out.println(request.getParameter("chosenGroupId"));
+		//TODO throw exception
+				User user = (User) request.getSession().getAttribute("user");
+				if(user.isTeacher()){
 		if (!(request.getParameter("chosenGroupId").equals("null"))) {
 			try {
 				int chosenGroupId = Integer.parseInt(request.getParameter("chosenGroupId"));
 				Group chosenGroup = GroupDAO.getInstance().getGroupById(chosenGroupId);
-				String studentUsername = request.getParameter("studentId");
+				String studentUsername = request.getParameter("studentId").trim();
 				Student chosenStudent = (Student) UserDAO.getInstance().getUserByUsername(studentUsername);
 
 				GroupDAO.getInstance().removeUserFromGroup(chosenGroup, chosenStudent);
@@ -42,6 +45,6 @@ public class RemoveStudentFromGroup extends HttpServlet {
 
 		}
 		request.getRequestDispatcher("addStudentToGroup.jsp").forward(request, response);
-	}
+	}}
 
 }

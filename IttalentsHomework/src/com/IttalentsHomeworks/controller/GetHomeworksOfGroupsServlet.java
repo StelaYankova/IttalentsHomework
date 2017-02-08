@@ -1,6 +1,7 @@
 package com.IttalentsHomeworks.controller;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 
@@ -28,27 +29,8 @@ public class GetHomeworksOfGroupsServlet extends HttpServlet {
        
     
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		/*User user = (User) request.getSession().getAttribute("user");
-		int groupId = Integer.parseInt(request.getParameter("groupId"));
-		Group group = null;
-		for(Group g: user.getGroups()){
-			if(g.getId() == groupId){
-				group = g;
-				break;
-			}
-		}
-		JsonArray homeworks = new JsonArray();
-		for(HomeworkDetails h: group.getHomeworks()){
-			JsonObject obj = new JsonObject();
-			obj.addProperty("heading", h.getHeading());
-			long days = h.getClosingTime().until( h.getOpeningTime(), ChronoUnit.DAYS);
-			obj.addProperty("timeLeft", days);
-			//System.out.println(group.getName() + " " +  h.getHeading() + "  "  + days + "homeworks: " + group.getHomeworks().size());
-			homeworks.add(obj);
-		}
-		//obj.add("homeworks", homeworks);
-		response.setContentType("application/json");
-		response.getWriter().write(homeworks.toString());*/
+		User userTry = (User) request.getSession().getAttribute("user");
+		if(!userTry.isTeacher()){
 		User user = (User) request.getSession().getAttribute("user");
 		int groupId = Integer.parseInt(request.getParameter("groupId"));
 		Group group = null;
@@ -58,14 +40,9 @@ public class GetHomeworksOfGroupsServlet extends HttpServlet {
 				break;
 			}
 		}
-		//JsonArray homeworks = new JsonArray();
 		ArrayList<HomeworkDetails> homeworks = new ArrayList<>();
 		for(HomeworkDetails h: group.getHomeworks()){
-			//JsonObject obj = new JsonObject();
-			//obj.addProperty("heading", h.getHeading());
-			//obj.addProperty("timeLeft", days);
-			//System.out.println(group.getName() + " " +  h.getHeading() + "  "  + days + "homeworks: " + group.getHomeworks().size());
-			long days = h.getClosingTime().until( h.getOpeningTime(), ChronoUnit.DAYS);
+			long days = LocalDateTime.now().until(h.getClosingTime(), ChronoUnit.DAYS);
 			HomeworkDetails currHd = new HomeworkDetails(h.getHeading(), h.getOpeningTime(), h.getClosingTime(), h.getNumberOfTasks(), h.getTasksFile());
 			currHd.setDaysLeft((int) days);
 			try {
@@ -77,11 +54,9 @@ public class GetHomeworksOfGroupsServlet extends HttpServlet {
 			homeworks.add(currHd);
 		}
 		request.getSession().setAttribute("currHomeworksOfGroup", homeworks);
-		System.out.println("AJDE");
 		response.sendRedirect("seeYourHomeworks.jsp");
-		//obj.add("homeworks", homeworks);
 	}
-
+	}
 	
 
 }

@@ -24,6 +24,7 @@ import com.IttalentsHomeworks.DAO.GroupDAO;
 import com.IttalentsHomeworks.DAO.UserDAO;
 import com.IttalentsHomeworks.DAO.ValidationsDAO;
 import com.IttalentsHomeworks.Exceptions.GroupException;
+import com.IttalentsHomeworks.Exceptions.NotUniqueUsernameException;
 import com.IttalentsHomeworks.Exceptions.UserException;
 import com.IttalentsHomeworks.Exceptions.ValidationException;
 import com.IttalentsHomeworks.model.Group;
@@ -43,11 +44,18 @@ public class AddHomework extends HttpServlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		request.getRequestDispatcher("addHomework.jsp").forward(request, response);
+		//TODO throw exception
+		User user = (User) request.getSession().getAttribute("user");
+		if (user.isTeacher()) {
+			request.getRequestDispatcher("addHomework.jsp").forward(request, response);
+		}
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		//TODO throw exception
+				User user = (User) request.getSession().getAttribute("user");
+				if(user.isTeacher()){
 		String heading = request.getParameter("name").trim();
 		String[] selectedGroups = request.getParameterValues("groups");
 		String opens = request.getParameter("opens").replace("/", "-").trim();
@@ -98,95 +106,100 @@ public class AddHomework extends HttpServlet {
 			}
 			request.setAttribute("validClosingTime", isClosingTimeValid);
 
-		//file
+			// file
 			boolean isFileValid = false;
-			if(isHomeworkContentTypeValid(filePart) && isHomeworkSizeValid(filePart)){
+			if (isHomeworkContentTypeValid(filePart) && isHomeworkSizeValid(filePart)) {
 				isFileValid = true;
 			}
 			request.setAttribute("validFile", isFileValid);
 
-		//numTasks
+			// numTasks
 			boolean areTasksValid = false;
-			
-			if(isHomeworkNumberOfTasksLengthValid(numberOfTasksString)){
+
+			if (isHomeworkNumberOfTasksLengthValid(numberOfTasksString)) {
 				numberOfTasks = Integer.parseInt(request.getParameter("numberOfTasks"));
-				if(isHomeworkNumberOfTasksValid(numberOfTasks)){
+				if (isHomeworkNumberOfTasksValid(numberOfTasks)) {
 					areTasksValid = true;
 				}
 			}
 			request.setAttribute("validTasks", areTasksValid);
-			//groups
+			// groups
 			boolean areGroupsValid = false;
-			if(doAllGroupsExist(selectedGroups)){
+			if (doAllGroupsExist(selectedGroups)) {
 				areGroupsValid = true;
 			}
 			request.setAttribute("validGroups", areGroupsValid);
-
-			if(isHeadingValid == true && isHeadingUnique == false && isOpeningTimeValid == true && isClosingTimeValid == true && isFileValid == true && areTasksValid ==true && areGroupsValid == true){
-		String savePath = SAVE_DIR;
-		File fileSaveDir = new File(savePath);
-		if (!fileSaveDir.exists()) {
-			fileSaveDir.mkdir();
-		}
-		String fileName = " ";
-		fileName = "hwName" + heading + ".pdf";
-
-		OutputStream out = null;
-		InputStream filecontent = null;
-	//	final PrintWriter writer = response.getWriter();
-		File file = null;
-		try {
-			file = new File(SAVE_DIR + File.separator + fileName);
-			if (!file.exists()) {
-				file.createNewFile();
-			}
-
-			out = new FileOutputStream(file, true);
-			filecontent = filePart.getInputStream();
-
-			int read = 0;
-			final byte[] bytes = new byte[1024];
-
-			while ((read = filecontent.read(bytes)) != -1) {
-				out.write(bytes, 0, read);
-			}
 			
-			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-			LocalDateTime openingTime = LocalDateTime.parse(opens, formatter);
-			LocalDateTime closingTime = LocalDateTime.parse(closes, formatter);
-			ArrayList<Group> groupsForHw = new ArrayList<>();
-			HomeworkDetails homeworkDetails = new HomeworkDetails(heading, openingTime, closingTime, numberOfTasks,
-					fileName);
-			for (int i = 0; i < selectedGroups.length; i++) {
-				int id = Integer.parseInt(selectedGroups[i]);
-				Group g = GroupDAO.getInstance().getGroupById(id);
-				groupsForHw.add(g);
+			if (isHeadingValid == true && isHeadingUnique == true && isOpeningTimeValid == true
+					&& isClosingTimeValid == true && isFileValid == true && areTasksValid == true
+					&& areGroupsValid == true) {
+				String savePath = SAVE_DIR;
+				File fileSaveDir = new File(savePath);
+				if (!fileSaveDir.exists()) {
+					fileSaveDir.mkdir();
+				}
+				String fileName = " ";
+				fileName = "hwName" + heading + ".pdf";
 
+				OutputStream out = null;
+				InputStream filecontent = null;
+				File file = null;
+				try {
+					file = new File(SAVE_DIR + File.separator + fileName);
+					if (!file.exists()) {
+						file.createNewFile();
+					}
+					DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+					LocalDateTime openingTime = LocalDateTime.parse(opens, formatter);
+					LocalDateTime closingTime = LocalDateTime.parse(closes, formatter);
+					ArrayList<Group> groupsForHw = new ArrayList<>();
+					HomeworkDetails homeworkDetails = new HomeworkDetails(heading, openingTime, closingTime,
+							numberOfTasks, fileName);
+					for (int i = 0; i < selectedGroups.length; i++) {
+						int id = Integer.parseInt(selectedGroups[i]);
+						Group g = GroupDAO.getInstance().getGroupById(id);
+						groupsForHw.add(g);
 
+					}
+					GroupDAO.getInstance().createHomeworkDetails(homeworkDetails, groupsForHw);
+					request.setAttribute("invalidFields", false);
+					//ako ne e gramnalo
+					out = new FileOutputStream(file, true);
+					filecontent = filePart.getInputStream();
+
+					int read = 0;
+					final byte[] bytes = new byte[1024];
+
+					while ((read = filecontent.read(bytes)) != -1) {
+						out.write(bytes, 0, read);
+					}
+					// ne e v grupite v applicationa
+					ArrayList<Group> allGroupsUpdated = GroupDAO.getInstance().getAllGroups();
+					request.getServletContext().setAttribute("allGroups", allGroupsUpdated);
+					ArrayList<Teacher> allTeachers = UserDAO.getInstance().getAllTeachers();
+					getServletContext().setAttribute("allTeachers", allTeachers);
+					for (Teacher t : allTeachers) {
+						t.setGroups(UserDAO.getInstance().getGroupsOfUser(t.getId()));
+					}
+
+				} catch (GroupException | UserException e) {
+					file.delete();
+					e.printStackTrace();
+				} catch (ValidationException e) {
+					file.delete();
+					request.setAttribute("invalidFields", true);
+				} catch (NotUniqueUsernameException e) {
+					request.setAttribute("invalidFields", true);
+					e.printStackTrace();
+				}
 			}
-			GroupDAO.getInstance().createHomeworkDetails(homeworkDetails, groupsForHw);
-			request.setAttribute("invalidFields", false);
-			//ne e v grupite v applicationa
-			ArrayList<Group> allGroupsUpdated = GroupDAO.getInstance().getAllGroups();
-			request.getServletContext().setAttribute("allGroups", allGroupsUpdated);
-			ArrayList<Teacher> allTeachers = UserDAO.getInstance().getAllTeachers();
-			getServletContext().setAttribute("allTeachers", allTeachers);
-			for (Teacher t : allTeachers) {
-				t.setGroups(UserDAO.getInstance().getGroupsOfUser(t.getId()));
-			}
-
-		} catch (GroupException | UserException e) {
-			file.delete();
-			e.printStackTrace();
-		} catch (ValidationException e) {
-			file.delete();
-			request.setAttribute("invalidFields", true);
 		}
-		}}
 		request.getRequestDispatcher("addHomework.jsp").forward(request, response);
+				}
 	}
 
 	private boolean isThereEmptyField(String heading, String opens, String closes, Part file, String numberOfTasksString, String[] selectedGroups) {
+		
 		if (heading == null || heading.equals("") || opens == null || opens.equals("") || closes == null
 				|| closes.equals("") || numberOfTasksString == null || numberOfTasksString.equals("") ||selectedGroups == null) {
 			return true;
@@ -288,7 +301,6 @@ public class AddHomework extends HttpServlet {
 				Group currGroup = GroupDAO.getInstance().getGroupById(Integer.parseInt(groupId));
 				String groupName = currGroup.getName();
 				if(ValidationsDAO.getInstance().isGroupNameUnique(groupName)){
-					System.out.println("Unique is: " + groupName);
 					return false;
 				}
 			} catch (GroupException e) {

@@ -19,7 +19,7 @@ public class IsHomeworkUpdateHeadingIsRepeated extends HttpServlet {
    
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		
-		String heading = request.getParameter("heading");
+		String heading = request.getParameter("heading").trim();
 		HomeworkDetails currHd = (HomeworkDetails) request.getSession().getAttribute("currHomework");
 		if(currHd.getHeading().equals(heading) || GroupDAO.getInstance().isHomeworkHeadingUnique(heading)){
 			response.setStatus(200);

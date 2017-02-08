@@ -89,7 +89,7 @@
 					<input type="text" class="form-control" name="name"
 						value="${nameTry}" placeholder="Enter heading" maxlength = "40"
 						data-toggle="popover" data-placement="bottom" data-trigger="focus"
-						data-content="Size of heading - 5 to 40 symbols. Valid inputs are numbers and letters (large and small)" required/>
+						data-content="Size of heading - 5 to 40 symbols. Valid inputs are numbers and letters (large and small)" />
 						<c:if test="${not empty validHeading}">
 						<c:if test="${not validHeading}">
 							<p id="nameMsg" class="input-invalid">Invalid heading</p>

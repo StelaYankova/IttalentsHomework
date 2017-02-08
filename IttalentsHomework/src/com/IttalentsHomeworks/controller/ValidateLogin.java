@@ -19,15 +19,13 @@ public class ValidateLogin extends HttpServlet {
     
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String username = request.getParameter("username").trim();
-		String password = request.getParameter("password");
+		String password = request.getParameter("password").trim();
 		boolean areUsernamePasswordValid;
 		try {
 			areUsernamePasswordValid = UserDAO.getInstance().doesUserExistInDB(username, password);
 			if(areUsernamePasswordValid){
-				System.out.println("valid");
 				response.setStatus(200);
 			}else{
-				System.out.println("invalid");
 				response.setStatus(400);
 			}
 		} catch (UserException e) {

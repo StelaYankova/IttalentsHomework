@@ -15,7 +15,7 @@ public class IsPasswordValid extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		String password = request.getParameter("password");
+		String password = request.getParameter("password").trim();
 		if(isLengthValid(password) && areCharactersValid(password)){
 			response.setStatus(200);
 		}else{

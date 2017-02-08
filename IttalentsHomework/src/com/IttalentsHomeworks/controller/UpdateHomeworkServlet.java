@@ -24,10 +24,12 @@ import javax.servlet.http.Part;
 import com.IttalentsHomeworks.DAO.GroupDAO;
 import com.IttalentsHomeworks.DAO.ValidationsDAO;
 import com.IttalentsHomeworks.Exceptions.GroupException;
+import com.IttalentsHomeworks.Exceptions.NotUniqueUsernameException;
 import com.IttalentsHomeworks.Exceptions.UserException;
 import com.IttalentsHomeworks.Exceptions.ValidationException;
 import com.IttalentsHomeworks.model.Group;
 import com.IttalentsHomeworks.model.HomeworkDetails;
+import com.IttalentsHomeworks.model.User;
 
 /**
  * Servlet implementation class UpdateHomeworkServlet
@@ -41,6 +43,9 @@ public class UpdateHomeworkServlet extends HttpServlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		//TODO throw exception
+				User user = (User) request.getSession().getAttribute("user");
+				if(user.isTeacher()){
 		int hwId = Integer.parseInt(request.getParameter("chosenHomework"));
 		try {
 			HomeworkDetails hd = GroupDAO.getInstance().getHomeworkDetailsById(hwId);
@@ -51,19 +56,20 @@ public class UpdateHomeworkServlet extends HttpServlet {
 			e.printStackTrace();
 		}
 		request.getRequestDispatcher("updateHomework.jsp").forward(request, response);
+				}
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		// TODO add file
+		//TODO throw exception
+				User user = (User) request.getSession().getAttribute("user");
+				if(user.isTeacher()){
 		int homeworkDetailsId = ((HomeworkDetails) request.getSession().getAttribute("currHomework")).getId();
 
 		String heading = request.getParameter("name").trim();
 		String fileName = " ";
 		String[] selectedGroups = request.getParameterValues("groups");
 		Part filePart = request.getPart("file");
-
-		System.out.println(heading);
 		String opens = request.getParameter("opens").trim().replace("/", "-");
 		String closes = request.getParameter("closes").trim().replace("/", "-");
 		String numberOfTasksString = request.getParameter("numberOfTasks").trim();
@@ -72,8 +78,6 @@ public class UpdateHomeworkServlet extends HttpServlet {
 		if (isThereEmptyField(heading, opens, closes, numberOfTasksString, selectedGroups)) {
 			request.setAttribute("emptyFields", true);
 		} else {
-			// int numberOfTasks =
-			// Integer.parseInt(request.getParameter("numberOfTasks"));
 			HomeworkDetails currHd = null;
 			try {
 				currHd = GroupDAO.getInstance().getHomeworkDetailsById(homeworkDetailsId);
@@ -135,7 +139,6 @@ public class UpdateHomeworkServlet extends HttpServlet {
 			if (isHeadingValid == true && isHeadingUnique == true && isOpeningTimeValid == true
 					&& isClosingTimeValid == true && areTasksValid == true && areGroupsValid == true
 					&& isFileValid == true) {
-				System.out.println("ENTRE");
 				fileName = "hwName" + heading + ".pdf";
 
 				File file = new File(SAVE_DIR + File.separator + fileName);
@@ -146,8 +149,6 @@ public class UpdateHomeworkServlet extends HttpServlet {
 						oldNameOfFile = ((HomeworkDetails) GroupDAO.getInstance()
 								.getHomeworkDetailsById(homeworkDetailsId)).getHeading();
 						 file1 = new File(SAVE_DIR + File.separator + "hwName" + oldNameOfFile + ".pdf");
-						//Files.move(file1.toPath(), file.toPath());
-						// file1.renameTo(file);
 						Files.copy(file1.toPath(), file.toPath());//we copy, if it succeeds we remove old file, else we remove new file
 					} catch (GroupException e) {
 						// TODO Auto-generated catch block
@@ -161,34 +162,13 @@ public class UpdateHomeworkServlet extends HttpServlet {
 					File fileSaveDir = new File(savePath);
 					if (!fileSaveDir.exists()) {
 						fileSaveDir.mkdir();
-						System.out.println("doesnt exists");
 					}
-
 					// final String fileName = extractFileName(filePart);
 					fileName = "hwName" + heading + ".pdf";
-
-					OutputStream out = null;
-					InputStream filecontent = null;
-					// final PrintWriter writer = response.getWriter();
-
-					out = new FileOutputStream(file, true);
-					filecontent = filePart.getInputStream();
-
-					int read = 0;
-					final byte[] bytes = new byte[1024];
-
-					while ((read = filecontent.read(bytes)) != -1) {
-						out.write(bytes, 0, read);
-					}
-
 				} else {
 					fileName = "hwName" + heading + ".pdf";
 				}
 				try {
-
-					// User user = (User)
-					// request.getSession().getAttribute("user");
-
 					DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 					LocalDateTime openingTime = LocalDateTime.parse(opens, formatter);
 					LocalDateTime closingTime = LocalDateTime.parse(closes, formatter);
@@ -205,14 +185,29 @@ public class UpdateHomeworkServlet extends HttpServlet {
 					}
 
 					GroupDAO.getInstance().updateHomeworkDetails(homeworkDetails, groupsForHw);
+					//ako ne e gramnalo
+					OutputStream out = null;
+					InputStream filecontent = null;
+					// final PrintWriter writer = response.getWriter();
 
+					out = new FileOutputStream(file, true);
+					filecontent = filePart.getInputStream();
+
+					int read = 0;
+					final byte[] bytes = new byte[1024];
+
+					while ((read = filecontent.read(bytes)) != -1) {
+						out.write(bytes, 0, read);
+					}
 					HomeworkDetails hd = GroupDAO.getInstance().getHomeworkDetailsById(homeworkDetailsId);
 					request.getSession().setAttribute("currHomework", hd);
 					request.getServletContext().removeAttribute("allGroups");
 					ArrayList<Group> allGroups = GroupDAO.getInstance().getAllGroups();
 					request.getServletContext().setAttribute("allGroups", allGroups);
 					request.setAttribute("invalidFields", false);
-					file1.delete();
+					if(file1 != null){
+						file1.delete();
+					}
 				} catch (GroupException | UserException e) {
 					file.delete();
 					e.printStackTrace();
@@ -220,12 +215,15 @@ public class UpdateHomeworkServlet extends HttpServlet {
 					file.delete();
 					request.setAttribute("invalidFields", true);
 
+				} catch (NotUniqueUsernameException e) {
+					request.setAttribute("invalidFields", true);
+					e.printStackTrace();
 				}
 			}
 		}
 
 		request.getRequestDispatcher("updateHomework.jsp").forward(request, response);
-
+				}
 	}
 
 	private boolean isFileUpdateHomeworkValid(Part file) {
@@ -237,7 +235,6 @@ public class UpdateHomeworkServlet extends HttpServlet {
 
 	private boolean isThereEmptyField(String heading, String opens, String closes, String numberOfTasksString,
 			String[] selectedGroups) {
-
 		if (heading == null || heading.equals("") || opens == null || opens.equals("") || closes == null
 				|| closes.equals("") || numberOfTasksString == null || numberOfTasksString.equals("")
 				|| selectedGroups == null) {
@@ -264,11 +261,7 @@ public class UpdateHomeworkServlet extends HttpServlet {
 		return true;
 	}
 
-	private boolean isHomeworkUpdateHeadingUnique(String heading, HomeworkDetails currHd) {// podavam
-																							// teku6t
-																							// hd
-		// HomeworkDetails currHd = (HomeworkDetails)
-		// request.getSession().getAttribute("currHomework");
+	private boolean isHomeworkUpdateHeadingUnique(String heading, HomeworkDetails currHd) {
 		if (currHd.getHeading().equals(heading) || GroupDAO.getInstance().isHomeworkHeadingUnique(heading)) {
 			return true;
 		}else{
@@ -352,7 +345,6 @@ public class UpdateHomeworkServlet extends HttpServlet {
 				Group currGroup = GroupDAO.getInstance().getGroupById(Integer.parseInt(groupId));
 				String groupName = currGroup.getName();
 				if(ValidationsDAO.getInstance().isGroupNameUnique(groupName)){
-					System.out.println("Unique is: " + groupName);
 					return false;
 				}
 			} catch (GroupException e) {

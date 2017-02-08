@@ -6,10 +6,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.apache.tomcat.jni.User;
-
-import com.IttalentsHomeworks.model.Teacher;
+import com.IttalentsHomeworks.model.User;
 
 /**
  * Servlet implementation class GetStudentsScoresServlet
@@ -19,16 +16,13 @@ public class GetStudentsScoresServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
    
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		request.getRequestDispatcher("seeStudentsScores.jsp").forward(request, response);
-	}
-
-	/**
-	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
-	 */
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		doGet(request, response);
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		// TODO throw exception
+		User user = (User) request.getSession().getAttribute("user");
+		if (user.isTeacher()) {
+			request.getRequestDispatcher("seeStudentsScores.jsp").forward(request, response);
+		}
 	}
 
 }

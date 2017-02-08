@@ -41,8 +41,6 @@ position: absolute;
 	</div>
 	<div id = "pageContent">
 	<br><form style="display:inline" action="./ReadHomeworkServlet" method="GET">
-	
-				
 		<input type='hidden'
 			value='${sessionScope.currHomework.homeworkDetails.tasksFile}'
 			name='fileName'>

@@ -45,35 +45,7 @@
 		text-align: center;
 	
 }
-/*.selectBox {
-	position: relative;
-}
 
-.selectBox select {
-	width: 100%;
-	font-weight: bold;
-}
-
-.overSelect {
-	position: absolute;
-	left: 0;
-	right: 0;
-	top: 0;
-	bottom: 0;
-}
-
-#checkboxes {
-	display: none;
-	border: 1px #dadada solid;
-}
-
-#checkboxes label {
-	display: block;
-}
-
-#checkboxes label:hover {
-	background-color: #1e90ff;
-}*/
 </style>
 <body>
 	<%@ include file="navBarTeacher.jsp"%>
@@ -87,6 +59,14 @@
 	<div id="image">
 		<img src="logo-black.png" class="img-rounded" width="380" height="236">
 	</div>
+	<form action="./ReadHomeworkServlet" method="GET" style = "position:absolute;top:235px;left:255px;z-index:1">
+			<input type='hidden' value='${sessionScope.currHomework.tasksFile}'
+				name='fileName'>
+			<button class='btn btn-link btn-xs'
+				type='submit'>
+				<b><i><c:out value="${sessionScope.currHomework.heading }.pdf" /></i></b>
+			</button>
+		</form>
 	<div id="formUpdate" align="right">
 		<form action="./RemoveHomeworkDetails" method="POST">
 			<div class="form-group">
@@ -96,6 +76,7 @@
 				</div>
 			</div>
 		</form>
+		
 		<form action="./UpdateHomeworkServlet" method="POST"
 			enctype="multipart/form-data" id="updateHomeworkForm">
 			<label
@@ -218,6 +199,7 @@
 				<label class="control-label col-sm-6">Tasks</label>
 				<div class="col-sm-6">
 					<input type="file" accept="application/pdf" name="file">
+					
 					<c:if test="${not empty validFile}">
 
 						<c:if test="${not validFile}">
@@ -225,11 +207,10 @@
 						</c:if>
 					</c:if>
 					<p id="fileMsg" class="input-invalid"></p>
-
 				</div>
 			</div>
 			<br>
-
+					
 			<div class="form-group">
 				<label class="control-label col-sm-6">Groups</label>
 				<div class="col-sm-6">
@@ -309,7 +290,6 @@
 			return true;
 		}
 			$('#updateHomeworkForm').submit(function(e) {
-				console.log(1)
 				e.preventDefault();
 				var name = document.forms["updateHomeworkForm"]["name"].value;
 				var opens = document.forms["updateHomeworkForm"]["opens"].value;
@@ -416,7 +396,6 @@
 						});
 					},
 					error : function(data) {				
-	console.log(655)
 						if (!$('#nameMsg').is(':empty')) {
 							$("#nameMsg").empty();
 						}

@@ -29,22 +29,16 @@ public class RegisterServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		req.getRequestDispatcher("registerPage.jsp").forward(req, resp);
 	}
-	//TODO validations
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		String username = request.getParameter("username");
-		String password = request.getParameter("password");
-		String repeatedPassword = request.getParameter("repeatedPassword");
-		String email = request.getParameter("email");
+		String username = request.getParameter("username").trim();
+		String password = request.getParameter("password").trim();
+		String repeatedPassword = request.getParameter("repeatedPassword").trim();
+		String email = request.getParameter("email").trim();
 		User userTry = new Student(username, password, repeatedPassword, email);// by default
 		request.setAttribute("userTry", userTry);
 		//not null
-	//	boolean isThereEmptyParam = false;
 		if (isThereEmptyField(username, password, repeatedPassword, email)) {
 			request.setAttribute("emptyFields", true);
-			//isThereEmptyParam = true;
-			// request.getRequestDispatcher("registerPage.jsp").forward(request,
-			// response);
-			//response.sendRedirect("registerPage.jsp");
 		} else {
 			// uniqueUsername
 			boolean isUsernameUnique = false;
@@ -96,15 +90,8 @@ public class RegisterServlet extends HttpServlet {
 				}
 
 			}
-			// we return it with the notifications
-			// request.getRequestDispatcher("registerPage.jsp").forward(request,
-			// response);
 		}
-		//request.getServletContext().getRequestDispatcher("http://localhost:8080/IttalentsHomework/RegisterServlet").forward(request, response);;
 		request.getRequestDispatcher("registerPage.jsp").forward(request, response);
-		//RequestDispatcher rd = getServletContext().getRequestDispatcher("/RegisterServlet");
-		//rd.forward(request, response);
-
 	}
 	private boolean isLengthValidUsername(String username) {
 		if (username.length() >= 6 && username.length() <= 15) {
@@ -150,9 +137,7 @@ public class RegisterServlet extends HttpServlet {
 	private boolean isEmailValid(String email){
 		 String regex = "^(.+)@(.+)$";
 	      Pattern pattern = Pattern.compile(regex);
-	      Matcher matcher = pattern.matcher((CharSequence) email);
-	         System.out.println(email + " : " + matcher.matches());
-	         
+	      Matcher matcher = pattern.matcher((CharSequence) email);	         
 			return matcher.matches();
 	}
 	
@@ -163,7 +148,7 @@ public class RegisterServlet extends HttpServlet {
 		return false;
 	}
 	private boolean isThereEmptyField(String username, String password, String repeatedPassword, String email){
-		if(username == null || username == "" ||password == null || password == "" ||repeatedPassword == null || repeatedPassword == "" ||email == null || email == ""){
+		if(username == null || username.equals("") ||password == null || password.equals("") ||repeatedPassword == null || repeatedPassword.equals("") ||email == null || email.equals("")){
 			return true;
 		}
 		return false;

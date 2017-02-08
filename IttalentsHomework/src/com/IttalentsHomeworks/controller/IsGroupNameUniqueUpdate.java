@@ -20,7 +20,7 @@ public class IsGroupNameUniqueUpdate extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		String groupName = request.getParameter("name");
+		String groupName = request.getParameter("name").trim();
 		Group currGroup = (Group) request.getSession().getAttribute("currGroup");
 		int currGroupId = currGroup.getId();
 		try {
