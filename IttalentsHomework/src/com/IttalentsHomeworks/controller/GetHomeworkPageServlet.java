@@ -10,21 +10,20 @@ import javax.servlet.http.HttpServletResponse;
 import com.IttalentsHomeworks.model.User;
 
 /**
- * Servlet implementation class SeeScoresServlet
+ * Servlet implementation class GetHomeworkPageServlet
  */
-@WebServlet("/SeeScoresServlet")
-public class SeeScoresServlet extends HttpServlet {
+@WebServlet("/GetHomeworkPageServlet")
+public class GetHomeworkPageServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-   
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		//TODO throw exception
-				User user = (User) request.getSession().getAttribute("user");
-				if(!user.isTeacher()){
-		//response.sendRedirect("yourScores.jsp");
-					request.getRequestDispatcher("yourScores.jsp").forward(request, response);
-				}
-	}
+       
 
+    @Override
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		User user = (User) request.getSession().getAttribute("user");
+		if(!user.isTeacher()){
+			request.getRequestDispatcher("currHomeworkPageStudent.jsp").forward(request, response);
+		}
+	}
 	
 
 }

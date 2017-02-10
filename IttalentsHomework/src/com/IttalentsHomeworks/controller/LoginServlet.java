@@ -47,6 +47,12 @@ public class LoginServlet extends HttpServlet {
 		
 		
 	}
+	
+	@Override
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		//response.sendRedirect("homePage.jsp");
+		request.getRequestDispatcher("homePage.jsp").forward(request, response);
+	}
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		User user = null;
 		String username = request.getParameter("username").trim();
@@ -67,18 +73,19 @@ public class LoginServlet extends HttpServlet {
 					
 					ArrayList<Student> allStudents = UserDAO.getInstance().getAllStudents();
 					request.getServletContext().setAttribute("allStudents", allStudents);
-					response.sendRedirect("mainPageTeacher.jsp");
+					response.sendRedirect("./GetMainPageTeacher");
 
 				}else{
 					request.getSession().setAttribute("isTeacher", false);
 
-					response.sendRedirect("mainPageStudent.jsp");
+					response.sendRedirect("./GetMainPageStudent");
 				}
 			}else{
-				request.getSession().setAttribute("invalidField", true);
-				request.getSession().setAttribute("usernameTry", username);
-				request.getSession().setAttribute("passwordTry", password);
-				response.sendRedirect("homePage.jsp");
+				request.setAttribute("invalidField", true);
+				request.setAttribute("usernameTry", username);
+				request.setAttribute("passwordTry", password);
+				response.sendRedirect("./LoginServlet");
+				//response.sendRedirect("homePage.jsp");
 			}
 		} catch (UserException e) {
 			// TODO Auto-generated catch block

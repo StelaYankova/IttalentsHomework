@@ -70,15 +70,15 @@ label {
 
 
 		<br> <br>
-		<c:if test="${not empty invalidFields}">
+		<c:if test="${not empty sessionScope.invalidFields}">
 
-			<c:if test="${invalidFields}">
+			<c:if test="${sessionScope.invalidFields}">
 				<p style="text-align: left" class="input-invalid">Invalid fields</p>
 			</c:if>
 		</c:if>
+		
 
-
-		<c:if test="${emptyFields}">
+		<c:if test="${sessionScope.emptyFields}">
 			<p class="input-invalid" style="width: 250px">You cannot have
 				empty fields and max value for grade is 100</p>
 		</c:if>
@@ -93,15 +93,15 @@ label {
 				</div>
 			</div>
 			<br> <br>
-			<c:if test="${not empty GradeTooLong}">
+			<c:if test="${not empty sessionScope.GradeTooLong}">
 
-				<c:if test="${GradeTooLong}">
+				<c:if test="${sessionScope.GradeTooLong}">
 					<p id="gradeMsg" class="input-invalid">Max length of grade - 3</p>
 				</c:if>
 			</c:if>
-			<c:if test="${not empty validGrade}">
+			<c:if test="${not empty sessionScope.validGrade}">
 
-				<c:if test="${not validGrade}">
+				<c:if test="${not sessionScope.validGrade}">
 					<p id="gradeMsg" class="input-invalid">Grade [0;100]</p>
 				</c:if>
 			</c:if>
@@ -111,9 +111,9 @@ label {
 				<textarea class="form-control" id="textareaComment" rows="3"
 					maxlength="150" name="comment"><c:out
 						value="${sessionScope.currHomework.teacherComment}"></c:out></textarea>
-				<c:if test="${not empty validComment}">
+				<c:if test="${not empty sessionScope.validComment}">
 
-					<c:if test="${not validComment}">
+					<c:if test="${not sessionScope.validComment}">
 						<p id="textareaCommentMsg" class="input-invalid">Invalid
 							comment</p>
 					</c:if>
@@ -153,6 +153,24 @@ label {
 			style="visibility: hidden" class="form-control" cols="150" rows="25">
 	</textarea>
 	</div>
+	<c:if test="${not empty sessionScope.invalidFields}">
+			<c:remove var="salary" scope="session" />
+		</c:if><c:if test="${not empty sessionScope.invalidFields}">
+			<c:remove var="invalidFields" scope="session" />
+		</c:if><c:if test="${not empty sessionScope.emptyFields}">
+			<c:remove var="emptyFields" scope="session" />
+		</c:if><c:if test="${not empty sessionScope.GradeTooLong}">
+			<c:remove var="GradeTooLong" scope="session" />
+		</c:if><c:if test="${not empty sessionScope.validGrade}">
+			<c:remove var="validGrade" scope="session" />
+		</c:if><c:if test="${not empty sessionScope.validComment}">
+			<c:remove var="validComment" scope="session" />
+		</c:if>
+	<%-- 
+		<c:if test="${not empty sessionScope.currHomework}">
+			<c:remove var="currHomework" scope="session" />
+		</c:if>
+		 --%>
 	<script>
 	$('#UpdateTeacherGradeAndCommentForm').submit(function(e) {
 		e.preventDefault();

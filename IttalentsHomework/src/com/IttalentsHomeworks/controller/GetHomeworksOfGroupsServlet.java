@@ -54,7 +54,7 @@ public class GetHomeworksOfGroupsServlet extends HttpServlet {
 			homeworks.add(currHd);
 		}
 		request.getSession().setAttribute("currHomeworksOfGroup", homeworks);
-		response.sendRedirect("seeYourHomeworks.jsp");
+		request.getRequestDispatcher("seeYourHomeworks.jsp").forward(request, response);
 	}
 	}
 	

@@ -46,7 +46,9 @@ public class UpdateHomeworkServlet extends HttpServlet {
 		//TODO throw exception
 				User user = (User) request.getSession().getAttribute("user");
 				if(user.isTeacher()){
+				if(request.getParameter("chosenHomework") != null){
 		int hwId = Integer.parseInt(request.getParameter("chosenHomework"));
+					
 		try {
 			HomeworkDetails hd = GroupDAO.getInstance().getHomeworkDetailsById(hwId);
 
@@ -55,6 +57,7 @@ public class UpdateHomeworkServlet extends HttpServlet {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+				}
 		request.getRequestDispatcher("updateHomework.jsp").forward(request, response);
 				}
 	}
@@ -76,7 +79,7 @@ public class UpdateHomeworkServlet extends HttpServlet {
 
 		// empty fields (except file)
 		if (isThereEmptyField(heading, opens, closes, numberOfTasksString, selectedGroups)) {
-			request.setAttribute("emptyFields", true);
+			request.getSession().setAttribute("emptyFields", true);
 		} else {
 			HomeworkDetails currHd = null;
 			try {
@@ -95,21 +98,21 @@ public class UpdateHomeworkServlet extends HttpServlet {
 					isHeadingUnique = true;
 				}
 			}
-			request.setAttribute("validHeading", isHeadingValid);
-			request.setAttribute("uniqueHeading", isHeadingUnique); // unique
+			request.getSession().setAttribute("validHeading", isHeadingValid);
+			request.getSession().setAttribute("uniqueHeading", isHeadingUnique); // unique
 																	// heading
 			// opening time
 			boolean isOpeningTimeValid = false;
 			if (isHomeworkUpdateOpeningTimeValid(opens, currHd)) {
 				isOpeningTimeValid = true;
 			}
-			request.setAttribute("validOpeningTime", isOpeningTimeValid);
+			request.getSession().setAttribute("validOpeningTime", isOpeningTimeValid);
 			// closing time
 			boolean isClosingTimeValid = false;
 			if (isHomeworkUpdateClosingTimeValid(opens, closes, currHd)) {
 				isClosingTimeValid = true;
 			}
-			request.setAttribute("validClosingTime", isClosingTimeValid);
+			request.getSession().setAttribute("validClosingTime", isClosingTimeValid);
 			// numTasks
 			boolean areTasksValid = false;
 
@@ -119,13 +122,13 @@ public class UpdateHomeworkServlet extends HttpServlet {
 					areTasksValid = true;
 				}
 			}
-			request.setAttribute("validTasks", areTasksValid);
+			request.getSession().setAttribute("validTasks", areTasksValid);
 			// do all groups exist
 			boolean areGroupsValid = false;
 			if (doAllGroupsExistHomeworkUpdate(selectedGroups)) {
 				areGroupsValid = true;
 			}
-			request.setAttribute("validGroups", areGroupsValid);
+			request.getSession().setAttribute("validGroups", areGroupsValid);
 			boolean isFileValid = false;
 			if (filePart.getSize() == 0) {
 				isFileValid = true;
@@ -134,7 +137,7 @@ public class UpdateHomeworkServlet extends HttpServlet {
 					isFileValid = true;
 				}
 			}
-			request.setAttribute("validFile", isFileValid);
+			request.getSession().setAttribute("validFile", isFileValid);
 			
 			if (isHeadingValid == true && isHeadingUnique == true && isOpeningTimeValid == true
 					&& isClosingTimeValid == true && areTasksValid == true && areGroupsValid == true
@@ -199,8 +202,8 @@ public class UpdateHomeworkServlet extends HttpServlet {
 					while ((read = filecontent.read(bytes)) != -1) {
 						out.write(bytes, 0, read);
 					}
-					HomeworkDetails hd = GroupDAO.getInstance().getHomeworkDetailsById(homeworkDetailsId);
-					request.getSession().setAttribute("currHomework", hd);
+				//	HomeworkDetails hd = GroupDAO.getInstance().getHomeworkDetailsById(homeworkDetailsId);
+				//	request.getSession().setAttribute("currHomework", hd);
 					request.getServletContext().removeAttribute("allGroups");
 					ArrayList<Group> allGroups = GroupDAO.getInstance().getAllGroups();
 					request.getServletContext().setAttribute("allGroups", allGroups);
@@ -213,16 +216,16 @@ public class UpdateHomeworkServlet extends HttpServlet {
 					e.printStackTrace();
 				} catch (ValidationException e) {
 					file.delete();
-					request.setAttribute("invalidFields", true);
+					request.getSession().setAttribute("invalidFields", true);
 
 				} catch (NotUniqueUsernameException e) {
-					request.setAttribute("invalidFields", true);
+					request.getSession().setAttribute("invalidFields", true);
 					e.printStackTrace();
 				}
 			}
 		}
-
-		request.getRequestDispatcher("updateHomework.jsp").forward(request, response);
+		response.sendRedirect("./UpdateHomeworkServlet");
+		//request.getRequestDispatcher("updateHomework.jsp").forward(request, response);
 				}
 	}
 

@@ -20,11 +20,6 @@ import com.IttalentsHomeworks.model.User;
 public class RemoveHomeworkDetails extends HttpServlet {
 	private static final long serialVersionUID = 1L;
   
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		response.getWriter().append("Served at: ").append(request.getContextPath());
-	}
-
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
@@ -35,12 +30,14 @@ public class RemoveHomeworkDetails extends HttpServlet {
 		HomeworkDetails hd = (HomeworkDetails) request.getSession().getAttribute("currHomework");
 		try {
 			GroupDAO.getInstance().removeHomeworkDetails(hd);
+			request.getSession().removeAttribute("currHomework");
 		} catch (GroupException | UserException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		request.setAttribute("invalidFields", false);
 		request.getRequestDispatcher("seeHomeworks.jsp").forward(request, response);
+		//response.sendRedirect("./SeeHomeworksServlet");
 	}}
 
 }

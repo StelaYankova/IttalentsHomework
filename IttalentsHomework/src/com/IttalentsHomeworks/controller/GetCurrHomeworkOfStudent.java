@@ -7,18 +7,21 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.IttalentsHomeworks.model.Homework;
+
 /**
- * Servlet implementation class LogoutServlet
+ * Servlet implementation class GetCurrHomeworkOfStudent
  */
-@WebServlet("/LogoutServlet")
-public class LogoutServlet extends HttpServlet {
+@WebServlet("/GetCurrHomeworkOfStudent")
+public class GetCurrHomeworkOfStudent extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
    
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		request.getSession().removeAttribute("user");
-		request.getSession().invalidate();
-		response.sendRedirect("./LoginServlet");
+		Homework currHw = (Homework) request.getSession().getAttribute("currHomework");
+		System.out.println(currHw.getHomeworkDetails().getId());
+		System.out.println("OKIJUHYGTFGYHUJIKOLP:{");
+		request.getRequestDispatcher("homeworkOfStudent.jsp").forward(request, response);
 	}
 
 

@@ -49,8 +49,8 @@
 </style>
 <body>
 	<%@ include file="navBarTeacher.jsp"%>
-	<c:if test="${not empty invalidFields}">
-		<c:if test="${not invalidFields}">
+	<c:if test="${not empty sessionScope.invalidFields}">
+		<c:if test="${not sessionScope.invalidFields}">
 			<div class="alert alert-success">
 				<strong>Success!</strong> Indicates a successful or positive action.
 			</div>
@@ -59,7 +59,8 @@
 	<div id="image">
 		<img src="logo-black.png" class="img-rounded" width="380" height="236">
 	</div>
-	<form action="./ReadHomeworkServlet" method="GET" style = "position:absolute;top:235px;left:255px;z-index:1">
+	<div style = " position:absolute;top:260px;left:230px;z-index:1;">
+	<form action="./ReadHomeworkServlet" method="GET" style = "">
 			<input type='hidden' value='${sessionScope.currHomework.tasksFile}'
 				name='fileName'>
 			<button class='btn btn-link btn-xs'
@@ -67,6 +68,7 @@
 				<b><i><c:out value="${sessionScope.currHomework.heading }.pdf" /></i></b>
 			</button>
 		</form>
+		</div>
 	<div id="formUpdate" align="right">
 		<form action="./RemoveHomeworkDetails" method="POST">
 			<div class="form-group">
@@ -82,14 +84,14 @@
 			<label
 				style="position: absolute; left: 290px; text-decoration: underline;">Update
 				homework</label> <br> <br> <br>
-			<c:if test="${not empty invalidFields}">
-				<c:if test="${invalidFields}">
+			<c:if test="${not empty sessionScope.invalidFields}">
+				<c:if test="${sessionScope.invalidFields}">
 					<p style="text-align: center" class="input-invalid">Invalid
 						fields</p>
 				</c:if>
 
 			</c:if>
-			<c:if test="${emptyFields}">
+			<c:if test="${sessionScope.emptyFields}">
 				<p class="input-invalid" style="width: 250px; text-align: left">You
 					cannot have empty fields</p>
 			</c:if>
@@ -101,13 +103,13 @@
 						data-toggle="popover" data-placement="bottom" data-trigger="focus"
 						data-content="Size of heading - 5 to 40 symbols. Valid inputs are numbers and letters (large and small)"
 						required />
-					<c:if test="${not empty validHeading}">
-						<c:if test="${not validHeading}">
+					<c:if test="${not empty sessionScope.validHeading}">
+						<c:if test="${not sessionScope.validHeading}">
 							<p id="nameMsg" class="input-invalid">Invalid heading</p>
 						</c:if>
-						<c:if test="${not empty uniqueHeading}">
-							<c:if test="${validHeading}">
-								<c:if test="${not uniqueHeading}">
+						<c:if test="${not empty sessionScope.uniqueHeading}">
+							<c:if test="${sessionScope.validHeading}">
+								<c:if test="${not sessionScope.uniqueHeading}">
 									<p id="nameMsg" class="input-invalid">Heading already
 										exists</p>
 								</c:if>
@@ -135,9 +137,9 @@
 						</span>
 
 					</div>
-					<c:if test="${not empty validOpeningTime}">
+					<c:if test="${not empty sessionScope.validOpeningTime}">
 
-						<c:if test="${not validOpeningTime}">
+						<c:if test="${not sessionScope.validOpeningTime}">
 							<p id="opensMsg" class="input-invalid">Invalid opening time</p>
 						</c:if>
 					</c:if>
@@ -164,9 +166,9 @@
 
 
 					</div>
-					<c:if test="${not empty validClosingTime}">
+					<c:if test="${not empty sessionScope.validClosingTime}">
 
-						<c:if test="${not validClosingTime}">
+						<c:if test="${not sessionScope.validClosingTime}">
 							<p id="closesMsg" class="input-invalid">Invalid closing time</p>
 						</c:if>
 					</c:if>
@@ -184,9 +186,9 @@
 						value='${sessionScope.currHomework.numberOfTasks}' maxlength="2"
 						data-toggle="popover" data-placement="bottom" data-trigger="focus"
 						data-content="From 1 to 40" required />
-					<c:if test="${not empty validTasks}">
+					<c:if test="${not empty sessionScope.validTasks}">
 
-						<c:if test="${not validTasks}">
+						<c:if test="${not sessionScope.validTasks}">
 							<p id="numberOfTasksMsg" class="input-invalid">Invalid tasks</p>
 						</c:if>
 					</c:if>
@@ -200,9 +202,9 @@
 				<div class="col-sm-6">
 					<input type="file" accept="application/pdf" name="file">
 					
-					<c:if test="${not empty validFile}">
+					<c:if test="${not empty sessionScope.validFile}">
 
-						<c:if test="${not validFile}">
+						<c:if test="${not sessionScope.validFile}">
 							<p id="fileMsg" class="input-invalid">Invalid file</p>
 						</c:if>
 					</c:if>
@@ -233,9 +235,9 @@
 							</c:if>
 						</c:forEach>
 					</select>
-					<c:if test="${not empty validGroups}">
+					<c:if test="${not empty sessionScope.validGroups}">
 
-						<c:if test="${not validGroups}">
+						<c:if test="${not sessionScope.validGroups}">
 							<p id="groupsMsg" class="input-invalid">Invalid groups</p>
 						</c:if>
 					</c:if>
@@ -256,6 +258,31 @@
 
 		</form>
 	</div>
+
+	<c:if test="${not empty sessionScope.invalidFields}">
+		<c:remove var="invalidFields" scope="session" />
+	</c:if>
+	<c:if test="${not empty sessionScope.emptyFields}">
+		<c:remove var="emptyFields" scope="session" />
+	</c:if>
+	<c:if test="${not empty sessionScope.validHeading}">
+		<c:remove var="validHeading" scope="session" />
+	</c:if>
+	<c:if test="${not empty sessionScope.uniqueHeading}">
+		<c:remove var="uniqueHeading" scope="session" />
+	</c:if>
+	<c:if test="${not empty sessionScope.validOpeningTime}">
+		<c:remove var="validOpeningTime" scope="session" />
+	</c:if>
+	<c:if test="${not empty sessionScope.validClosingTime}">
+		<c:remove var="validClosingTime" scope="session" />
+	</c:if>
+	<c:if test="${not empty sessionScope.validTasks}">
+		<c:remove var="validTasks" scope="session" />
+	</c:if>
+	<c:if test="${not empty sessionScope.validGroups}">
+		<c:remove var="validGroups" scope="session" />
+	</c:if>
 
 	<script>
 	$
@@ -480,11 +507,6 @@
 				}
 				}
 				$( document ).ajaxStop(function() {
-						console.log(isClosesValid);
-						console.log(isOpensValid);
-						console.log(isNameValid);
-						console.log(isNumberOfTasksValid);
-						console.log(isFileValid);
 				if((isNameUnique === true && isNameValid === true && isOpensValid === true && isClosesValid === true && isNumberOfTasksValid === true && isFileValid === true)){
 					
 					document.getElementById("updateHomeworkForm").submit();

@@ -117,6 +117,7 @@ public class AddGroupServlet extends HttpServlet {
 				}
 			}
 		}
+		//response.sendRedirect("./AddGroupServlet");
 		request.getRequestDispatcher("addGroup.jsp").forward(request, response);
 		}
 	}

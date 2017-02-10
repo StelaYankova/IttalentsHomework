@@ -38,8 +38,8 @@
 </style>
 <body>
 	<%@ include file="navBarTeacher.jsp"%>
-	<c:if test="${not empty invalidFields}">
-		<c:if test="${not invalidFields}">
+	<c:if test="${not empty sessionScope.invalidFields}">
+		<c:if test="${not sessionScope.invalidFields}">
 			<div class="alert alert-success">
 				<strong>Success!</strong> Indicates a successful or positive action.
 			</div>
@@ -54,14 +54,14 @@
 			<label
 				style="position: absolute; left: 290px; text-decoration: underline;">Update
 				group</label> <br> <br> <br>
-				<c:if test="${not empty invalidFields}">
-			<c:if test="${invalidFields}">
+				<c:if test="${not empty sessionScope.invalidFields}">
+			<c:if test="${sessionScope.invalidFields}">
 			<p style = "text-align:center" class="input-invalid">Invalid fields</p>
 			</c:if>
 				
 		</c:if>
-			<c:if test="${not empty emptyFields}">
-				<c:if test="${emptyFields}">
+			<c:if test="${not empty sessionScope.emptyFields}">
+				<c:if test="${sessionScope.emptyFields}">
 					<p style="text-align: center" class="input-invalid">You cannot
 						have empty fields</p>
 				</c:if>
@@ -71,13 +71,13 @@
 				<div class="col-sm-6">
 					<input type="text" name="groupName" maxlength="20" placeholder="Enter name" data-toggle="popover" class="form-control" value = "${sessionScope.currGroup.name}" data-placement="bottom" data-trigger="focus" maxlength="20"
 						data-content="Size of name - 4 to 15 symbols. Valid inputs are numbers and letters (large and small)" />
-					<c:if test="${not empty validName}">
-						<c:if test="${not validName}">
+					<c:if test="${not empty sessionScope.validName}">
+						<c:if test="${not sessionScope.validName}">
 							<p id="nameMsg" class="input-invalid">Invalid name</p>
 						</c:if>
-						<c:if test="${not empty uniqueName}">
-							<c:if test="${validName}">
-								<c:if test="${not uniqueName}">
+						<c:if test="${not empty sessionScope.uniqueName}">
+							<c:if test="${sessionScope.validName}">
+								<c:if test="${not sessionScope.uniqueName}">
 									<p id="nameMsg" class="input-invalid">Name already exists</p>
 								</c:if>
 							</c:if>
@@ -112,8 +112,8 @@
 
 						</c:forEach>
 					</select>
-					<c:if test="${not empty allTeachersExist}">
-						<c:if test="${not allTeachersExist}">
+					<c:if test="${not empty sessionScope.allTeachersExist}">
+						<c:if test="${not sessionScope.allTeachersExist}">
 							<p id="allTeachersExistMsg" class="input-invalid">Not all
 								teachers exist</p>
 						</c:if>
@@ -130,6 +130,22 @@
 			</div>
 		</form>
 	</div>
+	
+		<c:if test="${not empty sessionScope.invalidFields}">
+		<c:remove var="invalidFields" scope="session" />
+	</c:if>
+	<c:if test="${not empty sessionScope.emptyFields}">
+		<c:remove var="emptyFields" scope="session" />
+	</c:if>
+	<c:if test="${not empty sessionScope.validName}">
+		<c:remove var="validName" scope="session" />
+	</c:if>
+	<c:if test="${not empty sessionScope.uniqueName}">
+		<c:remove var="uniqueName" scope="session" />
+	</c:if>
+	<c:if test="${not empty sessionScope.allTeachersExist}">
+		<c:remove var="allTeachersExist" scope="session" />
+	</c:if>
 	<script>
 	/*$('#updateGroupForm').submit(function(e) {
 		e.preventDefault();

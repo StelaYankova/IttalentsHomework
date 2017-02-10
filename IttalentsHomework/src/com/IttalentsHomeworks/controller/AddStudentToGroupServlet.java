@@ -42,9 +42,9 @@ public class AddStudentToGroupServlet extends HttpServlet {
 		String chosenStudentUsername = request.getParameter("selectedStudent").trim();
 
 		// empty fields
-		request.setAttribute("chosenUsernameTry", chosenStudentUsername);
+		request.getSession().setAttribute("chosenUsernameTry", chosenStudentUsername);
 		if (isThereEmptyField(chosenGroupIdString, chosenStudentUsername)) {
-			request.setAttribute("emptyFields", true);
+			request.getSession().setAttribute("emptyFields", true);
 		} else {
 			// does student exist
 			boolean doesStudentExist = false;
@@ -53,7 +53,7 @@ public class AddStudentToGroupServlet extends HttpServlet {
 			if (doesStudentExist(chosenStudentUsername)) {
 				doesStudentExist = true;
 			}
-			request.setAttribute("doesStudentExist", doesStudentExist);
+			request.getSession().setAttribute("doesStudentExist", doesStudentExist);
 
 			if (doesStudentExist == true) {
 				// is student already in group
@@ -61,13 +61,13 @@ public class AddStudentToGroupServlet extends HttpServlet {
 					isStudentInGroup = true;
 				}
 			}
-			request.setAttribute("isStudentInGroup", isStudentInGroup);
+			request.getSession().setAttribute("isStudentInGroup", isStudentInGroup);
 
 			boolean isGroupValid = false;
 			if(doesGroupExist(chosenGroupId)){
 				isGroupValid = true;
 			}
-			request.setAttribute("validGroups", isGroupValid);
+			request.getSession().setAttribute("validGroups", isGroupValid);
 			
 			if (doesStudentExist == true && isStudentInGroup == false && isGroupValid == true) {
 
@@ -75,7 +75,7 @@ public class AddStudentToGroupServlet extends HttpServlet {
 					Group group = GroupDAO.getInstance().getGroupById(chosenGroupId);
 					Student student = UserDAO.getInstance().getStudentsByUsername(chosenStudentUsername);
 					GroupDAO.getInstance().addUserToGroup(group, student);
-					request.setAttribute("invalidFields", false);
+					request.getSession().setAttribute("invalidFields", false);
 				} catch (UserException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -83,12 +83,13 @@ public class AddStudentToGroupServlet extends HttpServlet {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (ValidationException e) {
-					request.setAttribute("invalidFields", true);
+					request.getSession().setAttribute("invalidFields", true);
 				}
 
 			}
 		}
-		request.getRequestDispatcher("addStudentToGroup.jsp").forward(request, response);
+		response.sendRedirect("./AddStudentToGroupServlet");
+	//	request.getRequestDispatcher("addStudentToGroup.jsp").forward(request, response);
 				}
 	}
 

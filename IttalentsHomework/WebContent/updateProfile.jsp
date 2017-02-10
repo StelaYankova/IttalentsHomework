@@ -227,13 +227,12 @@
 									$("#emailMsg").empty();
 								}
 							}
+							$( document ).ajaxStop(function() {
 							if ((isPasswordValid === true
 									&& isRepeatedPasswordValid === true && isEmailValid === true)) {
-								console.log(isPasswordValid)
-
-								this.submit();
+								document.getElementById("updateForm").submit();
 							}
-						}
+						});}
 					});
 
 	$(document).ready(function() {

@@ -38,12 +38,15 @@ public class GetHomeworkOfStudentServlet extends HttpServlet {
 					break;
 				}
 			}
+			//request.getSession().setAttribute("currHomework", homework);
 			request.getSession().setAttribute("currHomework", homework);
+			response.sendRedirect("./GetCurrHomeworkOfStudent");
+			//request.getRequestDispatcher("homeworkOfStudent.jsp").forward(request, response);
 		} catch (UserException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		response.sendRedirect("homeworkOfStudent.jsp");
+		//response.sendRedirect("homeworkOfStudent.jsp");
 	}
 	}
 }

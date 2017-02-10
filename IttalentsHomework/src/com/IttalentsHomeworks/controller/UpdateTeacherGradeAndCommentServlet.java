@@ -23,6 +23,14 @@ import com.IttalentsHomeworks.model.User;
 public class UpdateTeacherGradeAndCommentServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
+	
+/*	@Override
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		User user = (User) request.getSession().getAttribute("user");
+		if(user.isTeacher()){
+		request.getRequestDispatcher("homeworkOfStudent.jsp").forward(request, response);
+		}
+	}*/
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		//TODO throw exception
@@ -34,12 +42,13 @@ public class UpdateTeacherGradeAndCommentServlet extends HttpServlet {
 		String teacherGradeString = request.getParameter("grade").trim();
 		int studentId = (int) request.getSession().getAttribute("studentId");
 		int teacherGrade = 0;
+		System.out.println("AGAIIIN: " + homework.getHomeworkDetails().getId());
 		// grade not empty
 		if (isGradeEmpty(teacherGradeString)) {
-			request.setAttribute("emptyFields", true); // success
+			request.getSession().setAttribute("emptyFields", true); // success
 
 		} else if (isGradeTooLog(teacherGradeString)) {
-			request.setAttribute("GradeTooLong", true); // success
+			request.getSession().setAttribute("GradeTooLong", true); // success
 
 		} else {
 			teacherGrade = Integer.parseInt(teacherGradeString);
@@ -48,19 +57,21 @@ public class UpdateTeacherGradeAndCommentServlet extends HttpServlet {
 			if (isGradeValueValid(teacherGrade)) {
 				isGradeValueValid = true;
 			}
-			request.setAttribute("validGrade", isGradeValueValid); // success
+			request.getSession().setAttribute("validGrade", isGradeValueValid); // success
 
 			// comment max length = 150
 			boolean isCommentLengthValid = false;
 			if (isCommentLengthValid(teacherComment)) {
 				isCommentLengthValid = true;
 			}
-			request.setAttribute("validComment", isCommentLengthValid); // success
+			request.getSession().setAttribute("validComment", isCommentLengthValid); // success
 			if (isGradeValueValid == true && isCommentLengthValid == true) {
 				ArrayList<Homework> homeworksOfStudent;
 				try {
 					homeworksOfStudent = UserDAO.getInstance().getHomeworksOfStudent(studentId);
 					for (Homework h : homeworksOfStudent) {
+						System.out.println(h.getHomeworkDetails().getId());
+						System.out.println(homework.getHomeworkDetails().getId());
 						if (h.getHomeworkDetails().getId() == homework.getHomeworkDetails().getId()) {
 							hdOfhomework = h.getHomeworkDetails();
 						}
@@ -74,11 +85,12 @@ public class UpdateTeacherGradeAndCommentServlet extends HttpServlet {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (ValidationException e) {
-					request.setAttribute("invalidFields", true);
+					request.getSession().setAttribute("invalidFields", true);
 				}
 			}
 		}
-		request.getRequestDispatcher("homeworkOfStudent.jsp").forward(request, response);
+		response.sendRedirect("./GetCurrHomeworkOfStudent");
+		//request.getRequestDispatcher("homeworkOfStudent.jsp").forward(request, response);
 				}
 	}
 

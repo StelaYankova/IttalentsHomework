@@ -36,7 +36,7 @@ public interface IGroupDAO {
 
 	ArrayList<Group> getAllGroups() throws UserException, GroupException;
 
-	void removeUserFromGroup(Group group, User u) throws GroupException, UserException;
+	void removeUserFromGroup(Group group, int i) throws GroupException, UserException;
 
 	void removeGroup(Group g) throws GroupException;
 

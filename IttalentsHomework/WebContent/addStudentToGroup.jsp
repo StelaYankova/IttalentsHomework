@@ -55,8 +55,8 @@ position: relative;
 </style>
 <body>
 	<%@ include file="navBarTeacher.jsp"%>
-<c:if test="${not empty invalidFields}">
-		<c:if test="${not invalidFields}">
+<c:if test="${not empty sessionScope.invalidFields}">
+		<c:if test="${not sessionScope.invalidFields}">
 			<div class="alert alert-success"  id = "alert">
 				<strong>Success!</strong> Indicates a successful or positive action.
 			</div>
@@ -71,24 +71,24 @@ position: relative;
 		<div class="ui-widget">
 			<form action="./AddStudentToGroupServlet" method="POST"
 				class="form-inline" id = "addStudentToGroupForm">
-				<c:if test="${not empty invalidFields}">
-			<c:if test="${invalidFields}">
+				<c:if test="${not empty sessionScope.invalidFields}">
+			<c:if test="${sessionScope.invalidFields}">
 			<p style = "text-align:left" class="input-invalid">Invalid fields</p>
 			</c:if>
 		</c:if>
-			<c:if test="${not empty emptyFields}">
-				<c:if test="${emptyFields}">
+			<c:if test="${not empty sessionScope.emptyFields}">
+				<c:if test="${sessionScope.emptyFields}">
 					<p style="text-align: left" class="input-invalid">You cannot
 						have empty fields</p>
 				</c:if>
 			</c:if>
-			<c:if test="${not empty doesStudentExist}">
-						<c:if test="${not doesStudentExist}">
+			<c:if test="${not empty sessionScope.doesStudentExist}">
+						<c:if test="${not sessionScope.doesStudentExist}">
 							<p id="studentMsg" class="input-invalid">Student does not exist</p>
 						</c:if>
-						<c:if test="${not empty isStudentInGroup}">
-							<c:if test="${doesStudentExist}">
-								<c:if test="${isStudentInGroup}">
+						<c:if test="${not empty sessionScope.isStudentInGroup}">
+							<c:if test="${sessionScope.doesStudentExist}">
+								<c:if test="${sessionScope.isStudentInGroup}">
 									<p id="studentMsg" class="input-invalid">Student is already in group</p>
 								</c:if>
 							</c:if>
@@ -97,9 +97,9 @@ position: relative;
 															<p id = "groupMsg" class = "input-invalid"></p>
 																					<p id = "studentMsg" class = "input-invalid"></p>
 															
-					<c:if test="${not empty validGroups}">
+					<c:if test="${not empty sessionScope.validGroups}">
 
-						<c:if test="${not validGroups}">
+						<c:if test="${not sessionScope.validGroups}">
 							<p id="groupsMsg" class="input-invalid">Invalid group</p>
 						</c:if>
 					</c:if>
@@ -116,7 +116,7 @@ position: relative;
 				</div>
 				<div class="form-group" id = "studentSearch">
 					<label class="control-label col-sm-8">Choose student:</label> <input
-						id="searchStudents" name="selectedStudent" class="form-control" value = "${chosenUsernameTry}" required/>
+						id="searchStudents" name="selectedStudent" class="form-control" value = "${sessionScope.chosenUsernameTry}" required/>
 										</div>
 						
 					<button type="submit" id = "addStudentButton" class="btn btn-default btn-md">
@@ -129,6 +129,26 @@ position: relative;
 		<ul id="listOfStudentsOfGroup" class="editable list-group"
 			style="visibility: hidden; z-index: 1; height: 300px; width: 35%; overflow: hidden; overflow-y: scroll; overflow-x: scroll;"></ul>
 	</div>
+		<c:if test="${not empty sessionScope.invalidFields}">
+		<c:remove var="invalidFields" scope="session" />
+	</c:if>
+	<c:if test="${not empty sessionScope.emptyFields}">
+		<c:remove var="emptyFields" scope="session" />
+	</c:if>
+	<c:if test="${not empty sessionScope.doesStudentExist}">
+		<c:remove var="doesStudentExist" scope="session" />
+	</c:if>
+	<c:if test="${not empty sessionScope.isStudentInGroup}">
+		<c:remove var="isStudentInGroup" scope="session" />
+	</c:if>
+	<c:if test="${not empty sessionScope.validGroups}">
+		<c:remove var="validGroups" scope="session" />
+	</c:if>
+	<c:if test="${not empty sessionScope.chosenUsernameTry}">
+		<c:remove var="chosenUsernameTry" scope="session" />
+	</c:if>
+	
+	
 </body>
 <script>
 $('#addStudentToGroupForm').submit(function(e) {
@@ -219,55 +239,113 @@ if(chosenStudentUsernameAlreadyInGroup === false && doesUserExist === true){
 	document.getElementById("addStudentToGroupForm").submit();
 }});
 });
-function areYouSureRemove(e){		 
+function areYouSureRemove(e, username,groupId){		 
 	if(confirm("Do you really want to do this?") ){
-		document.getElementById("removeStudent").submit();
-	}else{
-return false;
-	}
-}
-
-$(document).ready(function() {
+		//document.getElementById("removeStudent"+idEnd).submit();
 	
-	$('#chosenGroup').change(function(event) {
-		
-		if(!$('#listOfStudentsOfGroup').is(':empty') ) {
-			$( "#listOfStudentsOfGroup" ).empty();
+	$.ajax({
+				type : 'POST',
+				url : "./RemoveStudentFromGroup",
+				data: {
+					"chosenStudentUsername": username,
+					"chosenGroupId": groupId
+				},
+				success : function(data) {
+					if (!$('#listOfStudentsOfGroup')
+							.is(':empty')) {
+						$("#listOfStudentsOfGroup")
+								.empty();
+					}
+					getStudents(groupId);
+					alert('Student is removed successfully')
+
+				},
+				error: function (error) {
+			       // alert(error.);
+			    }
+			});
+		} else {
+			return false;
 		}
-		var groupId = $(this).find(":selected").val();
-		$.ajax({
+	}
+
+	$(document)
+			.ready(
+					function() {
+
+						$('#chosenGroup')
+								.change(
+										function(event) {
+											document.getElementById("searchStudents").value = "";
+
+											if (!$('#listOfStudentsOfGroup')
+													.is(':empty')) {
+												$("#listOfStudentsOfGroup")
+														.empty();
+											}
+											if (!$('#alert').is(':empty')) {
+												$("#alert").remove();
+											}
+											var groupId = $(this).find(
+													":selected").val();
+											getStudents(groupId);
+										});
+						$(function() {
+							var availableTags = new Array();
+							<c:forEach items="${applicationScope.allStudents}" var="student">
+							availableTags.push('${student.username}');
+							</c:forEach>
+
+							$("#searchStudents").autocomplete({
+								source : availableTags,
+								messages : {
+									noResults : '',
+									results : function() {
+									}
+								}
+							});
+						});
+					});
+	function getStudents(groupId){
+		$
+		.ajax({
 			url : './getAllStudentsOfGroupServlet',
 			type : 'GET',
 			data : {
 				"chosenGroupId" : groupId
 			},
 			dataType : 'json',
-			success : function(response) {
-				 var div = document.getElementById("listOfStudentsOfGroup");
-					var areYouSureMsg = "Are you sure, that you want to remove the student from this group?";
+			success : function(
+					response) {
+				var div = document
+						.getElementById("listOfStudentsOfGroup");
+				//var areYouSureMsg = "Are you sure, that you want to remove the student from this group?";
 
-				for(var i in response){
-					$('#listOfStudentsOfGroup').append("<li class='list-group-item'><form action = './RemoveStudentFromGroup' id = 'removeStudent'  method = 'POST'>"+response[i].username+"<input type = 'hidden' name = 'studentId' value = "+response[i].username+"><input type = 'hidden' name = 'chosenGroupId' value = "+groupId+"><button style = 'background:transparent; borders:none; position:relative;float:right' type = 'button' class = 'btn btn-xs'  onclick = 'areYouSureRemove()' ><span  class='badge glyphicon glyphicon-remove'>"+" "+"</span></button></form></li>");
-					document.getElementById('listOfStudentsOfGroup').style.visibility = 'visible';
+				for ( var i in response) {
+					console
+							.log(response[i].username)
+					var currUsername = response[i].username;
+					/*	$('#listOfStudentsOfGroup').append("<li class='list-group-item'><form action = './RemoveStudentFromGroup' id = 'removeStudent"+response[i].username+"'  method = 'POST'>"+response[i].username+"<input type = 'hidden' name = 'chosenStudentUsername' value = "+response[i].username+"><input type = 'hidden' name = 'chosenGroupId' value = "+groupId+"><button style = 'background:transparent; borders:none; position:relative;float:right' type = 'button' class = 'btn btn-xs'  onclick = 'areYouSureRemove(this,\"" + response[i].username + "\")' ><span  class='badge glyphicon glyphicon-remove'>"+" "+"</span></button></form></li>");*/
+					//	$('#listOfStudentsOfGroup').append("<li class='list-group-item'><form action = './RemoveStudentFromGroup' id = 'removeStudent"+response[i].username+"'  method = 'POST'>"+response[i].username+"<input type = 'hidden' name = 'chosenStudentUsername' value = "+response[i].username+"><input type = 'hidden' name = 'chosenGroupId' value = "+groupId+"><button style = 'background:transparent; borders:none; position:relative;float:right' type = 'button' class = 'btn btn-xs'  onclick = 'areYouSureRemove(this,\"" + response[i].username + "\")' ><span  class='badge glyphicon glyphicon-remove'>"+" "+"</span></button></form></li>");
+					$(
+							'#listOfStudentsOfGroup')
+							.append(
+									"<li class = 'list-group-item'>"
+											+ response[i].username
+											+ "<button style = 'background:transparent; borders:none; position:relative;float:right' type = 'button' class = 'btn btn-xs'  onclick = 'areYouSureRemove(this,\""
+											+ response[i].username
+											+ "\",\""
+											+ groupId
+											+ "\")' ><span  class='badge glyphicon glyphicon-remove'>"
+											+ " "
+											+ "</span></button></li>")
+					document
+							.getElementById('listOfStudentsOfGroup').style.visibility = 'visible';
+					console
+							.log(response[i].username)
 				}
 			}
 		});
-	});
-$( function() {
-	var availableTags = new Array();
-	<c:forEach items="${applicationScope.allStudents}" var="student"> 
-		availableTags.push('${student.username}');
-	 </c:forEach> 
-
-$( "#searchStudents" ).autocomplete({
-  source: availableTags,
-  messages: {
-      noResults: '',
-      results: function() {}
-  }
-});});
-} );
-
-	
+	}
 </script>
 </html>

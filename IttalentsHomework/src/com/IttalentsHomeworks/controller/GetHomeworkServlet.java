@@ -48,7 +48,8 @@ public class GetHomeworkServlet extends HttpServlet {
 		request.getSession().setAttribute("hasUploadTimePassed", hasUploadTimePassed);
 		request.getSession().setAttribute("hasUploadTimeCome", hasUploadTimeCome);
 
-		response.sendRedirect("currHomeworkPageStudent.jsp");
+		//response.sendRedirect("currHomeworkPageStudent.jsp");
+		request.getRequestDispatcher("currHomeworkPageStudent.jsp").forward(request, response);
 	}
 	}
 

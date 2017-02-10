@@ -91,6 +91,7 @@ public class RegisterServlet extends HttpServlet {
 
 			}
 		}
+		//response.sendRedirect("./RegisterServlet");
 		request.getRequestDispatcher("registerPage.jsp").forward(request, response);
 	}
 	private boolean isLengthValidUsername(String username) {

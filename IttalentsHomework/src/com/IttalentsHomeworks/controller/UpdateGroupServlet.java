@@ -31,6 +31,7 @@ protected void doGet(HttpServletRequest request, HttpServletResponse resp) throw
 	//TODO throw exception
 			User user = (User) request.getSession().getAttribute("user");
 			if(user.isTeacher()){
+				if(request.getParameter("groupId") != null){//TODO check url (all updates too)
 	  int groupId = Integer.parseInt(request.getParameter("groupId"));
 	 Group group;
 	try {
@@ -40,6 +41,7 @@ protected void doGet(HttpServletRequest request, HttpServletResponse resp) throw
 		// TODO Auto-generated catch block
 		e.printStackTrace();
 	}
+				}
 	request.getRequestDispatcher("updateGroup.jsp").forward(request, resp);
 			}
 }
@@ -53,7 +55,6 @@ protected void doGet(HttpServletRequest request, HttpServletResponse resp) throw
 		int groupId = currGroup.getId();
 		String newGroupName = request.getParameter("groupName").trim();
 		String[] selectedTeachersUsername = request.getParameterValues("teachers");
-		//request.setAttribute("selectedTeachersUsernameTry", selectedTeachersUsername);
 
 		ArrayList<Integer> allSelectedTeachers = new ArrayList<>();
 		if (selectedTeachersUsername != null) {
@@ -70,20 +71,20 @@ protected void doGet(HttpServletRequest request, HttpServletResponse resp) throw
 		}
 		// empty fields
 		if (isThereEmptyField(newGroupName)) {
-			request.setAttribute("emptyFields", true);
+			request.getSession().setAttribute("emptyFields", true);
 		} else {
 			// invalid name
 			boolean isNameUnique = false;
 			if (isGroupNameUnique(groupId, newGroupName)) {
 				isNameUnique = true;
 			}
-			request.setAttribute("uniqueName", isNameUnique);
+			request.getSession().setAttribute("uniqueName", isNameUnique);
 
 			boolean isNameValid = false;
 			if (isGroupNameValid(newGroupName)) {
 				isNameValid = true;
 			}
-			request.setAttribute("validName", isNameValid); // success
+			request.getSession().setAttribute("validName", isNameValid); // success
 			ArrayList<Teacher> allTeachers = (ArrayList<Teacher>) request.getServletContext().getAttribute("allTeachers");
 			ArrayList<String> allTeacherUsernames = new ArrayList<>();
 			boolean allTeachersExist = true;
@@ -95,7 +96,7 @@ protected void doGet(HttpServletRequest request, HttpServletResponse resp) throw
 				if (!doAllTeachersExist(selectedTeachersUsername, allTeacherUsernames)) {
 					allTeachersExist = false;
 				}
-				request.setAttribute("allTeachersExist", allTeachersExist);
+				request.getSession().setAttribute("allTeachersExist", allTeachersExist);
 			}
 			if (isNameUnique == true && isNameValid == true && allTeachersExist == true) {
 
@@ -119,17 +120,18 @@ protected void doGet(HttpServletRequest request, HttpServletResponse resp) throw
 					}
 					
 					
-					request.setAttribute("invalidFields", false);
+					request.getSession().setAttribute("invalidFields", false);
 
 				} catch (GroupException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (ValidationException e) {
-					request.setAttribute("invalidFields", true);
+					request.getSession().setAttribute("invalidFields", true);
 				}
 			}
 		}
-		request.getRequestDispatcher("updateGroup.jsp").forward(request, response);
+	//	request.getRequestDispatcher("updateGroup.jsp").forward(request, response);
+		response.sendRedirect("./UpdateGroupServlet");
 				}
 	}
 

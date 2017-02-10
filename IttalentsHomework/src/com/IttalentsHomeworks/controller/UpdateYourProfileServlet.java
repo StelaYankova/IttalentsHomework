@@ -84,7 +84,7 @@ public class UpdateYourProfileServlet extends HttpServlet {
 				}
 			}
 		}
-	
+		//response.sendRedirect("./UpdateYourProfileServlet");
 		request.getRequestDispatcher("updateProfile.jsp").forward(request, response);
 	}
 		

@@ -119,11 +119,11 @@ float:left;
 							<div class="form-group">
 								<label>Username:</label> <input type="text"
 									class=" form-control input-sm" maxlength="15"
-									value="${sessionScope.usernameTry}" name="username" required />
+									value="${usernameTry}" name="username" required />
 							</div>
 							<div class="form-group">
 								<label>Password:</label> <input type="password"
-									class="form-control input-sm" value="${sessionScope.passwordTry}"
+									class="form-control input-sm" value="${passwordTry}"
 									maxlength="15" name="password" required />
 							</div>
 							<input style="align: right" type="submit"
@@ -132,13 +132,11 @@ float:left;
 							in" onclick = "validateFormLogin()"/> -->
 
 						</form>
-						<c:if test="${not empty sessionScope.invalidField}">
-							<c:if test="${sessionScope.invalidField}">
+						<c:if test="${not empty invalidField}">
+							<c:if test="${invalidField}">
 								<p id="usernamePasswordMsg" class="input-invalid-login">Wrong
 									username/password!@</p>
 							</c:if>
-							<c:remove var="invalidField" scope="session" />
-
 						</c:if>
 						<p id="usernamePasswordMsg" class="input-invalid-login"></p>
 					</div>
@@ -150,16 +148,6 @@ float:left;
 			</ul>
 		</div>
 	</nav>
-	<c:if test="${not empty sessionScope.usernameTry}">
-
-		<c:remove var="usernameTry" scope="session" />
-
-	</c:if>
-	<c:if test="${not empty sessionScope.passwordTry}">
-
-		<c:remove var="passwordTry" scope="session" />
-
-	</c:if>
 </body>
 <script>
 	$('#signInForm')

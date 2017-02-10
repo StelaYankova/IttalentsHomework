@@ -62,7 +62,6 @@ public class AddHomework extends HttpServlet {
 		String closes = request.getParameter("closes").replace("/", "-").trim();
 		final Part filePart = request.getPart("file");
 		String numberOfTasksString = request.getParameter("numberOfTasks").trim();
-//	int numberOfTasks = Integer.parseInt(request.getParameter("numberOfTasks"));
 
 		
 		request.setAttribute("nameTry", heading);
@@ -72,7 +71,6 @@ public class AddHomework extends HttpServlet {
 			request.setAttribute("numberOfTasksTry", Integer.parseInt(numberOfTasksString));
 		}
 		request.setAttribute("selectedGroupsTry", selectedGroups);
-		//request.setAttribute("numberOfTasksTry", numberOfTasks);
 		//empty fields
 		if(isThereEmptyField(heading, opens, closes, filePart,numberOfTasksString, selectedGroups)){
 			request.setAttribute("emptyFields", true);
@@ -194,6 +192,7 @@ public class AddHomework extends HttpServlet {
 				}
 			}
 		}
+	//	response.sendRedirect("./AddHomework");
 		request.getRequestDispatcher("addHomework.jsp").forward(request, response);
 				}
 	}

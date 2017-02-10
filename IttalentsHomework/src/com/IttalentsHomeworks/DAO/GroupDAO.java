@@ -342,12 +342,12 @@ public class GroupDAO implements IGroupDAO {
 	 * @see com.IttalentsHomeworks.DAO.IGroupDAO#removeUserFromGroup(com.IttalentsHomeworks.model.Group, com.IttalentsHomeworks.model.Student)
 	 */
 	@Override
-	public void removeUserFromGroup(Group group, User user) throws GroupException, UserException {
+	public void removeUserFromGroup(Group group, int userId) throws GroupException, UserException {
 		Connection con = manager.getConnection();
 		try {
 			PreparedStatement ps = con.prepareStatement(
 					REMOVE_USER_FROM_GROUP);
-			ps.setInt(1, user.getId());
+			ps.setInt(1, userId);
 			ps.setInt(2, group.getId());
 			ps.execute();
 			//if we remove user from group we don't remove his homeworks and solutions,
@@ -794,10 +794,9 @@ public class GroupDAO implements IGroupDAO {
 			ArrayList<Integer> wishedTeachersIds = new ArrayList<>();
 			wishedTeachersIds.addAll(wishedTeacherIds);
 			if(currTeachersIds != null){
-			for (Integer id : currTeachersIds) {
-				if (!(wishedTeachersIds.contains(id))) {
-					User currTeacher = UserDAO.getInstance().getUserById(id);
-					GroupDAO.getInstance().removeUserFromGroup(group, currTeacher);
+			for (Integer teacherId : currTeachersIds) {
+				if (!(wishedTeachersIds.contains(teacherId))) {
+					GroupDAO.getInstance().removeUserFromGroup(group, teacherId);
 				}
 			}
 			}

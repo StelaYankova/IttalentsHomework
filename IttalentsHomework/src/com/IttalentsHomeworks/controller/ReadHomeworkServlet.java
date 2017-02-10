@@ -23,14 +23,6 @@ public class ReadHomeworkServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private static final String SAVE_DIR = "/Users/Stela/Desktop/imagesIttalentsHomework";
 
-    /**
-     * @see HttpServlet#HttpServlet()
-     */
-    public ReadHomeworkServlet() {
-        super();
-        // TODO Auto-generated constructor stub
-    }
-
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
@@ -38,7 +30,6 @@ public class ReadHomeworkServlet extends HttpServlet {
 		User user = (User) request.getSession().getAttribute("user");
 		String fileName = request.getParameter("fileName").trim();
 		String homeworkName = fileName.substring(6, fileName.length() - 4);
-		System.out.println("NAME OF FILE " + homeworkName);
 		boolean canUserAccessHomeworkTasks = false;
 		if (!user.isTeacher()) {
 			for (Group g : user.getGroups()) {
@@ -64,6 +55,7 @@ public class ReadHomeworkServlet extends HttpServlet {
 				responseOutputStream.write(bytes);
 			}
 			request.getRequestDispatcher("currHomeworkPageStudent.jsp");
+			//response.sendRedirect("./GetHomeworkPageServlet");
 		}
 	}
 

@@ -57,6 +57,13 @@ public class UploadSolutionServlet extends HttpServlet {
 	/**
 	 * handles file upload
 	 */
+	
+	@Override
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		request.getRequestDispatcher("currHomeworkPageStudent.jsp").forward(request, response);
+	}
+	
+	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		int taskNum = Integer.parseInt(request.getParameter("taskNum")) - 1;
@@ -77,11 +84,11 @@ public class UploadSolutionServlet extends HttpServlet {
 			//boolean isContentTypeValid = true;
 
 			if (!isSizeValid(file)) {
-				request.setAttribute("wrongSize", true);
+				request.getSession().setAttribute("wrongSize", true);
 			} else {
 
 				if (!isContentTypeValid(file)) {
-					request.setAttribute("wrongContentType", true);
+					request.getSession().setAttribute("wrongContentType", true);
 				}else{
 					fileName = "hwId" + homeworkDetails.getId() + "userId" + user.getId() + "taskNum" + taskNum
 							+ ".java";
@@ -91,7 +98,7 @@ public class UploadSolutionServlet extends HttpServlet {
 								LocalDateTime.now());
 						homework.getTasks().get(taskNum).setSolution(fileName);
 						homework.getTasks().get(taskNum).setUploadedOn(LocalDateTime.now());
-						request.setAttribute("invalidFields", true);
+						request.getSession().setAttribute("invalidFields", true);
 					} catch (UserException e) {
 						File f = new File(savePath + File.separator + fileName);
 						if(f.exists()){
@@ -102,8 +109,9 @@ public class UploadSolutionServlet extends HttpServlet {
 				}
 			}
 		}
-		request.setAttribute("currTaskUpload", taskNum);
-		request.getRequestDispatcher("currHomeworkPageStudent.jsp").forward(request, response);
+		request.getSession().setAttribute("currTaskUpload", taskNum);
+		response.sendRedirect("./GetHomeworkPageServlet");
+	//	request.getRequestDispatcher("currHomeworkPageStudent.jsp").forward(request, response);
 	}
 
 	/**

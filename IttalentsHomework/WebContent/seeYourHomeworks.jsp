@@ -49,7 +49,7 @@
 		</thead>
 			<tbody class="wrapword">
 				<c:forEach var="homework"
-					items="${sessionScope.currHomeworksOfGroup}">
+					items="${currHomeworksOfGroup}">
 					<tr>
 						<td><form action="./GetHomeworkServlet" method="GET">
 							<input type="hidden" name="id" value='${homework.id}'>

@@ -26,25 +26,36 @@ public class RemoveStudentFromGroup extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		//TODO throw exception
+		System.out.println("11111");
 				User user = (User) request.getSession().getAttribute("user");
 				if(user.isTeacher()){
 		if (!(request.getParameter("chosenGroupId").equals("null"))) {
+			System.out.println("22222");
+
 			try {
 				int chosenGroupId = Integer.parseInt(request.getParameter("chosenGroupId"));
 				Group chosenGroup = GroupDAO.getInstance().getGroupById(chosenGroupId);
-				String studentUsername = request.getParameter("studentId").trim();
+				String studentUsername = request.getParameter("chosenStudentUsername").trim();
+				System.out.println("We will remove student: " + studentUsername +" from group: " + chosenGroupId);
 				Student chosenStudent = (Student) UserDAO.getInstance().getUserByUsername(studentUsername);
+				System.out.println("333333");
 
-				GroupDAO.getInstance().removeUserFromGroup(chosenGroup, chosenStudent);
-				request.setAttribute("invalidFields", false);
+				GroupDAO.getInstance().removeUserFromGroup(chosenGroup, chosenStudent.getId());
+				response.setStatus(200);
+				response.getWriter().write("");
+				//request.getSession().setAttribute("invalidFields", false);
+				System.out.println("44444");
 
 			} catch (GroupException | UserException e) {
+				
+				System.out.println(e.getMessage());
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 
 		}
-		request.getRequestDispatcher("addStudentToGroup.jsp").forward(request, response);
+		//response.sendRedirect("./AddStudentToGroupServlet");
+		//request.getRequestDispatcher("addStudentToGroup.jsp").forward(request, response);
 	}}
 
 }

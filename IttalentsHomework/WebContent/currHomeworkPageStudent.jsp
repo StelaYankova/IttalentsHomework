@@ -75,13 +75,14 @@ position: absolute;
 						onclick="seeTaskSolution('${i}')">
 						<c:out value="Task ${i}" />
 					</button>
-					<c:if test="${hasUploadTimePassed == 'false'}">
-						<c:if test="${hasUploadTimeCome == 'true'}">
+					<c:if test="${sessionScope.hasUploadTimePassed == 'false'}">
+						<c:if test="${sessionScope.hasUploadTimeCome == 'true'}">
 							<form action="./UploadSolutionServlet" method="POST"
 								enctype="multipart/form-data" id = "uploadSolutionForm">
 								
 								<input type="hidden" value="${i}" name="taskNum"><input
 									type="file" accept="application/java" size="50" name="file" id = "file">
+								
 								 <!--   <button class="btn btn-default btn-xs" type="Submit">Upload
 									solution</button>-->
 		<input type="submit" class="btn btn-default btn-xs" value = "Upload
@@ -90,11 +91,11 @@ position: absolute;
 									
 							</form>
 								<div id = "invalidData">
-								<c:if test="${currTaskUpload+1 == i}">
+								<c:if test="${sessionScope.currTaskUpload+1 == i}">
 													<p id = "fileMsg" class = "input-invalid"></p>
 								
-									<c:if test="${wrongContentType == true}">You can upload only .java files</c:if>
-									<c:if test="${wrongSize == true}">You can upload only files up to 1 MB</c:if>
+									<c:if test="${sessionScope.wrongContentType == true}">You can upload only .java files</c:if>
+									<c:if test="${sessionScope.wrongSize == true}">You can upload only files up to 1 MB</c:if>
 								</c:if>
 								</div>
 						</c:if>
@@ -103,7 +104,7 @@ position: absolute;
 			</c:forEach>
 			
 			<br><br>
-			<c:if test="${hasUploadTimeCome == 'true'}">
+			<c:if test="${sessionScope.hasUploadTimeCome == 'true'}">
 
 				<div id="taskUpload" style="visibility: hidden"></div>
 				<textarea id="currTaskSolution" disabled="disabled"
@@ -114,6 +115,16 @@ position: absolute;
 	
 		</div>
 	</div>
+	 <c:if test="${not empty sessionScope.currTaskUpload}">
+		<c:remove var="currTaskUpload" scope="session" />
+	</c:if>
+	<c:if test="${not empty sessionScope.wrongContentType}">
+		<c:remove var="wrongContentType" scope="session" />
+	</c:if>
+	<c:if test="${not empty sessionScope.wrongSize}">
+		<c:remove var="wrongSize" scope="session" />
+	</c:if>
+	
 	<script>
 	
 	function seeTaskSolution(taskNum){
@@ -152,7 +163,7 @@ position: absolute;
 			return true;
 		}
 	 
-	$('#uploadSolutionForm').submit(function(e) {
+	/*$('#uploadSolutionForm').submit(function(e) {
 		e.preventDefault();
 		var file = document.forms["uploadSolutionForm"]["file"].value;
 		if(file == ""){
@@ -168,11 +179,14 @@ position: absolute;
 			"File format-pdf, maxSize - 20MB");
 			console.log("invalid file")
 		}
+		$( document ).ajaxStop(function() {
+
 		if(isFileValid === true){
 			document.getElementById("uploadSolutionForm").submit();
 
 		}
-	});
+		});
+	});*/
 	</script>
 </body>
 </html>
